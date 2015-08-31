@@ -88,7 +88,7 @@ namespace connector
       QUrl mCurrentUrl;
       QNetworkAccessManager mWebUrl;
       QNetworkAccessManager mHealthUrl;
-      QWebView *mpWebView;
+      std::unique_ptr<QWebView> mpWebView;
       QProcess *mpSyncProcess;
       std::shared_ptr<QTimer> connectionHealthTimer;
       std::pair<std::string, std::string> mAuthentication;

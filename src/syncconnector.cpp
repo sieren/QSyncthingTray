@@ -69,7 +69,8 @@ void SyncConnector::showWebView()
   {
     mpWebView->close();
   }
-  mpWebView = new QWebView();
+  std::unique_ptr<QWebView> pWeb(new QWebView());
+  mpWebView = std::move(pWeb);
   mpWebView->show();
   mpWebView->page()->setNetworkAccessManager(&mWebUrl);
   mpWebView->load(mCurrentUrl);
