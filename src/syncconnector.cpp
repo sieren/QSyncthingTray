@@ -65,10 +65,15 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::showWebView()
 {
+  if (mpWebView != nullptr)
+  {
+    mpWebView->close();
+  }
   mpWebView = new QWebView();
   mpWebView->show();
   mpWebView->page()->setNetworkAccessManager(&mWebUrl);
   mpWebView->load(mCurrentUrl);
+  mpWebView->raise();
 }
 
   
