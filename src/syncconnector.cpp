@@ -39,7 +39,6 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   url.setUserName(mAuthentication.first.c_str());
   url.setPassword(mAuthentication.second.c_str());
   mCurrentUrl = url;
-  std::cout << "Settings PW: " <<  url.password().toStdString();
   url.setPath(tr("/rest/system/version"));
   mConnectionStateCallback = setText;
   QNetworkRequest request(url);
@@ -65,7 +64,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
   if (reply->error() != QNetworkReply::NoError)
   {
-    std::cout << "Failed: " << reply->error();
     result = reply->errorString().toStdString();
   }
   else
@@ -74,7 +72,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
     QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
     QJsonObject replyData = replyDoc.object();
     result = replyData.value(tr("version")).toString().toStdString();
-    std::cout << m_DownloadedData.toStdString();
     success = true;
   }
   if (mConnectionStateCallback != nullptr)
@@ -86,8 +83,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
 void SyncConnector::checkConnectionHealth()
 {
-  std::cout << "tick \n";
-  
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
   QNetworkRequest request(requestUrl);
@@ -141,7 +136,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   result.emplace("state", "0");
   if (reply->error() != QNetworkReply::NoError)
   {
-    std::cout << "Failed: " << reply->error();
+  //  std::cout << "Failed: " << reply->error();
   //  result = reply->errorString().toStdString();
   }
   else
@@ -153,12 +148,9 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
       result.clear();
       result.emplace("state", "1");
       QString m_DownloadedData = static_cast<QString>(reply->readAll());
-      std::cout << m_DownloadedData.toStdString();
       QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
       QJsonObject replyData = replyDoc.object();
       QJsonObject connectionArray = replyData["connections"].toObject();
-      std::cout << replyDoc.toJson().toStdString();
-      std::cout << "SIZE: "<< std::to_string(connectionArray.size());
       result.emplace("connections", std::to_string(connectionArray.size()));
     }
   }
