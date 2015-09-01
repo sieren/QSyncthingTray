@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -16,8 +16,8 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncThingTray_posixUtils_hpp
-#define QSyncThingTray_posixUtils_hpp
+#ifndef QSyncthingTray_posixUtils_hpp
+#define QSyncthingTray_posixUtils_hpp
 #include <sstream>
 #include <string>
 #include <iostream>
@@ -27,7 +27,7 @@ namespace sysutils
 {
   struct PosixUtils
   {
-    static bool isSyncThingRunningImpl()
+    static bool isSyncthingRunningImpl()
     {
       const char* someapp = "syncthing";
       std::stringstream cmd;

@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
 //! [0]
 Window::Window()
   : mSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
-  , settings("sieren", "QSyncThingTray")
+  , settings("sieren", "QSyncthingTray")
 {
     loadSettings();
     createSettingsGroupBox();
@@ -62,29 +62,29 @@ Window::Window()
     testURL();
     mSyncConnector->setConnectionHealthCallback(std::bind(&Window::updateConnectionHealth, this,
                                                         std::placeholders::_1));
-    mSyncConnector->setProcessSpawnedCallback([&](kSyncThingProcessState state)
+    mSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
       {
         switch (state) {
-          case kSyncThingProcessState::SPAWNED:
+          case kSyncthingProcessState::SPAWNED:
             appSpawnedLabel->setText(tr("Launched"));
             break;
-          case kSyncThingProcessState::NOT_RUNNING:
+          case kSyncthingProcessState::NOT_RUNNING:
             appSpawnedLabel->setText(tr("Not started"));
             break;
-          case kSyncThingProcessState::ALREADY_RUNNING:
+          case kSyncthingProcessState::ALREADY_RUNNING:
             appSpawnedLabel->setText(tr("Already Runnning"));
           default:
             break;
         }
       });
-    mSyncConnector->spawnSyncThingProcess(mCurrentSyncThingPath);
+    mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 
     setIcon(0);
     trayIcon->show();
     #ifdef Q_OS_MAC
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
-    setWindowTitle(tr("QSyncThingTray"));
+    setWindowTitle(tr("QSyncthingTray"));
     resize(400, 300);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
@@ -125,7 +125,7 @@ void Window::setIcon(int index)
   trayIcon->setIcon(icon);
   setWindowIcon(icon);
 
-  trayIcon->setToolTip("SyncThing");
+  trayIcon->setToolTip("Syncthing");
 }
 
 
@@ -163,7 +163,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     setIcon(0);
     if (lastState != 1)
     {
-      showMessage("Connected", "SyncThing is running.");
+      showMessage("Connected", "Syncthing is running.");
     }
   }
   else
@@ -171,7 +171,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     connectedState->setText(tr("Not Connected"));
     if (lastState != 0)
     {
-      showMessage("Not Connected", "Could not find SyncThing.");
+      showMessage("Not Connected", "Could not find Syncthing.");
     }
     setIcon(1);
   }
@@ -231,17 +231,17 @@ void Window::showMessage(std::string title, std::string body)
 void Window::showFileBrowser()
 {
   QString filename = QFileDialog::getOpenFileName(this,
-                                          tr("Open SyncThing"), "", tr(""));
-  mCurrentSyncThingPath = filename.toStdString();
+                                          tr("Open Syncthing"), "", tr(""));
+  mCurrentSyncthingPath = filename.toStdString();
   filePathLine->setText(filename);
   saveSettings();
-  spawnSyncThingApp();
+  spawnSyncthingApp();
 }
 
 
-void Window::spawnSyncThingApp()
+void Window::spawnSyncthingApp()
 {
-  mSyncConnector->spawnSyncThingProcess(mCurrentSyncThingPath);
+  mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 }
 
 
@@ -254,7 +254,7 @@ void Window::messageClicked()
 
 void Window::createSettingsGroupBox()
 {
-  settingsGroupBox = new QGroupBox(tr("SyncThing URL"));
+  settingsGroupBox = new QGroupBox(tr("Syncthing URL"));
 
   iconLabel = new QLabel("URL");
 
@@ -287,11 +287,11 @@ void Window::createSettingsGroupBox()
   settingsGroupBox->setMinimumWidth(400);
   settingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-  filePathGroupBox = new QGroupBox(tr("SyncThing Application"));
+  filePathGroupBox = new QGroupBox(tr("Syncthing Application"));
 
   filePathLabel = new QLabel("Path");
 
-  filePathLine = new QLineEdit(mCurrentSyncThingPath.c_str());
+  filePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
 
   filePathBrowse = new QPushButton(tr("Browse"));
 
@@ -323,7 +323,7 @@ void Window::createActions()
   numberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
   numberOfConnectionsAction->setDisabled(true);
 
-  showWebViewAction = new QAction(tr("Open SyncThing"), this);
+  showWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(showWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
       
   preferencesAction = new QAction(tr("Preferences"), this);
@@ -359,7 +359,7 @@ void Window::saveSettings()
   settings.setValue("url", mCurrentUrl.toString());
   settings.setValue("username", userName->text());
   settings.setValue("userpassword", userPassword->text());
-  settings.setValue("syncthingpath", tr(mCurrentSyncThingPath.c_str()));
+  settings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
 }
 
 void Window::showAuthentication(bool show)
@@ -389,12 +389,12 @@ void Window::loadSettings()
   }
   mCurrentUserPassword = settings.value("userpassword").toString().toStdString();
   mCurrentUserName = settings.value("username").toString().toStdString();
-  mCurrentSyncThingPath = settings.value("syncthingpath").toString().toStdString();
+  mCurrentSyncthingPath = settings.value("syncthingpath").toString().toStdString();
 }
 
 void Window::showGitPage()
 {
-  QString link = "http://www.github.com/sieren/QSyncThingTray";
+  QString link = "http://www.github.com/sieren/QSyncthingTray";
   QDesktopServices::openUrl(QUrl(link));
 }
 #endif

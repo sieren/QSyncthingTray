@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -16,8 +16,8 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncThingTray_systemUtils_hpp
-#define QSyncThingTray_systemUtils_hpp
+#ifndef QSyncthingTray_systemUtils_hpp
+#define QSyncthingTray_systemUtils_hpp
 namespace mfk
 {
 namespace sysutils
@@ -25,9 +25,9 @@ namespace sysutils
   template <typename T>
   struct SystemUtility
   {
-    bool isSyncThingRunning()
+    bool isSyncthingRunning()
     {
-      return T::isSyncThingRunningImpl();
+      return T::isSyncthingRunningImpl();
     }
   };
 } // sysutils

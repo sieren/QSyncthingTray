@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -58,11 +58,11 @@ typedef enum processState
   SPAWNED,
   NOT_RUNNING,
   ALREADY_RUNNING
-} kSyncThingProcessState;
+} kSyncthingProcessState;
 
 using ConnectionStateCallback = std::function<void(std::string, bool)>;
 using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
-using ProcessSpawnedCallback = std::function<void(kSyncThingProcessState)>;
+using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
 
 namespace mfk
 {
@@ -80,7 +80,7 @@ namespace connector
       void setConnectionHealthCallback(ConnectionHealthCallback cb);
       void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
       void showWebView();
-      void spawnSyncThingProcess(std::string filePath);
+      void spawnSyncthingProcess(std::string filePath);
 
     private slots:
       void onSslError(QNetworkReply* reply);

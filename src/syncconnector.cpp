@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -133,13 +133,13 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
     switch (newState)
     {
       case QProcess::Running:
-        mProcessSpawnedCallback(kSyncThingProcessState::SPAWNED);
+        mProcessSpawnedCallback(kSyncthingProcessState::SPAWNED);
         break;
       case QProcess::NotRunning:
-         mProcessSpawnedCallback(kSyncThingProcessState::NOT_RUNNING);
+         mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
         break;
       default:
-        mProcessSpawnedCallback(kSyncThingProcessState::NOT_RUNNING);
+        mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
     }
   }
 }
@@ -181,9 +181,9 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 }
 
 
-void SyncConnector::spawnSyncThingProcess(std::string filePath)
+void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
-  if (!systemUtil.isSyncThingRunning())
+  if (!systemUtil.isSyncthingRunning())
   {
     mpSyncProcess = new QProcess(this);
     connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
@@ -197,7 +197,7 @@ void SyncConnector::spawnSyncThingProcess(std::string filePath)
   {
     if (mProcessSpawnedCallback != nullptr)
     {
-      mProcessSpawnedCallback(kSyncThingProcessState::ALREADY_RUNNING);
+      mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
     }
   }
 }
