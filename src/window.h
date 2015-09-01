@@ -121,6 +121,8 @@ private:
     QNetworkAccessManager m_WebCtrl;
     std::unique_ptr<mfk::connector::SyncConnector> mSyncConnector;
     QSettings settings;
+  
+    int lastState;
 
   };
 //! [0]

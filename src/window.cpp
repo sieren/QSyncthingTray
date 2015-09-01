@@ -158,12 +158,27 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     numberOfConnectionsAction->setText(tr("Connections: ") + connectionNumber.c_str());
     connectedState->setText(tr("Connected"));
     setIcon(0);
+    if (lastState != 1)
+    {
+      showMessage("Connected", "SyncThing is running.");
+    }
   }
   else
   {
     connectedState->setText(tr("Not Connected"));
-    showMessage("Not Connected", "Could not find SyncThing.");
+    if (lastState != 0)
+    {
+      showMessage("Not Connected", "Could not find SyncThing.");
+    }
     setIcon(1);
+  }
+  try
+  {
+    lastState = std::stoi(status.at("state"));
+  }
+  catch (std::exception &e)
+  {
+    
   }
 }
 
