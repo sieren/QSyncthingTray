@@ -133,13 +133,13 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
     switch (newState)
     {
       case QProcess::Running:
-        mProcessSpawnedCallback(true);
+        mProcessSpawnedCallback(kSyncThingProcessState::SPAWNED);
         break;
       case QProcess::NotRunning:
-        mProcessSpawnedCallback(false);
+         mProcessSpawnedCallback(kSyncThingProcessState::NOT_RUNNING);
         break;
       default:
-        mProcessSpawnedCallback(false);
+        mProcessSpawnedCallback(kSyncThingProcessState::NOT_RUNNING);
     }
   }
 }
@@ -163,8 +163,6 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   }
   else
   {
-    
-
     if (reply->bytesAvailable() > 0)
     {
       result.clear();
@@ -185,13 +183,23 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 
 void SyncConnector::spawnSyncThingProcess(std::string filePath)
 {
-  mpSyncProcess = new QProcess(this);
-  connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-  QString processPath = filePath.c_str();
-  QStringList launchArgs;
-  launchArgs << "-no-restart";
-  launchArgs.append("-no-browser");
-  mpSyncProcess->start(processPath, launchArgs);
+  if (!systemUtil.isSyncThingRunning())
+  {
+    mpSyncProcess = new QProcess(this);
+    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
+    QString processPath = filePath.c_str();
+    QStringList launchArgs;
+    launchArgs << "-no-restart";
+    launchArgs.append("-no-browser");
+    mpSyncProcess->start(processPath, launchArgs);
+  }
+  else
+  {
+    if (mProcessSpawnedCallback != nullptr)
+    {
+      mProcessSpawnedCallback(kSyncThingProcessState::ALREADY_RUNNING);
+    }
+  }
 }
 
 

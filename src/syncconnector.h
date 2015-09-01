@@ -34,6 +34,11 @@
 #include <map>
 #include <thread>
 #include <utility>
+#include "systemUtils.hpp"
+#if defined(__APPLE__) && defined(__MACH__)
+/* Apple OSX and iOS (Darwin) */
+#include "posixUtils.hpp"
+#endif
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -48,9 +53,16 @@ class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
 
+typedef enum processState
+{
+  SPAWNED,
+  NOT_RUNNING,
+  ALREADY_RUNNING
+} kSyncThingProcessState;
+
 using ConnectionStateCallback = std::function<void(std::string, bool)>;
 using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
-using ProcessSpawnedCallback = std::function<void(bool)>;
+using ProcessSpawnedCallback = std::function<void(kSyncThingProcessState)>;
 
 namespace mfk
 {
@@ -60,7 +72,7 @@ namespace connector
     {
       Q_OBJECT
     public:
-    //  explicit SyncConnector() = default;
+      //  explicit SyncConnector() = default;
       explicit SyncConnector(QUrl url);
       virtual ~SyncConnector();
       void setURL(QUrl url, std::string userName, std::string password, ConnectionStateCallback setText);
@@ -83,15 +95,19 @@ namespace connector
       ConnectionStateCallback mConnectionStateCallback = nullptr;
       ConnectionHealthCallback mConnectionHealthCallback = nullptr;
       ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
-
       std::thread mIoThread;
       QUrl mCurrentUrl;
       QNetworkAccessManager mWebUrl;
       QNetworkAccessManager mHealthUrl;
       std::unique_ptr<QWebView> mpWebView;
       QProcess *mpSyncProcess;
+
       std::shared_ptr<QTimer> connectionHealthTimer;
       std::pair<std::string, std::string> mAuthentication;
+      #if defined(__APPLE__) && defined(__MACH__)
+            /* Apple OSX and iOS (Darwin) */
+      mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
+      #endif
     };
 } // connector
 } // mfk

@@ -62,17 +62,20 @@ Window::Window()
     testURL();
     mSyncConnector->setConnectionHealthCallback(std::bind(&Window::updateConnectionHealth, this,
                                                         std::placeholders::_1));
-    mSyncConnector->setProcessSpawnedCallback([&](bool success)
+    mSyncConnector->setProcessSpawnedCallback([&](kSyncThingProcessState state)
       {
-        if (success)
-        {
-          appSpawnedLabel->setText(tr("Launched"));
+        switch (state) {
+          case kSyncThingProcessState::SPAWNED:
+            appSpawnedLabel->setText(tr("Launched"));
+            break;
+          case kSyncThingProcessState::NOT_RUNNING:
+            appSpawnedLabel->setText(tr("Not started"));
+            break;
+          case kSyncThingProcessState::ALREADY_RUNNING:
+            appSpawnedLabel->setText(tr("Already Runnning"));
+          default:
+            break;
         }
-        else
-        {
-          appSpawnedLabel->setText(tr("Not started"));
-        }
-
       });
     mSyncConnector->spawnSyncThingProcess(mCurrentSyncThingPath);
 
