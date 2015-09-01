@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -65,10 +65,16 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::showWebView()
 {
-  mpWebView = new QWebView();
+  if (mpWebView != nullptr)
+  {
+    mpWebView->close();
+  }
+  std::unique_ptr<QWebView> pWeb(new QWebView());
+  mpWebView = std::move(pWeb);
   mpWebView->show();
   mpWebView->page()->setNetworkAccessManager(&mWebUrl);
   mpWebView->load(mCurrentUrl);
+  mpWebView->raise();
 }
 
   
@@ -127,13 +133,13 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
     switch (newState)
     {
       case QProcess::Running:
-        mProcessSpawnedCallback(true);
+        mProcessSpawnedCallback(kSyncthingProcessState::SPAWNED);
         break;
       case QProcess::NotRunning:
-        mProcessSpawnedCallback(false);
+         mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
         break;
       default:
-        mProcessSpawnedCallback(false);
+        mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
     }
   }
 }
@@ -157,8 +163,6 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   }
   else
   {
-    
-
     if (reply->bytesAvailable() > 0)
     {
       result.clear();
@@ -177,15 +181,25 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 }
 
 
-void SyncConnector::spawnSyncThingProcess(std::string filePath)
+void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
-  mpSyncProcess = new QProcess(this);
-  connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-  QString processPath = filePath.c_str();
-  QStringList launchArgs;
-  launchArgs << "-no-restart";
-  launchArgs.append("-no-browser");
-  mpSyncProcess->start(processPath, launchArgs);
+  if (!systemUtil.isSyncthingRunning())
+  {
+    mpSyncProcess = new QProcess(this);
+    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
+    QString processPath = filePath.c_str();
+    QStringList launchArgs;
+    launchArgs << "-no-restart";
+    launchArgs.append("-no-browser");
+    mpSyncProcess->start(processPath, launchArgs);
+  }
+  else
+  {
+    if (mProcessSpawnedCallback != nullptr)
+    {
+      mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
+    }
+  }
 }
 
 

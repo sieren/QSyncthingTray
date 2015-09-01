@@ -1,5 +1,5 @@
 /******************************************************************************
-// QSyncThingTray
+// QSyncthingTray
 // Copyright (c) Matthias Frick, All rights reserved.
 //
 // This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ private slots:
     void messageClicked();
     void testURL();
     void authCheckBoxChanged(int state);
-    void spawnSyncThingApp();
+    void spawnSyncthingApp();
     void showFileBrowser();
     void showGitPage();
 
@@ -109,7 +109,7 @@ private:
     QAction *preferencesAction;
     QAction *showGitHubAction;
     QAction *quitAction;
-    QAction *spawnSyncThingAppAction;
+    QAction *spawnSyncthingAppAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -117,10 +117,12 @@ private:
     QProcess *syncThingApp;
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
-    std::string mCurrentSyncThingPath;
+    std::string mCurrentSyncthingPath;
     QNetworkAccessManager m_WebCtrl;
     std::unique_ptr<mfk::connector::SyncConnector> mSyncConnector;
     QSettings settings;
+  
+    int lastState;
 
   };
 //! [0]

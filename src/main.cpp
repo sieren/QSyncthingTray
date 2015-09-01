@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        QMessageBox::critical(0, QObject::tr("QSyncThingTray"),
+        QMessageBox::critical(0, QObject::tr("QSyncthingTray"),
                               QObject::tr("I couldn't detect any system tray "
                                           "on this system."));
         return 1;
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QString text("QSystemTrayIcon is not supported on this platform");
+    QString text("QSyncthingTray is not supported on this platform");
 
     QLabel *label = new QLabel(text);
     label->setWordWrap(true);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     qDebug() << text;
     QCoreApplication::setOrganizationName("sieren");
     QCoreApplication::setOrganizationDomain("sieren.com");
-    QCoreApplication::setApplicationName("QSyncThingTray");
+    QCoreApplication::setApplicationName("QSyncthingTray");
     app.exec();
 }
 

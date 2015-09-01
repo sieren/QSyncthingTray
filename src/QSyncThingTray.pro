@@ -1,5 +1,7 @@
 HEADERS       = window.h \
-                syncconnector.h
+                syncconnector.h \
+                systemUtils.hpp \
+                posixUtils.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp
