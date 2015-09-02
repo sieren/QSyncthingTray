@@ -1,6 +1,7 @@
 QSyncthingTray
 =============
 #### A OSX Application for Syncthing written in C++
+
 ![Travis CI](https://travis-ci.org/sieren/QSyncthingTray.svg?branch=master "Travis CI
 Status")
 
