@@ -8,3 +8,5 @@ rm -rf *.build
 rm -rf *.xcodeproj
 rm -rf *.build
 rm -rf Debug
+rm QSyncthingTray.dmg
+rm -rf QSyncthingTray.app
