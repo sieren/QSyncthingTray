@@ -189,8 +189,7 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
     connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
     QString processPath = filePath.c_str();
     QStringList launchArgs;
-    launchArgs << "-no-restart";
-    launchArgs.append("-no-browser");
+    launchArgs << "-no-browser";
     mpSyncProcess->start(processPath, launchArgs);
   }
   else
