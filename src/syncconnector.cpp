@@ -276,7 +276,10 @@ void SyncConnector::onSslError(QNetworkReply* reply)
   
 SyncConnector::~SyncConnector()
 {
-  mpSyncProcess->kill();
+  if (mpSyncProcess != nullptr)
+  {
+    mpSyncProcess->kill();
+  }
 }
   
 } // connector
