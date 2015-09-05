@@ -31,9 +31,9 @@ namespace sysutils
   template <typename T>
   struct SystemUtility
   {
-    bool isSyncthingRunning()
+    bool isBinaryRunning(std::string binary)
     {
-      return T::isSyncthingRunningImpl();
+      return T::isBinaryRunningImpl(binary);
     }
   };
 } // sysutils

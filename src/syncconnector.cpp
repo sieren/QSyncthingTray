@@ -271,7 +271,7 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
   }
-  if (!systemUtil.isSyncthingRunning())
+  if (!systemUtil.isBinaryRunning(std::string("syncthing")))
   {
     mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
     connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
