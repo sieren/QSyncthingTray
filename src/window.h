@@ -72,6 +72,7 @@ private slots:
     void spawnSyncthingApp();
     void showFileBrowser();
     void showGitPage();
+    void folderClicked();
 
 private:
     void createSettingsGroupBox();
@@ -81,6 +82,7 @@ private:
     void loadSettings();
     void showAuthentication(bool show);
     void showMessage(std::string title, std::string body);
+    void createFoldersMenu();
 
     QGroupBox *settingsGroupBox;
     QLabel *iconLabel;
@@ -111,8 +113,10 @@ private:
     QAction *quitAction;
     QAction *spawnSyncthingAppAction;
 
-    QSystemTrayIcon *trayIcon;
-    QMenu *trayIconMenu;
+    std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
+    std::list<std::pair<std::string, std::string>> mCurrentFoldersLocations;
+    QSystemTrayIcon *trayIcon = nullptr;
+    QMenu *trayIconMenu = nullptr;
     QUrl mCurrentUrl;
     QProcess *syncThingApp;
     std::string mCurrentUserName;

@@ -81,17 +81,19 @@ namespace connector
       void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
       void showWebView();
       void spawnSyncthingProcess(std::string filePath);
+      std::list<std::pair<std::string, std::string>> getFolders();
 
     private slots:
       void onSslError(QNetworkReply* reply);
       void urlTested(QNetworkReply* reply);
       void connectionHealthReceived(QNetworkReply* reply);
+      void folderListReceived(QNetworkReply* reply);
       void checkConnectionHealth();
       void syncThingProcessSpawned(QProcess::ProcessState newState);
 
     private:
       void ignoreSslErrors(QNetworkReply *reply);
-      
+      void checkFolderList();
       ConnectionStateCallback mConnectionStateCallback = nullptr;
       ConnectionHealthCallback mConnectionHealthCallback = nullptr;
       ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
@@ -99,9 +101,10 @@ namespace connector
       QUrl mCurrentUrl;
       QNetworkAccessManager mWebUrl;
       QNetworkAccessManager mHealthUrl;
+      QNetworkAccessManager mFolderUrl;
       std::unique_ptr<QWebView> mpWebView;
       QProcess *mpSyncProcess;
-
+      std::list<std::pair<std::string, std::string>> mFolders;
       std::shared_ptr<QTimer> connectionHealthTimer;
       std::pair<std::string, std::string> mAuthentication;
       #if defined(__APPLE__) && defined(__MACH__)

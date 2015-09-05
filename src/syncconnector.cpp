@@ -46,6 +46,15 @@ SyncConnector::SyncConnector(QUrl url)
           &mHealthUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
           this, SLOT (onSslError(QNetworkReply*))
           );
+
+  connect(
+          &mFolderUrl, SIGNAL (finished(QNetworkReply*)),
+          this, SLOT (folderListReceived(QNetworkReply*))
+          );
+  connect(
+          &mFolderUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
+          this, SLOT (onSslError(QNetworkReply*))
+          );
   }
 
 void SyncConnector::setURL(QUrl url, std::string username, std::string password, ConnectionStateCallback setText)
@@ -110,8 +119,19 @@ void SyncConnector::checkConnectionHealth()
   QNetworkRequest request(requestUrl);
 
   mHealthUrl.get(request);
+  
+  checkFolderList();
 }
 
+  
+void SyncConnector::checkFolderList()
+{
+  QUrl requestUrl = mCurrentUrl;
+  requestUrl.setPath(tr("/rest/system/config"));
+  QNetworkRequest request(requestUrl);
+  
+  mFolderUrl.get(request);
+}
 
 void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
 {
@@ -180,6 +200,36 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   }
 }
 
+  
+void SyncConnector::folderListReceived(QNetworkReply *reply)
+{
+  ignoreSslErrors(reply);
+  std::list<std::pair<std::string, std::string>> result;
+  if (reply->error() != QNetworkReply::NoError)
+  {
+    // do nothing for now
+  }
+  else
+  {
+    if (reply->bytesAvailable() > 0)
+    {
+      QString m_DownloadedData = static_cast<QString>(reply->readAll());
+      QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
+      QJsonObject replyData = replyDoc.object();
+      QJsonArray foldersArray = replyData["folders"].toArray();
+      QJsonArray::iterator it;
+      foreach (const QJsonValue & value, foldersArray)
+      {
+        std::pair<std::string, std::string> aResult;
+        QJsonObject singleEntry = value.toObject();
+        aResult.first = singleEntry.find("id").value().toString().toStdString();
+        aResult.second = singleEntry.find("path").value().toString().toStdString();
+        result.emplace_back(aResult);
+      }
+      mFolders = result;
+    }
+  }
+}
 
 void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
@@ -199,6 +249,12 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
       mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
     }
   }
+}
+
+
+std::list<std::pair<std::string, std::string>> SyncConnector::getFolders()
+{
+  return mFolders;
 }
 
 

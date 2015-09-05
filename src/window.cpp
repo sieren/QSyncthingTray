@@ -27,6 +27,7 @@
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
+#include <QSharedPointer>
 #include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
@@ -35,6 +36,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <iostream>
+#include <map>
 
 //! [0]
 Window::Window()
@@ -183,6 +185,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
   {
     
   }
+  createFoldersMenu();
 }
 
 
@@ -252,6 +255,19 @@ void Window::messageClicked()
 }
 
 
+void Window::folderClicked()
+{
+  QObject *obj = sender();
+  QAction * senderObject = static_cast<QAction*>(obj);
+  std::string findFolder = senderObject->text().toStdString();
+  std::list<std::pair<std::string, std::string>>::iterator folder =
+    std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
+      [&findFolder](std::pair<std::string, std::string> const& elem) {
+        return elem.first == findFolder;
+      });
+  QDesktopServices::openUrl(QUrl::fromLocalFile(tr(folder->second.c_str())));
+}
+
 void Window::createSettingsGroupBox()
 {
   settingsGroupBox = new QGroupBox(tr("Syncthing URL"));
@@ -315,6 +331,7 @@ void Window::createSettingsGroupBox()
   filePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
+
 void Window::createActions()
 {
   connectedState = new QAction(tr("Not Connected"), this);
@@ -331,17 +348,51 @@ void Window::createActions()
   
   showGitHubAction = new QAction(tr("Help"), this);
   connect(showGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
-  
 
   quitAction = new QAction(tr("&Quit"), this);
   connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
+
+void Window::createFoldersMenu()
+{
+  std::list<QSharedPointer<QAction>> foldersActions;
+  if (mCurrentFoldersLocations != mSyncConnector->getFolders())
+  {
+    std::cout << "Folder List has changed";
+    mCurrentFoldersLocations = mSyncConnector->getFolders();
+    for (std::list<std::pair<std::string, std::string>>::iterator it=mCurrentFoldersLocations.begin();
+         it != mCurrentFoldersLocations.end(); ++it)
+    {
+      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(new QAction(tr(it->first.c_str()), this));
+      connect(aAction.data(), SIGNAL(triggered()), this, SLOT(folderClicked()));
+      foldersActions.emplace_back(aAction);
+    }
+    mCurrentFoldersActions = foldersActions;
+    // Update Menu
+    createTrayIcon();
+  }
+}
+
+
 void Window::createTrayIcon()
 {
-  trayIconMenu = new QMenu(this);
+  if (trayIconMenu == nullptr)
+  {
+    trayIconMenu = new QMenu(this);
+  }
+  trayIconMenu->clear();
   trayIconMenu->addAction(connectedState);
   trayIconMenu->addAction(numberOfConnectionsAction);
+  trayIconMenu->addSeparator();
+
+  for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
+      it != mCurrentFoldersActions.end(); ++it)
+  {
+    QAction *aAction = it->data();
+    trayIconMenu->addAction(std::move(aAction));
+  }
+  
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(showWebViewAction);
   trayIconMenu->addAction(preferencesAction);
@@ -349,10 +400,13 @@ void Window::createTrayIcon()
   trayIconMenu->addAction(showGitHubAction);
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(quitAction);
-
-  trayIcon = new QSystemTrayIcon(this);
+  if (trayIcon == nullptr)
+  {
+    trayIcon = new QSystemTrayIcon(this);
+  }
   trayIcon->setContextMenu(trayIconMenu);
 }
+
 
 void Window::saveSettings()
 {
@@ -361,6 +415,7 @@ void Window::saveSettings()
   settings.setValue("userpassword", userPassword->text());
   settings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
 }
+
 
 void Window::showAuthentication(bool show)
 {
@@ -379,6 +434,7 @@ void Window::showAuthentication(bool show)
     userPasswordLabel->hide();
   }
 }
+
 
 void Window::loadSettings()
 {
