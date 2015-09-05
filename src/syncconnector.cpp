@@ -26,6 +26,9 @@ namespace mfk
 namespace connector
 {
 
+  
+//------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------//
 SyncConnector::SyncConnector(QUrl url)
 {
   mCurrentUrl = url;
@@ -57,7 +60,11 @@ SyncConnector::SyncConnector(QUrl url)
           );
   }
 
-void SyncConnector::setURL(QUrl url, std::string username, std::string password, ConnectionStateCallback setText)
+  
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::setURL(QUrl url, std::string username, std::string password,
+  ConnectionStateCallback setText)
 {
 
   mAuthentication = std::make_pair(username, password);
@@ -71,6 +78,8 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   mWebUrl.get(request);
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void SyncConnector::showWebView()
 {
@@ -86,7 +95,9 @@ void SyncConnector::showWebView()
   mpWebView->raise();
 }
 
-  
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::urlTested(QNetworkReply* reply)
 {
   ignoreSslErrors(reply);
@@ -112,6 +123,8 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::checkConnectionHealth()
 {
   QUrl requestUrl = mCurrentUrl;
@@ -123,7 +136,9 @@ void SyncConnector::checkConnectionHealth()
   checkFolderList();
 }
 
-  
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::checkFolderList()
 {
   QUrl requestUrl = mCurrentUrl;
@@ -132,6 +147,9 @@ void SyncConnector::checkFolderList()
   
   mFolderUrl.get(request);
 }
+
+
+//------------------------------------------------------------------------------------//
 
 void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
 {
@@ -145,6 +163,8 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
   connectionHealthTimer->start(3000);
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
 {
@@ -164,12 +184,16 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
   }
 }
 
-  
+ 
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::setProcessSpawnedCallback(ProcessSpawnedCallback cb)
 {
   mProcessSpawnedCallback = cb;
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 {
@@ -178,8 +202,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   result.emplace("state", "0");
   if (reply->error() != QNetworkReply::NoError)
   {
-  //  std::cout << "Failed: " << reply->error();
-  //  result = reply->errorString().toStdString();
+  //  TODO: Error Handling
   }
   else
   {
@@ -200,7 +223,9 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   }
 }
 
-  
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::folderListReceived(QNetworkReply *reply)
 {
   ignoreSslErrors(reply);
@@ -231,6 +256,9 @@ void SyncConnector::folderListReceived(QNetworkReply *reply)
   }
 }
 
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
   if (!systemUtil.isSyncthingRunning())
@@ -252,11 +280,15 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 std::list<std::pair<std::string, std::string>> SyncConnector::getFolders()
 {
   return mFolders;
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
 {
@@ -267,13 +299,17 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   reply->ignoreSslErrors(errorsThatCanBeIgnored);
 }
 
-  
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::onSslError(QNetworkReply* reply)
 {
   reply->ignoreSslErrors();
 }
 
-  
+
+//------------------------------------------------------------------------------------//
+
 SyncConnector::~SyncConnector()
 {
   if (mpSyncProcess != nullptr)

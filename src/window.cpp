@@ -39,6 +39,8 @@
 #include <map>
 
 //! [0]
+//------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------//
 Window::Window()
   : mSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
   , settings("sieren", "QSyncthingTray")
@@ -53,8 +55,9 @@ Window::Window()
     connect(syncThingUrl, SIGNAL(currentIndexChanged(int)), this, SLOT(setIcon(int)));
     connect(trayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-            this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-    connect(authCheckBox, SIGNAL(stateChanged(int)), this, SLOT(authCheckBoxChanged(int)));
+      this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+    connect(authCheckBox, SIGNAL(stateChanged(int)), this,
+      SLOT(authCheckBoxChanged(int)));
     connect(filePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
   
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -62,8 +65,9 @@ Window::Window()
     mainLayout->addWidget(filePathGroupBox);
     setLayout(mainLayout);
     testURL();
-    mSyncConnector->setConnectionHealthCallback(std::bind(&Window::updateConnectionHealth, this,
-                                                        std::placeholders::_1));
+    mSyncConnector->setConnectionHealthCallback(std::bind(&Window::updateConnectionHealth,
+      this, std::placeholders::_1));
+
     mSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
       {
         switch (state) {
@@ -79,6 +83,7 @@ Window::Window()
             break;
         }
       });
+
     mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 
     setIcon(0);
@@ -92,12 +97,16 @@ Window::Window()
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::setVisible(bool visible)
 {
   QDialog::setVisible(visible);
   raise();
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::closeEvent(QCloseEvent *event)
 {
@@ -108,6 +117,8 @@ void Window::closeEvent(QCloseEvent *event)
     }
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::setIcon(int index)
 {
@@ -131,13 +142,16 @@ void Window::setIcon(int index)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::testURL()
 {
   mCurrentUrl = QUrl(syncThingUrl->text());
   mCurrentUserName = userName->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
-  mSyncConnector->setURL(QUrl(syncThingUrl->text()), mCurrentUserName, mCurrentUserPassword,
-                         [&](std::string result, bool success) {
+  mSyncConnector->setURL(QUrl(syncThingUrl->text()), mCurrentUserName,
+    mCurrentUserPassword, [&](std::string result, bool success)
+  {
     if (success)
     {
       urlTestResultLabel->setText(tr("Connected"));
@@ -153,6 +167,8 @@ void Window::testURL()
   saveSettings();
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::updateConnectionHealth(std::map<std::string, std::string> status)
 {
@@ -189,6 +205,8 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
   switch (reason)
@@ -205,11 +223,15 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::showWebView()
 {
   mSyncConnector->showWebView();
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::authCheckBoxChanged(int state)
 {
@@ -224,12 +246,16 @@ void Window::authCheckBoxChanged(int state)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::showMessage(std::string title, std::string body)
 {
   trayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
                         1000);
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::showFileBrowser()
 {
@@ -242,11 +268,15 @@ void Window::showFileBrowser()
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::spawnSyncthingApp()
 {
   mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::messageClicked()
 {
@@ -254,6 +284,8 @@ void Window::messageClicked()
   raise();
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::folderClicked()
 {
@@ -267,6 +299,9 @@ void Window::folderClicked()
       });
   QDesktopServices::openUrl(QUrl::fromLocalFile(tr(folder->second.c_str())));
 }
+
+
+//------------------------------------------------------------------------------------//
 
 void Window::createSettingsGroupBox()
 {
@@ -332,6 +367,8 @@ void Window::createSettingsGroupBox()
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::createActions()
 {
   connectedState = new QAction(tr("Not Connected"), this);
@@ -354,6 +391,8 @@ void Window::createActions()
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::createFoldersMenu()
 {
   std::list<QSharedPointer<QAction>> foldersActions;
@@ -361,10 +400,12 @@ void Window::createFoldersMenu()
   {
     std::cout << "Folder List has changed";
     mCurrentFoldersLocations = mSyncConnector->getFolders();
-    for (std::list<std::pair<std::string, std::string>>::iterator it=mCurrentFoldersLocations.begin();
-         it != mCurrentFoldersLocations.end(); ++it)
+    for (std::list<std::pair<std::string,
+      std::string>>::iterator it=mCurrentFoldersLocations.begin();
+      it != mCurrentFoldersLocations.end(); ++it)
     {
-      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(new QAction(tr(it->first.c_str()), this));
+      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
+        new QAction(tr(it->first.c_str()), this));
       connect(aAction.data(), SIGNAL(triggered()), this, SLOT(folderClicked()));
       foldersActions.emplace_back(aAction);
     }
@@ -374,6 +415,8 @@ void Window::createFoldersMenu()
   }
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::createTrayIcon()
 {
@@ -408,6 +451,8 @@ void Window::createTrayIcon()
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::saveSettings()
 {
   settings.setValue("url", mCurrentUrl.toString());
@@ -416,6 +461,8 @@ void Window::saveSettings()
   settings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
 }
 
+
+//------------------------------------------------------------------------------------//
 
 void Window::showAuthentication(bool show)
 {
@@ -436,6 +483,8 @@ void Window::showAuthentication(bool show)
 }
 
 
+//------------------------------------------------------------------------------------//
+
 void Window::loadSettings()
 {
   mCurrentUrl.setUrl(settings.value("url").toString());
@@ -448,9 +497,13 @@ void Window::loadSettings()
   mCurrentSyncthingPath = settings.value("syncthingpath").toString().toStdString();
 }
 
+
+//------------------------------------------------------------------------------------//
+
 void Window::showGitPage()
 {
   QString link = "http://www.github.com/sieren/QSyncthingTray";
   QDesktopServices::openUrl(QUrl(link));
 }
+
 #endif
