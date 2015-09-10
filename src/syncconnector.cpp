@@ -340,9 +340,15 @@ bool SyncConnector::checkIfFileExists(QString path)
 
 SyncConnector::~SyncConnector()
 {
-  if (mpSyncProcess)
+  if (mpSyncProcess != nullptr
+      && mpSyncProcess->state() == QProcess::Running)
   {
     mpSyncProcess->kill();
+  }
+  if (mpSyncthingNotifierProcess != nullptr
+      && mpSyncthingNotifierProcess->state() == QProcess::Running)
+  {
+    mpSyncthingNotifierProcess->kill();
   }
 }
   
