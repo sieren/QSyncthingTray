@@ -210,6 +210,9 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     {
       showMessage("Not Connected", "Could not find Syncthing.");
     }
+    // syncthing takes a while to shut down, in case someone
+    // would reopen qsyncthingtray it wouldnt restart the process
+    mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
     setIcon(1);
   }
   try
