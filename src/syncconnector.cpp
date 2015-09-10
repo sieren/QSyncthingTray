@@ -154,14 +154,14 @@ void SyncConnector::checkFolderList()
 void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
 {
   mConnectionHealthCallback = cb;
-  if (connectionHealthTimer)
+  if (mpConnectionHealthTimer)
   {
-    connectionHealthTimer->stop();
+    mpConnectionHealthTimer->stop();
   }
-  connectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
-  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this,
+  mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
+  connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
     SLOT(checkConnectionHealth()));
-  connectionHealthTimer->start(3000);
+  mpConnectionHealthTimer->start(3000);
 }
 
 

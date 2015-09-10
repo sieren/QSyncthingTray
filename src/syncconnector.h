@@ -94,7 +94,6 @@ namespace connector
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
 
-<<<<<<< 8d0fce096f454461b40b33444a368abefd667451
   private:
     void ignoreSslErrors(QNetworkReply *reply);
     void checkFolderList();
@@ -111,7 +110,7 @@ namespace connector
     std::unique_ptr<QProcess> mpSyncProcess;
     QProcess *mpSyncthingNotifierProcess = nullptr;
     std::list<std::pair<std::string, std::string>> mFolders;
-    std::unique_ptr<QTimer> connectionHealthTimer;
+    std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
     #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
           /* Apple OSX and iOS (Darwin) */
