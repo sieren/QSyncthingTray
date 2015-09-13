@@ -1,17 +1,18 @@
 QSyncthingTray
 =============
-#### A OSX Application for Syncthing written in C++
+#### A Traybar Application for Syncthing written in C++ 
 
 ![Travis CI](https://travis-ci.org/sieren/QSyncthingTray.svg?branch=master "Travis CI
 Status")
 
 
-A little status bar for [Syncthing](http://syncthing.net/) on OS X.
+A cross-platform status bar for [Syncthing](http://syncthing.net/).  
+Currently supports **OS X** and **Windows**.
 
 Written in C++ with Qt.
 
-![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtray.png "Logo Title Text 1")
-
+![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtray.png "Mac OSX ")
+![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtraywin.png "Mac OSX ")
 ## How To Use It
 QSyncthingTray does not come with Syncthing bundled. Therefore it needs to be downloaded from [Syncthing](http://syncthing.net/).
 Once you specifiy the path to the 'syncthing' binary it will automatically spawn syncthing when you run QSyncthingTray.
