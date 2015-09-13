@@ -21,6 +21,10 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <cstdio>
+#include <windows.h>
+#include <tlhelp32.h>
+
 namespace mfk
 {
 	namespace sysutils
@@ -29,9 +33,21 @@ namespace mfk
 		{
 			static bool isSyncthingRunningImpl()
 			{
-				char instances = '0';
-				bool result = instances == '0' ? false : true;
-				return result;
+        const wchar_t *syncapp = L"syncthing.exe";
+        bool result = false;
+        PROCESSENTRY32 entry;
+        entry.dwSize = sizeof(PROCESSENTRY32);
+
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+        if (Process32First(snapshot, &entry))
+          while (Process32Next(snapshot, &entry))
+            if (!wcsicmp(entry.szExeFile, syncapp))
+              result = true;
+
+        CloseHandle(snapshot);
+        return result;
+
 			}
 
 		};
