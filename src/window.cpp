@@ -92,7 +92,7 @@ Window::Window()
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
     setWindowTitle(tr("QSyncthingTray"));
-    resize(700, 400);
+    resize(500, 400);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
@@ -335,7 +335,7 @@ void Window::createSettingsGroupBox()
   iconLayout->addWidget(testConnection,5, 0, 1, 1);
   iconLayout->addWidget(urlTestResultLabel, 5, 1, 1, 4);
   settingsGroupBox->setLayout(iconLayout);
-  settingsGroupBox->setMinimumWidth(400);
+  settingsGroupBox->setMinimumWidth(500);
   settingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
   filePathGroupBox = new QGroupBox(tr("Syncthing Application"));
@@ -357,12 +357,12 @@ void Window::createSettingsGroupBox()
 
   QGridLayout *filePathLayout = new QGridLayout;
   filePathLayout->addWidget(filePathLabel, 0, 0);
-  filePathLayout->addWidget(filePathLine,1, 0, 1, 14);
+  filePathLayout->addWidget(filePathLine,1, 0, 1, 10);
   filePathLayout->addWidget(filePathBrowse,2, 0, 1, 1);
   filePathLayout->addWidget(appSpawnedLabel, 2, 1, 1, 1);
 
   filePathGroupBox->setLayout(filePathLayout);
-  filePathGroupBox->setMinimumWidth(700);
+  filePathGroupBox->setMinimumWidth(500);
   filePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
