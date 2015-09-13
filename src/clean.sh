@@ -9,7 +9,7 @@ rm -rf *.xcodeproj
 rm -rf *.build
 rm -rf Debug
 rm -rf Release
-rm -rf QSyncThingTray.v*
-rm -rf QSyncThingTray.sdf
+rm -rf QSyncthingTray.v*
+rm -rf QSyncthingTray.sdf
 rm QSyncthingTray.dmg
 rm -rf QSyncthingTray.app
