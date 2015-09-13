@@ -38,6 +38,9 @@
 #include <iostream>
 #include <map>
 
+
+//! Layout
+#define maximumWidth 700
 //! [0]
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
@@ -92,7 +95,7 @@ Window::Window()
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
     setWindowTitle(tr("QSyncthingTray"));
-    resize(400, 400);
+    resize(maximumWidth / devicePixelRatio(), 400);
 }
 
 
@@ -310,7 +313,7 @@ void Window::createSettingsGroupBox()
   iconLabel = new QLabel("URL");
 
   syncThingUrl = new QLineEdit(mCurrentUrl.toString());
-  syncThingUrl->setFixedWidth(400);
+  syncThingUrl->setFixedWidth(maximumWidth / devicePixelRatio());
   testConnection = new QPushButton(tr("Connect"));
 
   authCheckBox = new QCheckBox(tr("Authentication"), this);
@@ -342,7 +345,7 @@ void Window::createSettingsGroupBox()
   filePathLabel = new QLabel("Path");
 
   filePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
-  filePathLine->setFixedWidth(400);
+  filePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
   filePathBrowse = new QPushButton(tr("Browse"));
 
   appSpawnedLabel = new QLabel(tr("Not started"));
