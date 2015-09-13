@@ -39,6 +39,9 @@
 /* Apple OSX and iOS (Darwin) */
 #include "posixUtils.hpp"
 #endif
+#ifdef _WIN32
+#include "winUtils.hpp"
+#endif
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -110,6 +113,9 @@ namespace connector
       #if defined(__APPLE__) && defined(__MACH__)
             /* Apple OSX and iOS (Darwin) */
       mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
+      #endif
+	    #ifdef _WIN32
+      mfk::sysutils::SystemUtility<sysutils::WinUtils> systemUtil;
       #endif
     };
 } // connector
