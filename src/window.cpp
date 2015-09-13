@@ -92,7 +92,7 @@ Window::Window()
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
     setWindowTitle(tr("QSyncthingTray"));
-    resize(400, 300);
+    resize(700, 400);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
@@ -362,7 +362,7 @@ void Window::createSettingsGroupBox()
   filePathLayout->addWidget(appSpawnedLabel, 2, 1, 1, 1);
 
   filePathGroupBox->setLayout(filePathLayout);
-  filePathGroupBox->setMinimumWidth(400);
+  filePathGroupBox->setMinimumWidth(700);
   filePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 

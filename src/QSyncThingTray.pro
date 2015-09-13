@@ -16,6 +16,8 @@ QT += webkitwidgets
 target.path = binary/
 INSTALLS += target
 CONFIG += c++11
+macx {
 QMAKE_INFO_PLIST = Info.plist
+}
 #QMAKE_CXXFLAGS += /wd4996
 ICON = Syncthing.icns
