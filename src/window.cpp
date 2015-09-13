@@ -92,8 +92,7 @@ Window::Window()
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
     setWindowTitle(tr("QSyncthingTray"));
-    resize(500, 400);
-    setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    resize(400, 400);
 }
 
 
@@ -305,12 +304,13 @@ void Window::folderClicked()
 
 void Window::createSettingsGroupBox()
 {
+  
   settingsGroupBox = new QGroupBox(tr("Syncthing URL"));
 
   iconLabel = new QLabel("URL");
 
   syncThingUrl = new QLineEdit(mCurrentUrl.toString());
-
+  syncThingUrl->setFixedWidth(400);
   testConnection = new QPushButton(tr("Connect"));
 
   authCheckBox = new QCheckBox(tr("Authentication"), this);
@@ -326,16 +326,15 @@ void Window::createSettingsGroupBox()
 
   QGridLayout *iconLayout = new QGridLayout;
   iconLayout->addWidget(iconLabel, 0, 0);
-  iconLayout->addWidget(syncThingUrl,1, 0, 1, 14);
+  iconLayout->addWidget(syncThingUrl,1, 0, 1, 4);
   iconLayout->addWidget(authCheckBox, 2, 0, 1, 2);
   iconLayout->addWidget(userNameLabel, 3, 0, 1, 2);
-  iconLayout->addWidget(userPasswordLabel, 3, 2, 1 ,4);
+  iconLayout->addWidget(userPasswordLabel, 3, 2, 1 ,2);
   iconLayout->addWidget(userName, 4, 0, 1, 2);
   iconLayout->addWidget(userPassword, 4, 2, 1, 2 );
   iconLayout->addWidget(testConnection,5, 0, 1, 1);
-  iconLayout->addWidget(urlTestResultLabel, 5, 1, 1, 4);
+  iconLayout->addWidget(urlTestResultLabel, 5, 1, 1, 2);
   settingsGroupBox->setLayout(iconLayout);
-  settingsGroupBox->setMinimumWidth(500);
   settingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
   filePathGroupBox = new QGroupBox(tr("Syncthing Application"));
@@ -343,7 +342,7 @@ void Window::createSettingsGroupBox()
   filePathLabel = new QLabel("Path");
 
   filePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
-
+  filePathLine->setFixedWidth(400);
   filePathBrowse = new QPushButton(tr("Browse"));
 
   appSpawnedLabel = new QLabel(tr("Not started"));
@@ -357,12 +356,11 @@ void Window::createSettingsGroupBox()
 
   QGridLayout *filePathLayout = new QGridLayout;
   filePathLayout->addWidget(filePathLabel, 0, 0);
-  filePathLayout->addWidget(filePathLine,1, 0, 1, 10);
+  filePathLayout->addWidget(filePathLine,1, 0, 1, 4);
   filePathLayout->addWidget(filePathBrowse,2, 0, 1, 1);
   filePathLayout->addWidget(appSpawnedLabel, 2, 1, 1, 1);
 
   filePathGroupBox->setLayout(filePathLayout);
-  filePathGroupBox->setMinimumWidth(500);
   filePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
