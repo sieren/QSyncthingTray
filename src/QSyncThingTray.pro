@@ -1,7 +1,8 @@
 HEADERS       = window.h \
                 syncconnector.h \
                 systemUtils.hpp \
-                posixUtils.hpp
+                posixUtils.hpp \
+                winUtils.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp
@@ -16,6 +17,8 @@ QT += webkitwidgets
 target.path = binary/
 INSTALLS += target
 CONFIG += c++11
+macx {
 QMAKE_INFO_PLIST = Info.plist
+}
 #QMAKE_CXXFLAGS += /wd4996
 ICON = Syncthing.icns
