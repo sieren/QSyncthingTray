@@ -33,7 +33,7 @@ namespace mfk
 		{
 			static bool isSyncthingRunningImpl()
 			{
-        const wchar_t *syncapp = L"syncthing.exe";
+        const char *syncapp = "syncthing.exe";
         bool result = false;
         PROCESSENTRY32 entry;
         entry.dwSize = sizeof(PROCESSENTRY32);
@@ -42,7 +42,7 @@ namespace mfk
 
         if (Process32First(snapshot, &entry))
           while (Process32Next(snapshot, &entry))
-            if (!wcsicmp(entry.szExeFile, syncapp))
+            if (!_stricmp(entry.szExeFile, syncapp))
               result = true;
 
         CloseHandle(snapshot);
