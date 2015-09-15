@@ -4,7 +4,12 @@ project (QSyncthingTray)
 
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if (${CMAKE_CL_64} MATCHES 0)
+    message (STATUS "MSVC 64 Bit: ${CMAKE_CL_64}")
+    set(CMAKE_PREFIX_PATH "C:\\Qt\\5.5\\msvc2013\\")
+  else(${CMAKE_CL_64} MATCHES 0)
     set(CMAKE_PREFIX_PATH "C:\\Qt\\5.5\\msvc2013_64\\")
+  endif(${CMAKE_CL_64} MATCHES 0)
 else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CMAKE_PREFIX_PATH "~/Qt/5.5/clang_64/")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
