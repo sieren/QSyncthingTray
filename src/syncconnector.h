@@ -35,7 +35,7 @@
 #include <thread>
 #include <utility>
 #include "systemUtils.hpp"
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__APPLE__) && defined(__MACH__) || defined(__linux__)
 /* Apple OSX and iOS (Darwin) */
 #include "posixUtils.hpp"
 #endif
@@ -111,7 +111,7 @@ namespace connector
       std::list<std::pair<std::string, std::string>> mFolders;
       std::shared_ptr<QTimer> connectionHealthTimer;
       std::pair<std::string, std::string> mAuthentication;
-      #if defined(__APPLE__) && defined(__MACH__)
+      #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
             /* Apple OSX and iOS (Darwin) */
       mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
       #endif
