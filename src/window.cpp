@@ -120,6 +120,7 @@ void Window::closeEvent(QCloseEvent *event)
         if (filePathLine->text().toStdString() != mCurrentSyncthingPath)
         {
           mCurrentSyncthingPath = filePathLine->text().toStdString();
+          saveSettings();
           spawnSyncthingApp();
         }
         event->ignore();
@@ -279,8 +280,8 @@ void Window::showFileBrowser()
 //------------------------------------------------------------------------------------//
 void Window::pathEnterPressed()
 {
-  mCurrentSyncthingPath = filePathLine->text().toStdString();
-  spawnSyncthingApp();
+    mCurrentSyncthingPath = filePathLine->text().toStdString();
+    spawnSyncthingApp();
 }
 
 //------------------------------------------------------------------------------------//

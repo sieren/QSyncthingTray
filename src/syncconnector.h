@@ -97,6 +97,7 @@ namespace connector
     private:
       void ignoreSslErrors(QNetworkReply *reply);
       void checkFolderList();
+      bool checkIfFileExists(QString path);
       ConnectionStateCallback mConnectionStateCallback = nullptr;
       ConnectionHealthCallback mConnectionHealthCallback = nullptr;
       ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
