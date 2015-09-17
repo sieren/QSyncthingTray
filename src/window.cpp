@@ -62,6 +62,7 @@ Window::Window()
     connect(authCheckBox, SIGNAL(stateChanged(int)), this,
       SLOT(authCheckBoxChanged(int)));
     connect(filePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
+    connect(filePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(settingsGroupBox);
@@ -82,6 +83,7 @@ Window::Window()
             break;
           case kSyncthingProcessState::ALREADY_RUNNING:
             appSpawnedLabel->setText(tr("Already Runnning"));
+            break;
           default:
             break;
         }
@@ -115,6 +117,12 @@ void Window::closeEvent(QCloseEvent *event)
     if (trayIcon->isVisible())
     {
         hide();
+        if (filePathLine->text().toStdString() != mCurrentSyncthingPath)
+        {
+          mCurrentSyncthingPath = filePathLine->text().toStdString();
+          saveSettings();
+          spawnSyncthingApp();
+        }
         event->ignore();
     }
 }
@@ -265,15 +273,22 @@ void Window::showFileBrowser()
                                           tr("Open Syncthing"), "", tr(""));
   mCurrentSyncthingPath = filename.toStdString();
   filePathLine->setText(filename);
-  saveSettings();
   spawnSyncthingApp();
 }
 
 
 //------------------------------------------------------------------------------------//
+void Window::pathEnterPressed()
+{
+    mCurrentSyncthingPath = filePathLine->text().toStdString();
+    spawnSyncthingApp();
+}
+
+//------------------------------------------------------------------------------------//
 
 void Window::spawnSyncthingApp()
 {
+  saveSettings();
   mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 }
 
@@ -342,7 +357,7 @@ void Window::createSettingsGroupBox()
 
   filePathGroupBox = new QGroupBox(tr("Syncthing Application"));
 
-  filePathLabel = new QLabel("Path");
+  filePathLabel = new QLabel("Binary with Path");
 
   filePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
   filePathLine->setFixedWidth(maximumWidth / devicePixelRatio());

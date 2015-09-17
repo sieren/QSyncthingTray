@@ -73,6 +73,7 @@ private slots:
     void showFileBrowser();
     void showGitPage();
     void folderClicked();
+    void pathEnterPressed();
 
 private:
     void createSettingsGroupBox();

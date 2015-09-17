@@ -19,6 +19,7 @@
 #include "syncconnector.h"
 #include <QtGui>
 #include <QObject>
+#include <QMessageBox>
 #include <iostream>
 
 namespace mfk
@@ -261,6 +262,15 @@ void SyncConnector::folderListReceived(QNetworkReply *reply)
 
 void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
+  if (!checkIfFileExists(tr(filePath.c_str())))
+  {
+    QMessageBox msgBox;
+    msgBox.setText("Could not find Syncthing.");
+    msgBox.setInformativeText("Are you sure the path is correct?");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.exec();
+  }
   if (!systemUtil.isSyncthingRunning())
   {
     mpSyncProcess = new QProcess(this);
@@ -305,6 +315,23 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
 void SyncConnector::onSslError(QNetworkReply* reply)
 {
   reply->ignoreSslErrors();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+bool SyncConnector::checkIfFileExists(QString path)
+{
+  QFileInfo checkFile(path);
+  // check if file exists and if yes: Is it really a file and no directory?
+  if (checkFile.exists() && checkFile.isFile())
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 
