@@ -322,7 +322,7 @@ void SyncConnector::onSslError(QNetworkReply* reply)
 bool SyncConnector::checkIfFileExists(QString path)
 {
   QFileInfo checkFile(path);
-  // check if file exists and if yes: Is it really a file and no directory?
+  // check if file exists and if yes: Is it really a file and not a directory?
   if (checkFile.exists() && checkFile.isFile())
   {
     return true;

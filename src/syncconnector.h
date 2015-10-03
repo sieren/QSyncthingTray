@@ -72,53 +72,53 @@ namespace mfk
 namespace connector
 {
   class SyncConnector : public QObject
-    {
-      Q_OBJECT
-    public:
-      //  explicit SyncConnector() = default;
-      explicit SyncConnector(QUrl url);
-      virtual ~SyncConnector();
-      void setURL(QUrl url, std::string userName, std::string password, ConnectionStateCallback setText);
-      void setConnectionStateCallback();
-      void setConnectionHealthCallback(ConnectionHealthCallback cb);
-      void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
-      void showWebView();
-      void spawnSyncthingProcess(std::string filePath);
-      std::list<std::pair<std::string, std::string>> getFolders();
+  {
+    Q_OBJECT
+  public:
+    //  explicit SyncConnector() = default;
+    explicit SyncConnector(QUrl url);
+    virtual ~SyncConnector();
+    void setURL(QUrl url, std::string userName, std::string password, ConnectionStateCallback setText);
+    void setConnectionStateCallback();
+    void setConnectionHealthCallback(ConnectionHealthCallback cb);
+    void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
+    void showWebView();
+    void spawnSyncthingProcess(std::string filePath);
+    std::list<std::pair<std::string, std::string>> getFolders();
 
-    private slots:
-      void onSslError(QNetworkReply* reply);
-      void urlTested(QNetworkReply* reply);
-      void connectionHealthReceived(QNetworkReply* reply);
-      void folderListReceived(QNetworkReply* reply);
-      void checkConnectionHealth();
-      void syncThingProcessSpawned(QProcess::ProcessState newState);
+  private slots:
+    void onSslError(QNetworkReply* reply);
+    void urlTested(QNetworkReply* reply);
+    void connectionHealthReceived(QNetworkReply* reply);
+    void folderListReceived(QNetworkReply* reply);
+    void checkConnectionHealth();
+    void syncThingProcessSpawned(QProcess::ProcessState newState);
 
-    private:
-      void ignoreSslErrors(QNetworkReply *reply);
-      void checkFolderList();
-      bool checkIfFileExists(QString path);
-      ConnectionStateCallback mConnectionStateCallback = nullptr;
-      ConnectionHealthCallback mConnectionHealthCallback = nullptr;
-      ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
-      std::thread mIoThread;
-      QUrl mCurrentUrl;
-      QNetworkAccessManager mWebUrl;
-      QNetworkAccessManager mHealthUrl;
-      QNetworkAccessManager mFolderUrl;
-      std::unique_ptr<QWebView> mpWebView;
-      QProcess *mpSyncProcess;
-      std::list<std::pair<std::string, std::string>> mFolders;
-      std::unique_ptr<QTimer> connectionHealthTimer;
-      std::pair<std::string, std::string> mAuthentication;
-      #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-            /* Apple OSX and iOS (Darwin) */
-      mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
-      #endif
-	    #ifdef _WIN32
-      mfk::sysutils::SystemUtility<sysutils::WinUtils> systemUtil;
-      #endif
-    };
+  private:
+    void ignoreSslErrors(QNetworkReply *reply);
+    void checkFolderList();
+    bool checkIfFileExists(QString path);
+    ConnectionStateCallback mConnectionStateCallback = nullptr;
+    ConnectionHealthCallback mConnectionHealthCallback = nullptr;
+    ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
+    std::thread mIoThread;
+    QUrl mCurrentUrl;
+    QNetworkAccessManager mWebUrl;
+    QNetworkAccessManager mHealthUrl;
+    QNetworkAccessManager mFolderUrl;
+    std::unique_ptr<QWebView> mpWebView;
+    QProcess *mpSyncProcess;
+    std::list<std::pair<std::string, std::string>> mFolders;
+    std::unique_ptr<QTimer> connectionHealthTimer;
+    std::pair<std::string, std::string> mAuthentication;
+    #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+          /* Apple OSX and iOS (Darwin) */
+    mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
+    #endif
+    #ifdef _WIN32
+    mfk::sysutils::SystemUtility<sysutils::WinUtils> systemUtil;
+    #endif
+  };
 } // connector
 } // mfk
 
