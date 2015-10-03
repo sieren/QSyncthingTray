@@ -109,7 +109,7 @@ namespace connector
       std::unique_ptr<QWebView> mpWebView;
       QProcess *mpSyncProcess;
       std::list<std::pair<std::string, std::string>> mFolders;
-      std::shared_ptr<QTimer> connectionHealthTimer;
+      std::unique_ptr<QTimer> connectionHealthTimer;
       std::pair<std::string, std::string> mAuthentication;
       #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
             /* Apple OSX and iOS (Darwin) */

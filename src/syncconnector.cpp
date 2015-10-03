@@ -159,7 +159,7 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
   {
     connectionHealthTimer->stop();
   }
-  connectionHealthTimer = std::shared_ptr<QTimer>(new QTimer(this));
+  connectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(connectionHealthTimer.get(), SIGNAL(timeout()), this, SLOT(checkConnectionHealth()));
   connectionHealthTimer->start(3000);
 }
