@@ -159,7 +159,8 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
     connectionHealthTimer->stop();
   }
   connectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
-  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this, SLOT(checkConnectionHealth()));
+  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this,
+    SLOT(checkConnectionHealth()));
   connectionHealthTimer->start(3000);
 }
 
@@ -273,7 +274,8 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
   if (!systemUtil.isSyncthingRunning())
   {
     mpSyncProcess = new QProcess(this);
-    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
+    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)),
+      this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
     QString processPath = filePath.c_str();
     QStringList launchArgs;
     launchArgs << "-no-browser";
