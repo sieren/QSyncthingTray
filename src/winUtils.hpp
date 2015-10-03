@@ -27,31 +27,37 @@
 
 namespace mfk
 {
-	namespace sysutils
-	{
-		struct WinUtils
-		{
-			static bool isSyncthingRunningImpl()
-			{
-        const char *syncapp = "syncthing.exe";
-        bool result = false;
-        PROCESSENTRY32 entry;
-        entry.dwSize = sizeof(PROCESSENTRY32);
+namespace sysutils
+{
+  struct WinUtils
+  {
+    static bool isSyncthingRunningImpl()
+    {
+      const char *syncapp = "syncthing.exe";
+      bool result = false;
+      PROCESSENTRY32 entry;
+      entry.dwSize = sizeof(PROCESSENTRY32);
 
-        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+      HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-        if (Process32First(snapshot, &entry))
-          while (Process32Next(snapshot, &entry))
-            if (!_stricmp(entry.szExeFile, syncapp))
-              result = true;
+      if (Process32First(snapshot, &entry))
+      {
+        while (Process32Next(snapshot, &entry))
+        {
+          if (!_stricmp(entry.szExeFile, syncapp))
+          {
+            result = true;
+          }
+        }
+      }
 
-        CloseHandle(snapshot);
-        return result;
+      CloseHandle(snapshot);
+      return result;
 
-			}
+    }
 
-		};
-	} // sysutils
+  };
+} // sysutils
 } // mfk
 
 #endif

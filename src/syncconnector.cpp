@@ -67,7 +67,6 @@ SyncConnector::SyncConnector(QUrl url)
 void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   ConnectionStateCallback setText)
 {
-
   mAuthentication = std::make_pair(username, password);
   url.setUserName(mAuthentication.first.c_str());
   url.setPassword(mAuthentication.second.c_str());
