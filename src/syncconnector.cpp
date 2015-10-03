@@ -67,7 +67,6 @@ SyncConnector::SyncConnector(QUrl url)
 void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   ConnectionStateCallback setText)
 {
-
   mAuthentication = std::make_pair(username, password);
   url.setUserName(mAuthentication.first.c_str());
   url.setPassword(mAuthentication.second.c_str());
@@ -159,8 +158,9 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
   {
     connectionHealthTimer->stop();
   }
-  connectionHealthTimer = std::shared_ptr<QTimer>(new QTimer(this));
-  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this, SLOT(checkConnectionHealth()));
+  connectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
+  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this,
+    SLOT(checkConnectionHealth()));
   connectionHealthTimer->start(3000);
 }
 
@@ -274,7 +274,8 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
   if (!systemUtil.isSyncthingRunning())
   {
     mpSyncProcess = new QProcess(this);
-    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
+    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)),
+      this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
     QString processPath = filePath.c_str();
     QStringList launchArgs;
     launchArgs << "-no-browser";
@@ -323,7 +324,7 @@ void SyncConnector::onSslError(QNetworkReply* reply)
 bool SyncConnector::checkIfFileExists(QString path)
 {
   QFileInfo checkFile(path);
-  // check if file exists and if yes: Is it really a file and no directory?
+  // check if file exists and if yes: Is it really a file and not a directory?
   if (checkFile.exists() && checkFile.isFile())
   {
     return true;

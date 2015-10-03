@@ -69,8 +69,10 @@ Window::Window()
     mainLayout->addWidget(filePathGroupBox);
     setLayout(mainLayout);
     testURL();
-    mSyncConnector->setConnectionHealthCallback(std::bind(&Window::updateConnectionHealth,
-      this, std::placeholders::_1));
+    mSyncConnector->setConnectionHealthCallback(std::bind(
+      &Window::updateConnectionHealth,
+      this,
+      std::placeholders::_1));
 
     mSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
       {

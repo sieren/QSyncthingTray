@@ -18,6 +18,12 @@
 
 #ifndef QSyncthingTray_systemUtils_hpp
 #define QSyncthingTray_systemUtils_hpp
+
+// CONCEPT
+// These functions have to be offered by both classes for
+// cross-platform maintainability.
+//
+
 namespace mfk
 {
 namespace sysutils
