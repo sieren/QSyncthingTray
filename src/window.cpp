@@ -46,6 +46,7 @@
 //------------------------------------------------------------------------------------//
 Window::Window()
   : mpSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
+  , mpProcessMonitor(new mfk::monitor::ProcessMonitor(mpSyncConnector))
   , mSettings("sieren", "QSyncthingTray")
 {
     loadSettings();
@@ -65,7 +66,6 @@ Window::Window()
     connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   
     mpSettingsTabsWidget = new QTabWidget;
-  
     QVBoxLayout *settingsLayout = new QVBoxLayout;
     QWidget *settingsPageWidget = new QWidget;
     settingsLayout->addWidget(mpSettingsGroupBox);
@@ -73,6 +73,7 @@ Window::Window()
     settingsPageWidget->setLayout(settingsLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mpSettingsTabsWidget->addTab(settingsPageWidget, "Main");
+    mpSettingsTabsWidget->addTab(mpProcessMonitor.get(), "Auto-Pause");
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
     testURL();
@@ -92,6 +93,9 @@ Window::Window()
             break;
           case kSyncthingProcessState::ALREADY_RUNNING:
             mpAppSpawnedLabel->setText(tr("Already Runnning"));
+            break;
+          case kSyncthingProcessState::PAUSED:
+            mpAppSpawnedLabel->setText(tr("Paused"));
             break;
           default:
             break;
@@ -191,7 +195,18 @@ void Window::testURL()
 
 void Window::updateConnectionHealth(std::map<std::string, std::string> status)
 {
-  if (status.at("state") == "1")
+  if (mpProcessMonitor->isPausingProcessRunning())
+  {
+    mpNumberOfConnectionsAction->setVisible(false);
+    mpConnectedState->setText(tr("Paused"));
+    if (mLastConnectionState != 99)
+    {
+      showMessage("Paused", "Syncthing is pausing.");
+      setIcon(1);
+      mLastConnectionState = 99;
+    }
+  }
+  else if (status.at("state") == "1")
   {
     std::string connectionNumber = status.at("connections");
     mpNumberOfConnectionsAction->setVisible(true);
@@ -373,7 +388,7 @@ void Window::createSettingsGroupBox()
   mpFilePathLabel = new QLabel("Binary with Path");
 
   mpFilePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
- // mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
+//  mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
   mpFilePathBrowse = new QPushButton(tr("Browse"));
 
   mpAppSpawnedLabel = new QLabel(tr("Not started"));

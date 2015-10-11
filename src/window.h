@@ -20,6 +20,7 @@
 #define WINDOW_H
 
 #include "syncconnector.h"
+#include "processmonitor.hpp"
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -123,7 +124,8 @@ private:
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
     std::string mCurrentSyncthingPath;
-    std::unique_ptr<mfk::connector::SyncConnector> mpSyncConnector;
+    std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
+    std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
     QSettings mSettings;
   
     int mLastConnectionState;

@@ -35,6 +35,7 @@
 #include <thread>
 #include <utility>
 #include "systemUtils.hpp"
+#include "syncconnector.h"
 #if defined(__APPLE__) && defined(__MACH__) || defined(__linux__)
 /* Apple OSX and iOS (Darwin) */
 #include "posixUtils.hpp"
@@ -60,7 +61,8 @@ typedef enum processState
 {
   SPAWNED,
   NOT_RUNNING,
-  ALREADY_RUNNING
+  ALREADY_RUNNING,
+  PAUSED
 } kSyncthingProcessState;
 
 using ConnectionStateCallback = std::function<void(std::string, bool)>;
@@ -84,19 +86,21 @@ namespace connector
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
     void showWebView();
     void spawnSyncthingProcess(std::string filePath);
+    void shutdownSyncthingProcess();
     std::list<std::pair<std::string, std::string>> getFolders();
 
   private slots:
     void onSslError(QNetworkReply* reply);
     void urlTested(QNetworkReply* reply);
     void connectionHealthReceived(QNetworkReply* reply);
-    void folderListReceived(QNetworkReply* reply);
+    void currentConfigReceived(QNetworkReply* reply);
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
+    void shutdownProcessPosted(QNetworkReply *reply);
 
   private:
     void ignoreSslErrors(QNetworkReply *reply);
-    void checkFolderList();
+    void getCurrentConfig();
     bool checkIfFileExists(QString path);
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
@@ -112,8 +116,11 @@ namespace connector
     std::list<std::pair<std::string, std::string>> mFolders;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
+    std::shared_ptr<SyncConnector> mpSyncConnector;
+    
+    std::string mAPIKey;
+  
     #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-          /* Apple OSX and iOS (Darwin) */
     mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
     #endif
     #ifdef _WIN32

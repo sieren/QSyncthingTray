@@ -31,7 +31,7 @@ namespace sysutils
 {
   struct WinUtils
   {
-    static bool isSyncthingRunningImpl(std::string binary)
+    static bool isBinaryRunningImpl(std::string binary)
     {
       const char *syncapp = binary.c_str();
       bool result = false;

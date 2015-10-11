@@ -2,10 +2,12 @@ HEADERS       = window.h \
                 syncconnector.h \
                 systemUtils.hpp \
                 posixUtils.hpp \
-                winUtils.hpp
+                winUtils.hpp \
+                processmonitor.hpp
 SOURCES       = main.cpp \
                 window.cpp \
-                syncconnector.cpp
+                syncconnector.cpp \
+                processmonitor.cpp
 RESOURCES     = \
                 qsyncthing.qrc
 
