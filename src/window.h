@@ -28,6 +28,7 @@
 #include <QWebView>
 #include <QProcess>
 #include <QFileDialog>
+#include <QTabWidget>
 #include <memory>
 
 
@@ -85,6 +86,7 @@ private:
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
 
+    QTabWidget *mpSettingsTabsWidget;
     QGroupBox *settingsGroupBox;
     QLabel *iconLabel;
     QLineEdit *syncThingUrl;

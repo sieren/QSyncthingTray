@@ -64,9 +64,16 @@ Window::Window()
     connect(filePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
     connect(filePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   
+    mpSettingsTabsWidget = new QTabWidget;
+  
+    QVBoxLayout *settingsLayout = new QVBoxLayout;
+    QWidget *settingsPageWidget = new QWidget;
+    settingsLayout->addWidget(settingsGroupBox);
+    settingsLayout->addWidget(filePathGroupBox);
+    settingsPageWidget->setLayout(settingsLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(settingsGroupBox);
-    mainLayout->addWidget(filePathGroupBox);
+    mpSettingsTabsWidget->addTab(settingsPageWidget, "Main");
+    mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
     testURL();
     mSyncConnector->setConnectionHealthCallback(std::bind(
