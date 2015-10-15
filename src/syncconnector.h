@@ -107,7 +107,7 @@ namespace connector
     QNetworkAccessManager mHealthUrl;
     QNetworkAccessManager mFolderUrl;
     std::unique_ptr<QWebView> mpWebView;
-    QProcess *mpSyncProcess;
+    std::unique_ptr<QProcess> mpSyncProcess;
     std::list<std::pair<std::string, std::string>> mFolders;
     std::unique_ptr<QTimer> connectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
