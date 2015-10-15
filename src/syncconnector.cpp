@@ -273,8 +273,8 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
   }
   if (!systemUtil.isSyncthingRunning())
   {
-    mpSyncProcess = new QProcess(this);
-    connect(mpSyncProcess, SIGNAL(stateChanged(QProcess::ProcessState)),
+    mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
+    connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
       this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
     QString processPath = filePath.c_str();
     QStringList launchArgs;
@@ -340,7 +340,7 @@ bool SyncConnector::checkIfFileExists(QString path)
 
 SyncConnector::~SyncConnector()
 {
-  if (mpSyncProcess != nullptr)
+  if (mpSyncProcess)
   {
     mpSyncProcess->kill();
   }
