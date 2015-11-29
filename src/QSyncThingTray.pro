@@ -7,7 +7,7 @@ SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp
 RESOURCES     = \
-    qsyncthing.qrc
+                qsyncthing.qrc
 
 QT += widgets
 QT += network
