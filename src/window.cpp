@@ -40,13 +40,14 @@
 
 
 //! Layout
-#define maximumWidth 700
+#define maximumWidth 400
 //! [0]
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 Window::Window()
-  : mSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
-  , settings("sieren", "QSyncthingTray")
+  : mpSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
+  , mpProcessMonitor(new mfk::monitor::ProcessMonitor(mpSyncConnector))
+  , mSettings("sieren", "QSyncthingTray")
 {
     loadSettings();
     createSettingsGroupBox();
@@ -54,54 +55,57 @@ Window::Window()
     createActions();
     createTrayIcon();
 
-    connect(testConnection, SIGNAL(clicked()), this, SLOT(testURL()));
-    connect(syncThingUrl, SIGNAL(currentIndexChanged(int)), this, SLOT(setIcon(int)));
-    connect(trayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+    connect(mpTestConnectionButton, SIGNAL(clicked()), this, SLOT(testURL()));
+    connect(mpSyncthingUrlLineEdit, SIGNAL(currentIndexChanged(int)), this, SLOT(setIcon(int)));
+    connect(mpTrayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
+    connect(mpTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-    connect(authCheckBox, SIGNAL(stateChanged(int)), this,
+    connect(mpAuthCheckBox, SIGNAL(stateChanged(int)), this,
       SLOT(authCheckBoxChanged(int)));
-    connect(filePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
-    connect(filePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
+    connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
+    connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   
     mpSettingsTabsWidget = new QTabWidget;
-  
     QVBoxLayout *settingsLayout = new QVBoxLayout;
     QWidget *settingsPageWidget = new QWidget;
-    settingsLayout->addWidget(settingsGroupBox);
-    settingsLayout->addWidget(filePathGroupBox);
+    settingsLayout->addWidget(mpSettingsGroupBox);
+    settingsLayout->addWidget(mpFilePathGroupBox);
     settingsPageWidget->setLayout(settingsLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mpSettingsTabsWidget->addTab(settingsPageWidget, "Main");
+    mpSettingsTabsWidget->addTab(mpProcessMonitor.get(), "Auto-Pause");
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
     testURL();
-    mSyncConnector->setConnectionHealthCallback(std::bind(
+    mpSyncConnector->setConnectionHealthCallback(std::bind(
       &Window::updateConnectionHealth,
       this,
       std::placeholders::_1));
 
-    mSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
+    mpSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
       {
         switch (state) {
           case kSyncthingProcessState::SPAWNED:
-            appSpawnedLabel->setText(tr("Launched"));
+            mpAppSpawnedLabel->setText(tr("Status: Launched"));
             break;
           case kSyncthingProcessState::NOT_RUNNING:
-            appSpawnedLabel->setText(tr("Not started"));
+            mpAppSpawnedLabel->setText(tr("Status: Not started"));
             break;
           case kSyncthingProcessState::ALREADY_RUNNING:
-            appSpawnedLabel->setText(tr("Already Runnning"));
+            mpAppSpawnedLabel->setText(tr("Already Runnning"));
+            break;
+          case kSyncthingProcessState::PAUSED:
+            mpAppSpawnedLabel->setText(tr("Paused"));
             break;
           default:
             break;
         }
       });
 
-    mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 
     setIcon(0);
-    trayIcon->show();
+    mpTrayIcon->show();
     #ifdef Q_OS_MAC
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
@@ -123,12 +127,12 @@ void Window::setVisible(bool visible)
 
 void Window::closeEvent(QCloseEvent *event)
 {
-    if (trayIcon->isVisible())
+    if (mpTrayIcon->isVisible())
     {
         hide();
-        if (filePathLine->text().toStdString() != mCurrentSyncthingPath)
+        if (mpFilePathLine->text().toStdString() != mCurrentSyncthingPath)
         {
-          mCurrentSyncthingPath = filePathLine->text().toStdString();
+          mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
           saveSettings();
           spawnSyncthingApp();
         }
@@ -154,10 +158,10 @@ void Window::setIcon(int index)
       icon = QIcon(":/images/syncthingGrey.png");
       break;
   }
-  trayIcon->setIcon(icon);
+  mpTrayIcon->setIcon(icon);
   setWindowIcon(icon);
 
-  trayIcon->setToolTip("Syncthing");
+  mpTrayIcon->setToolTip("Syncthing");
 }
 
 
@@ -165,21 +169,21 @@ void Window::setIcon(int index)
 
 void Window::testURL()
 {
-  mCurrentUrl = QUrl(syncThingUrl->text());
-  mCurrentUserName = userName->text().toStdString();
+  mCurrentUrl = QUrl(mpSyncthingUrlLineEdit->text());
+  mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
-  mSyncConnector->setURL(QUrl(syncThingUrl->text()), mCurrentUserName,
+  mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
     mCurrentUserPassword, [&](std::string result, bool success)
   {
     if (success)
     {
-      urlTestResultLabel->setText(tr("Connected"));
-      connectedState->setText(tr("Connected"));
+      mpUrlTestResultLabel->setText(tr("Status: Connected"));
+      mpConnectedState->setText(tr("Connected"));
       setIcon(0);
     }
     else
     {
-      urlTestResultLabel->setText(tr("Error: ") + result.c_str());
+      mpUrlTestResultLabel->setText(tr("Status: ") + result.c_str());
       setIcon(1);
     }
   });
@@ -191,30 +195,44 @@ void Window::testURL()
 
 void Window::updateConnectionHealth(std::map<std::string, std::string> status)
 {
-  if (status.at("state") == "1")
+  if (mpProcessMonitor->isPausingProcessRunning())
+  {
+    mpNumberOfConnectionsAction->setVisible(false);
+    mpConnectedState->setText(tr("Paused"));
+    if (mLastConnectionState != 99)
+    {
+      showMessage("Paused", "Syncthing is pausing.");
+      setIcon(1);
+      mLastConnectionState = 99;
+    }
+  }
+  else if (status.at("state") == "1")
   {
     std::string connectionNumber = status.at("connections");
-    numberOfConnectionsAction->setVisible(true);
-    numberOfConnectionsAction->setText(tr("Connections: ") + connectionNumber.c_str());
-    connectedState->setText(tr("Connected"));
+    mpNumberOfConnectionsAction->setVisible(true);
+    mpNumberOfConnectionsAction->setText(tr("Connections: ") + connectionNumber.c_str());
+    mpConnectedState->setText(tr("Connected"));
     setIcon(0);
-    if (lastState != 1)
+    if (mLastConnectionState != 1)
     {
       showMessage("Connected", "Syncthing is running.");
     }
   }
   else
   {
-    connectedState->setText(tr("Not Connected"));
-    if (lastState != 0)
+    mpConnectedState->setText(tr("Not Connected"));
+    if (mLastConnectionState != 0)
     {
       showMessage("Not Connected", "Could not find Syncthing.");
     }
+    // syncthing takes a while to shut down, in case someone
+    // would reopen qsyncthingtray it wouldnt restart the process
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
     setIcon(1);
   }
   try
   {
-    lastState = std::stoi(status.at("state"));
+    mLastConnectionState = std::stoi(status.at("state"));
   }
   catch (std::exception &e)
   {
@@ -246,7 +264,7 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void Window::showWebView()
 {
-  mSyncConnector->showWebView();
+  mpSyncConnector->showWebView();
 }
 
 
@@ -269,7 +287,7 @@ void Window::authCheckBoxChanged(int state)
 
 void Window::showMessage(std::string title, std::string body)
 {
-  trayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
+  mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
                         1000);
 }
 
@@ -281,7 +299,8 @@ void Window::showFileBrowser()
   QString filename = QFileDialog::getOpenFileName(this,
                                           tr("Open Syncthing"), "", tr(""));
   mCurrentSyncthingPath = filename.toStdString();
-  filePathLine->setText(filename);
+  mpFilePathLine->setText(filename);
+  saveSettings();
   spawnSyncthingApp();
 }
 
@@ -289,7 +308,7 @@ void Window::showFileBrowser()
 //------------------------------------------------------------------------------------//
 void Window::pathEnterPressed()
 {
-    mCurrentSyncthingPath = filePathLine->text().toStdString();
+    mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
     spawnSyncthingApp();
 }
 
@@ -298,7 +317,7 @@ void Window::pathEnterPressed()
 void Window::spawnSyncthingApp()
 {
   saveSettings();
-  mSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
+  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
 }
 
 
@@ -331,64 +350,65 @@ void Window::folderClicked()
 
 void Window::createSettingsGroupBox()
 {
-  
-  settingsGroupBox = new QGroupBox(tr("Syncthing URL"));
+  mpSettingsGroupBox = new QGroupBox(tr("Syncthing URL"));
 
-  iconLabel = new QLabel("URL");
+  mpURLLabel = new QLabel("URL");
 
-  syncThingUrl = new QLineEdit(mCurrentUrl.toString());
-  syncThingUrl->setFixedWidth(maximumWidth / devicePixelRatio());
-  testConnection = new QPushButton(tr("Connect"));
+  mpSyncthingUrlLineEdit = new QLineEdit(mCurrentUrl.toString());
+  // mpSyncthingUrlLineEdit->setFixedWidth(maximumWidth - 40 / devicePixelRatio());
+  mpTestConnectionButton = new QPushButton(tr("Connect"));
 
-  authCheckBox = new QCheckBox(tr("Authentication"), this);
+  mpAuthCheckBox = new QCheckBox(tr("Authentication"), this);
 
   userNameLabel = new QLabel("User");
   userPasswordLabel = new QLabel("Password");
 
-  userName = new QLineEdit(mCurrentUserName.c_str());
+  mpUserNameLineEdit = new QLineEdit(mCurrentUserName.c_str());
   userPassword = new QLineEdit(mCurrentUserPassword.c_str());
   userPassword->setEchoMode(QLineEdit::Password);
 
-  urlTestResultLabel = new QLabel("Not Tested");
+  mpUrlTestResultLabel = new QLabel("Not Tested");
 
   QGridLayout *iconLayout = new QGridLayout;
-  iconLayout->addWidget(iconLabel, 0, 0);
-  iconLayout->addWidget(syncThingUrl,1, 0, 1, 4);
-  iconLayout->addWidget(authCheckBox, 2, 0, 1, 2);
+  iconLayout->addWidget(mpURLLabel, 0, 0);
+  iconLayout->addWidget(mpSyncthingUrlLineEdit,1, 0, 1, 4);
+  iconLayout->addWidget(mpAuthCheckBox, 2, 0, 1, 2);
   iconLayout->addWidget(userNameLabel, 3, 0, 1, 2);
   iconLayout->addWidget(userPasswordLabel, 3, 2, 1 ,2);
-  iconLayout->addWidget(userName, 4, 0, 1, 2);
+  iconLayout->addWidget(mpUserNameLineEdit, 4, 0, 1, 2);
   iconLayout->addWidget(userPassword, 4, 2, 1, 2 );
-  iconLayout->addWidget(testConnection,5, 0, 1, 1);
-  iconLayout->addWidget(urlTestResultLabel, 5, 1, 1, 2);
-  settingsGroupBox->setLayout(iconLayout);
-  settingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  iconLayout->addWidget(mpTestConnectionButton,5, 0, 1, 1);
+  iconLayout->addWidget(mpUrlTestResultLabel, 5, 1, 1, 2);
+  mpSettingsGroupBox->setLayout(iconLayout);
+  mpSettingsGroupBox->setMinimumWidth(400);
+  mpSettingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-  filePathGroupBox = new QGroupBox(tr("Syncthing Application"));
+  mpFilePathGroupBox = new QGroupBox(tr("Syncthing Application"));
 
-  filePathLabel = new QLabel("Binary with Path");
+  mpFilePathLabel = new QLabel("Binary with Path");
 
-  filePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
-  filePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
-  filePathBrowse = new QPushButton(tr("Browse"));
+  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
+//  mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
+  mpFilePathBrowse = new QPushButton(tr("Browse"));
 
-  appSpawnedLabel = new QLabel(tr("Not started"));
+  mpAppSpawnedLabel = new QLabel(tr("Not started"));
 
-  authCheckBox->setCheckState(Qt::Checked);
+  mpAuthCheckBox->setCheckState(Qt::Checked);
   if (mCurrentUserName.length() == 0)
   {
     showAuthentication(false);
-    authCheckBox->setCheckState(Qt::Unchecked);
+    mpAuthCheckBox->setCheckState(Qt::Unchecked);
   }
 
   QGridLayout *filePathLayout = new QGridLayout;
-  filePathLayout->addWidget(filePathLabel, 0, 0);
-  filePathLayout->addWidget(filePathLine,1, 0, 1, 4);
-  filePathLayout->addWidget(filePathBrowse,2, 0, 1, 1);
-  filePathLayout->addWidget(appSpawnedLabel, 2, 1, 1, 1);
+  filePathLayout->addWidget(mpFilePathLabel, 0, 0);
+  filePathLayout->addWidget(mpFilePathLine,1, 0, 1, 4);
+  filePathLayout->addWidget(mpFilePathBrowse,2, 0, 1, 1);
+  filePathLayout->addWidget(mpAppSpawnedLabel, 2, 1, 1, 1);
 
-  filePathGroupBox->setLayout(filePathLayout);
-  filePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  mpFilePathGroupBox->setLayout(filePathLayout);
+  mpFilePathGroupBox->setMinimumWidth(400);
+  mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
 
@@ -396,23 +416,23 @@ void Window::createSettingsGroupBox()
 
 void Window::createActions()
 {
-  connectedState = new QAction(tr("Not Connected"), this);
-  connectedState->setDisabled(true);
+  mpConnectedState = new QAction(tr("Not Connected"), this);
+  mpConnectedState->setDisabled(true);
 
-  numberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
-  numberOfConnectionsAction->setDisabled(true);
+  mpNumberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
+  mpNumberOfConnectionsAction->setDisabled(true);
 
-  showWebViewAction = new QAction(tr("Open Syncthing"), this);
-  connect(showWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
+  mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
+  connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
       
-  preferencesAction = new QAction(tr("Preferences"), this);
-  connect(preferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+  mpPreferencesAction = new QAction(tr("Preferences"), this);
+  connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
   
-  showGitHubAction = new QAction(tr("Help"), this);
-  connect(showGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
+  mpShowGitHubAction = new QAction(tr("Help"), this);
+  connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
 
-  quitAction = new QAction(tr("&Quit"), this);
-  connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+  mpQuitAction = new QAction(tr("&Quit"), this);
+  connect(mpQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
 
@@ -421,10 +441,10 @@ void Window::createActions()
 void Window::createFoldersMenu()
 {
   std::list<QSharedPointer<QAction>> foldersActions;
-  if (mCurrentFoldersLocations != mSyncConnector->getFolders())
+  if (mCurrentFoldersLocations != mpSyncConnector->getFolders())
   {
     std::cout << "Folder List has changed";
-    mCurrentFoldersLocations = mSyncConnector->getFolders();
+    mCurrentFoldersLocations = mpSyncConnector->getFolders();
     for (std::list<std::pair<std::string,
       std::string>>::iterator it=mCurrentFoldersLocations.begin();
       it != mCurrentFoldersLocations.end(); ++it)
@@ -445,34 +465,34 @@ void Window::createFoldersMenu()
 
 void Window::createTrayIcon()
 {
-  if (trayIconMenu == nullptr)
+  if (mpTrayIconMenu == nullptr)
   {
-    trayIconMenu = new QMenu(this);
+    mpTrayIconMenu = new QMenu(this);
   }
-  trayIconMenu->clear();
-  trayIconMenu->addAction(connectedState);
-  trayIconMenu->addAction(numberOfConnectionsAction);
-  trayIconMenu->addSeparator();
+  mpTrayIconMenu->clear();
+  mpTrayIconMenu->addAction(mpConnectedState);
+  mpTrayIconMenu->addAction(mpNumberOfConnectionsAction);
+  mpTrayIconMenu->addSeparator();
 
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
       it != mCurrentFoldersActions.end(); ++it)
   {
     QAction *aAction = it->data();
-    trayIconMenu->addAction(std::move(aAction));
+    mpTrayIconMenu->addAction(std::move(aAction));
   }
   
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(showWebViewAction);
-  trayIconMenu->addAction(preferencesAction);
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(showGitHubAction);
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(quitAction);
-  if (trayIcon == nullptr)
+  mpTrayIconMenu->addSeparator();
+  mpTrayIconMenu->addAction(mpShowWebViewAction);
+  mpTrayIconMenu->addAction(mpPreferencesAction);
+  mpTrayIconMenu->addSeparator();
+  mpTrayIconMenu->addAction(mpShowGitHubAction);
+  mpTrayIconMenu->addSeparator();
+  mpTrayIconMenu->addAction(mpQuitAction);
+  if (mpTrayIcon == nullptr)
   {
-    trayIcon = new QSystemTrayIcon(this);
+    mpTrayIcon = new QSystemTrayIcon(this);
   }
-  trayIcon->setContextMenu(trayIconMenu);
+  mpTrayIcon->setContextMenu(mpTrayIconMenu);
 }
 
 
@@ -480,10 +500,10 @@ void Window::createTrayIcon()
 
 void Window::saveSettings()
 {
-  settings.setValue("url", mCurrentUrl.toString());
-  settings.setValue("username", userName->text());
-  settings.setValue("userpassword", userPassword->text());
-  settings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
+  mSettings.setValue("url", mCurrentUrl.toString());
+  mSettings.setValue("username", mpUserNameLineEdit->text());
+  mSettings.setValue("userpassword", userPassword->text());
+  mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
 }
 
 
@@ -493,14 +513,14 @@ void Window::showAuthentication(bool show)
 {
   if (show)
   {
-    userName->show();
+    mpUserNameLineEdit->show();
     userPassword->show();
     userNameLabel->show();
     userPasswordLabel->show();
   }
   else
   {
-    userName->hide();
+    mpUserNameLineEdit->hide();
     userPassword->hide();
     userNameLabel->hide();
     userPasswordLabel->hide();
@@ -512,14 +532,14 @@ void Window::showAuthentication(bool show)
 
 void Window::loadSettings()
 {
-  mCurrentUrl.setUrl(settings.value("url").toString());
+  mCurrentUrl.setUrl(mSettings.value("url").toString());
   if (mCurrentUrl.toString().length() == 0)
   {
     mCurrentUrl.setUrl(tr("http://127.0.0.1:8384"));
   }
-  mCurrentUserPassword = settings.value("userpassword").toString().toStdString();
-  mCurrentUserName = settings.value("username").toString().toStdString();
-  mCurrentSyncthingPath = settings.value("syncthingpath").toString().toStdString();
+  mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
+  mCurrentUserName = mSettings.value("username").toString().toStdString();
+  mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
 }
 
 

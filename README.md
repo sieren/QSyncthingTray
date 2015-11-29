@@ -15,6 +15,17 @@ Written in C++ with Qt.
 ![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtraywin.png "Windows")
 ![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingubuntu.png "Windows")
 
+## Features
+
++ Shows number of connections at a glance.
++ Presents Syncthing UI in a separate view instead of using the browser.
++ [Syncthing-inotify](https://github.com/syncthing/syncthing-inotify) included and starts with program launch to keep track of file changes even faster.
++ Supports authenticated HTTPS connections.
++ Uses OS X Notifications about current connection status.
+
+Is there a feature missing? Open an issue, send me an [email](mailto:info@s-r-n.de) or fork this project and add it yourself.
+
+
 ## How To Use It
 QSyncthingTray does not come with Syncthing bundled. Therefore it needs to be downloaded from [Syncthing](http://syncthing.net/).
 Once you specifiy the path to the 'syncthing' binary it will automatically spawn syncthing when you run QSyncthingTray.

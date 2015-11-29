@@ -20,6 +20,7 @@
 #define WINDOW_H
 
 #include "syncconnector.h"
+#include "processmonitor.hpp"
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -86,50 +87,48 @@ private:
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
 
+
     QTabWidget *mpSettingsTabsWidget;
-    QGroupBox *settingsGroupBox;
-    QLabel *iconLabel;
-    QLineEdit *syncThingUrl;
+    QGroupBox *mpSettingsGroupBox;
+    QLabel *mpURLLabel;
+    QLineEdit *mpSyncthingUrlLineEdit;
+
     QLabel *userNameLabel;
     QLabel *userPasswordLabel;
-    QLineEdit *userName;
+    QLineEdit *mpUserNameLineEdit;
     QLineEdit *userPassword;
-    QCheckBox *showIconCheckBox;
-    QCheckBox *authCheckBox;
+    QCheckBox *mpAuthCheckBox;
   
-    QGroupBox *filePathGroupBox;
-    QLabel *filePathLabel;
-    QLineEdit *filePathLine;
-    QPushButton *filePathBrowse;
+    QGroupBox *mpFilePathGroupBox;
+    QLabel *mpFilePathLabel;
+    QLineEdit *mpFilePathLine;
+    QPushButton *mpFilePathBrowse;
 
-    QGroupBox *messageGroupBox;
-    QLabel *urlTestResultLabel;
-    QLabel *appSpawnedLabel;
-    QPushButton *showMessageButton;
-    QPushButton *testConnection;
+    QLabel *mpUrlTestResultLabel;
+    QLabel *mpAppSpawnedLabel;
+    QPushButton *mpTestConnectionButton;
 
-    QAction *connectedState;
-    QAction *numberOfConnectionsAction;
-    QAction *showWebViewAction;
-    QAction *preferencesAction;
-    QAction *showGitHubAction;
-    QAction *quitAction;
-    QAction *spawnSyncthingAppAction;
+    QAction *mpConnectedState;
+    QAction *mpNumberOfConnectionsAction;
+    QAction *mpShowWebViewAction;
+    QAction *mpPreferencesAction;
+    QAction *mpShowGitHubAction;
+    QAction *mpQuitAction;
 
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
     std::list<std::pair<std::string, std::string>> mCurrentFoldersLocations;
-    QSystemTrayIcon *trayIcon = nullptr;
-    QMenu *trayIconMenu = nullptr;
+    QSystemTrayIcon *mpTrayIcon = nullptr;
+    QMenu *mpTrayIconMenu = nullptr;
     QUrl mCurrentUrl;
-    QProcess *syncThingApp;
+
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
     std::string mCurrentSyncthingPath;
-    QNetworkAccessManager m_WebCtrl;
-    std::unique_ptr<mfk::connector::SyncConnector> mSyncConnector;
-    QSettings settings;
+    std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
+    std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
+    QSettings mSettings;
   
-    int lastState;
+    int mLastConnectionState;
 
   };
 //! [0]

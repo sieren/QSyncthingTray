@@ -27,9 +27,9 @@ namespace sysutils
 {
   struct PosixUtils
   {
-    static bool isSyncthingRunningImpl()
+    static bool isBinaryRunningImpl(std::string binary)
     {
-      const char* someapp = "syncthing";
+      const char* someapp = binary.c_str();
       std::stringstream cmd;
       
       cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";

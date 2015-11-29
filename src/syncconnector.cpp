@@ -53,13 +53,13 @@ SyncConnector::SyncConnector(QUrl url)
 
   connect(
           &mFolderUrl, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (folderListReceived(QNetworkReply*))
+          this, SLOT (currentConfigReceived(QNetworkReply*))
           );
   connect(
           &mFolderUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
           this, SLOT (onSslError(QNetworkReply*))
           );
-  }
+}
 
   
 //------------------------------------------------------------------------------------//
@@ -133,13 +133,13 @@ void SyncConnector::checkConnectionHealth()
 
   mHealthUrl.get(request);
   
-  checkFolderList();
+  getCurrentConfig();
 }
 
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::checkFolderList()
+void SyncConnector::getCurrentConfig()
 {
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/config"));
@@ -154,14 +154,14 @@ void SyncConnector::checkFolderList()
 void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
 {
   mConnectionHealthCallback = cb;
-  if (connectionHealthTimer)
+  if (mpConnectionHealthTimer)
   {
-    connectionHealthTimer->stop();
+    mpConnectionHealthTimer->stop();
   }
-  connectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
-  connect(connectionHealthTimer.get(), SIGNAL(timeout()), this,
+  mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
+  connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
     SLOT(checkConnectionHealth()));
-  connectionHealthTimer->start(3000);
+  mpConnectionHealthTimer->start(3000);
 }
 
 
@@ -227,7 +227,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::folderListReceived(QNetworkReply *reply)
+void SyncConnector::currentConfigReceived(QNetworkReply *reply)
 {
   ignoreSslErrors(reply);
   std::list<std::pair<std::string, std::string>> result;
@@ -242,6 +242,8 @@ void SyncConnector::folderListReceived(QNetworkReply *reply)
       QString m_DownloadedData = static_cast<QString>(reply->readAll());
       QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
       QJsonObject replyData = replyDoc.object();
+      QJsonObject guiData = replyData["gui"].toObject();
+      mAPIKey =  guiData["apiKey"].toString().toStdString();
       QJsonArray foldersArray = replyData["folders"].toArray();
       QJsonArray::iterator it;
       foreach (const QJsonValue & value, foldersArray)
@@ -260,6 +262,42 @@ void SyncConnector::folderListReceived(QNetworkReply *reply)
 
 //------------------------------------------------------------------------------------//
 
+void SyncConnector::shutdownSyncthingProcess()
+{
+  QUrl requestUrl = mCurrentUrl;
+  requestUrl.setPath(tr("/rest/system/shutdown"));
+  QNetworkRequest request(requestUrl);
+  QByteArray postData;
+  // Call the webservice
+  QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+  connect(networkManager, SIGNAL(finished(QNetworkReply*)),
+          SLOT(shutdownProcessPosted(QNetworkReply*)));
+  connect(networkManager, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
+          this, SLOT (onSslError(QNetworkReply*))
+          );
+  QNetworkRequest networkRequest(requestUrl);
+  std::string headerStr = "X-API-KEY: " + mAPIKey;
+  std::cout << headerStr << std::endl;
+  QByteArray headerByte(mAPIKey.c_str(), mAPIKey.length());
+  networkRequest.setRawHeader("X-API-Key", headerByte);
+  
+  networkManager->post(networkRequest,postData);
+}
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
+{
+#pragma unused(reply)
+  if (mProcessSpawnedCallback)
+  {
+    mProcessSpawnedCallback(kSyncthingProcessState::PAUSED);
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::spawnSyncthingProcess(std::string filePath)
 {
   if (!checkIfFileExists(tr(filePath.c_str())))
@@ -271,7 +309,7 @@ void SyncConnector::spawnSyncthingProcess(std::string filePath)
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
   }
-  if (!systemUtil.isSyncthingRunning())
+  if (!systemUtil.isBinaryRunning(std::string("syncthing")))
   {
     mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
     connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
@@ -340,9 +378,15 @@ bool SyncConnector::checkIfFileExists(QString path)
 
 SyncConnector::~SyncConnector()
 {
-  if (mpSyncProcess)
+  if (mpSyncProcess != nullptr
+      && mpSyncProcess->state() == QProcess::Running)
   {
     mpSyncProcess->kill();
+  }
+  if (mpSyncthingNotifierProcess != nullptr
+      && mpSyncthingNotifierProcess->state() == QProcess::Running)
+  {
+    mpSyncthingNotifierProcess->kill();
   }
 }
   
