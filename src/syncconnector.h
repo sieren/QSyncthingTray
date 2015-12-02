@@ -91,9 +91,7 @@ namespace connector
 
   private slots:
     void onSslError(QNetworkReply* reply);
-    void urlTested(QNetworkReply* reply);
-    void connectionHealthReceived(QNetworkReply* reply);
-    void currentConfigReceived(QNetworkReply* reply);
+    void netRequestfinished(QNetworkReply *reply);
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
@@ -102,14 +100,25 @@ namespace connector
     void ignoreSslErrors(QNetworkReply *reply);
     void getCurrentConfig();
     bool checkIfFileExists(QString path);
+    void urlTested(QNetworkReply* reply);
+    void connectionHealthReceived(QNetworkReply* reply);
+    void currentConfigReceived(QNetworkReply* reply);
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
     ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
     std::thread mIoThread;
     QUrl mCurrentUrl;
-    QNetworkAccessManager mWebUrl;
-    QNetworkAccessManager mHealthUrl;
-    QNetworkAccessManager mFolderUrl;
+
+    //! Network access, new methods should be added here
+    //! so the called function can dispatch accordingly
+    QNetworkAccessManager network;
+    enum class kRequestMethod {
+      urlTested,
+      connectionHealth,
+      getCurrentConfig,
+    };
+    QHash<QNetworkReply*, kRequestMethod> requestMap;
+
     std::unique_ptr<QWebView> mpWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     QProcess *mpSyncthingNotifierProcess = nullptr;
