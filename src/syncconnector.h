@@ -77,10 +77,10 @@ namespace connector
   {
     Q_OBJECT
   public:
-    //  explicit SyncConnector() = default;
     explicit SyncConnector(QUrl url);
     virtual ~SyncConnector();
-    void setURL(QUrl url, std::string userName, std::string password, ConnectionStateCallback setText);
+    void setURL(QUrl url, std::string userName, std::string password,
+      ConnectionStateCallback setText);
     void setConnectionStateCallback();
     void setConnectionHealthCallback(ConnectionHealthCallback cb);
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
