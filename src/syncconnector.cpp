@@ -34,29 +34,11 @@ SyncConnector::SyncConnector(QUrl url)
 {
   mCurrentUrl = url;
   connect(
-          &mWebUrl, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (urlTested(QNetworkReply*))
+          &network, SIGNAL (finished(QNetworkReply*)),
+          this, SLOT (netRequestfinished(QNetworkReply*))
           );
   connect(
-          &mWebUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
-          this, SLOT (onSslError(QNetworkReply*))
-          );
-  
-  connect(
-          &mHealthUrl, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (connectionHealthReceived(QNetworkReply*))
-          );
-  connect(
-          &mHealthUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
-          this, SLOT (onSslError(QNetworkReply*))
-          );
-
-  connect(
-          &mFolderUrl, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (currentConfigReceived(QNetworkReply*))
-          );
-  connect(
-          &mFolderUrl, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
+          &network, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
           this, SLOT (onSslError(QNetworkReply*))
           );
 }
@@ -74,8 +56,9 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   url.setPath(tr("/rest/system/version"));
   mConnectionStateCallback = setText;
   QNetworkRequest request(url);
-  mWebUrl.clearAccessCache();
-  mWebUrl.get(request);
+  network.clearAccessCache();
+  QNetworkReply *reply = network.get(request);
+  requestMap[reply] = kRequestMethod::urlTested;
 }
 
 
@@ -90,7 +73,7 @@ void SyncConnector::showWebView()
   std::unique_ptr<QWebView> pWeb(new QWebView());
   mpWebView = std::move(pWeb);
   mpWebView->show();
-  mpWebView->page()->setNetworkAccessManager(&mWebUrl);
+  mpWebView->page()->setNetworkAccessManager(&network);
   mpWebView->load(mCurrentUrl);
   mpWebView->raise();
 }
@@ -131,8 +114,8 @@ void SyncConnector::checkConnectionHealth()
   requestUrl.setPath(tr("/rest/system/connections"));
   QNetworkRequest request(requestUrl);
 
-  mHealthUrl.get(request);
-  
+  QNetworkReply *reply = network.get(request);
+  requestMap[reply] = kRequestMethod::connectionHealth;
   getCurrentConfig();
 }
 
@@ -145,7 +128,8 @@ void SyncConnector::getCurrentConfig()
   requestUrl.setPath(tr("/rest/system/config"));
   QNetworkRequest request(requestUrl);
   
-  mFolderUrl.get(request);
+  QNetworkReply *reply = network.get(request);
+  requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
 
 
@@ -191,6 +175,26 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
 void SyncConnector::setProcessSpawnedCallback(ProcessSpawnedCallback cb)
 {
   mProcessSpawnedCallback = cb;
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::netRequestfinished(QNetworkReply* reply)
+{
+  switch (requestMap[reply])
+  {
+    case kRequestMethod::getCurrentConfig:
+      currentConfigReceived(reply);
+      break;
+    case kRequestMethod::connectionHealth:
+      connectionHealthReceived(reply);
+      break;
+    case kRequestMethod::urlTested:
+      urlTested(reply);
+      break;
+  }
+  requestMap.remove(reply);
 }
 
 
