@@ -56,7 +56,6 @@ Window::Window()
     createTrayIcon();
 
     connect(mpTestConnectionButton, SIGNAL(clicked()), this, SLOT(testURL()));
-    connect(mpSyncthingUrlLineEdit, SIGNAL(currentIndexChanged(int)), this, SLOT(setIcon(int)));
     connect(mpTrayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
     connect(mpTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
