@@ -302,9 +302,9 @@ void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::spawnSyncthingProcess(std::string filePath)
+void SyncConnector::spawnSyncthingProcess(std::string filePath, const bool onSetPath)
 {
-  if (!checkIfFileExists(tr(filePath.c_str())))
+  if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
   {
     QMessageBox msgBox;
     msgBox.setText("Could not find Syncthing.");

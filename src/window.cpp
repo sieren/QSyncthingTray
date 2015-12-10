@@ -308,7 +308,7 @@ void Window::showFileBrowser()
 void Window::pathEnterPressed()
 {
     mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-    spawnSyncthingApp();
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true);
 }
 
 //------------------------------------------------------------------------------------//
