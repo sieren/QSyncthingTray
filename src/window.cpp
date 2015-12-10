@@ -271,7 +271,6 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
   default:
       ;
   }
-  setIcon(1);
 }
 
 
