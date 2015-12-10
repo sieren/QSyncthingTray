@@ -3,5 +3,6 @@
         <file>images/syncthingBlue.png</file>
         <file>images/syncthingGrey.png</file>
         <file>images/Syncthing.icns</file>
+        <file>images/syncthingBlack.png</file>
     </qresource>
 </RCC>
