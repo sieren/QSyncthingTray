@@ -41,6 +41,9 @@
 
 //! Layout
 #define maximumWidth 400
+static const std::list<std::pair<std::string, std::string>> kIconSet(
+{{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
+{":/images/syncthingBlack.png", ":/images/syncthingGrey.png"}});
 //! [0]
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
@@ -61,6 +64,8 @@ Window::Window()
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(mpAuthCheckBox, SIGNAL(stateChanged(int)), this,
       SLOT(authCheckBoxChanged(int)));
+    connect(mpMonochromeIconBox, SIGNAL(stateChanged(int)), this,
+      SLOT(monoChromeIconChanged(int)));
     connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
     connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   
@@ -69,6 +74,7 @@ Window::Window()
     QWidget *settingsPageWidget = new QWidget;
     settingsLayout->addWidget(mpSettingsGroupBox);
     settingsLayout->addWidget(mpFilePathGroupBox);
+    settingsLayout->addWidget(mpAppearanceGroupBox);
     settingsPageWidget->setLayout(settingsLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mpSettingsTabsWidget->addTab(settingsPageWidget, "Main");
@@ -145,16 +151,18 @@ void Window::closeEvent(QCloseEvent *event)
 void Window::setIcon(int index)
 {
   QIcon icon;
+  std::pair<std::string, std::string> iconSet = mIconMonochrome ?
+    kIconSet.back() : kIconSet.front();
   switch(index)
   {
     case 0:
-      icon = QIcon(":/images/syncthingBlue.png");
+      icon = QIcon(iconSet.first.c_str());
       break;
     case 1:
-      icon = QIcon(":/images/syncthingGrey.png");
+      icon = QIcon(iconSet.second.c_str());
       break;
     default:
-      icon = QIcon(":/images/syncthingGrey.png");
+      icon = QIcon(iconSet.second.c_str());
       break;
   }
   mpTrayIcon->setIcon(icon);
@@ -238,6 +246,14 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     
   }
   createFoldersMenu();
+}
+
+//------------------------------------------------------------------------------------//
+
+void Window::monoChromeIconChanged(int state)
+{
+  mIconMonochrome = state == 2 ? true : false;
+  mSettings.setValue("monochromeIcon", mIconMonochrome);
 }
 
 
@@ -408,6 +424,14 @@ void Window::createSettingsGroupBox()
   mpFilePathGroupBox->setLayout(filePathLayout);
   mpFilePathGroupBox->setMinimumWidth(400);
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  
+  mpAppearanceGroupBox = new QGroupBox(tr("Appearance"));
+  mpMonochromeIconBox = new QCheckBox("Monochrome Icon");
+  QGridLayout *appearanceLayout = new QGridLayout;
+  appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
+  mpAppearanceGroupBox->setLayout(appearanceLayout);
+  mpAppearanceGroupBox->setMinimumWidth(400);
+  mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
 
@@ -503,6 +527,7 @@ void Window::saveSettings()
   mSettings.setValue("username", mpUserNameLineEdit->text());
   mSettings.setValue("userpassword", userPassword->text());
   mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
+  mSettings.setValue("monochromeIcon", mIconMonochrome);
 }
 
 
@@ -539,6 +564,7 @@ void Window::loadSettings()
   mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
   mCurrentUserName = mSettings.value("username").toString().toStdString();
   mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
+  mIconMonochrome = mSettings.value("monochromeIcon").toBool();
 }
 
 

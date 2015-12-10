@@ -71,6 +71,7 @@ private slots:
     void messageClicked();
     void testURL();
     void authCheckBoxChanged(int state);
+    void monoChromeIconChanged(int state);
     void spawnSyncthingApp();
     void showFileBrowser();
     void showGitPage();
@@ -107,6 +108,9 @@ private:
     QLabel *mpUrlTestResultLabel;
     QLabel *mpAppSpawnedLabel;
     QPushButton *mpTestConnectionButton;
+  
+    QGroupBox *mpAppearanceGroupBox;
+    QCheckBox *mpMonochromeIconBox;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
@@ -127,7 +131,7 @@ private:
     std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
     std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
     QSettings mSettings;
-  
+    bool mIconMonochrome;
     int mLastConnectionState;
 
   };
