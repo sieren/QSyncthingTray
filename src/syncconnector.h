@@ -85,7 +85,7 @@ namespace connector
     void setConnectionHealthCallback(ConnectionHealthCallback cb);
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
     void showWebView();
-    void spawnSyncthingProcess(std::string filePath);
+    void spawnSyncthingProcess(std::string filePath, const bool onSetPath = false);
     void shutdownSyncthingProcess();
     std::list<std::pair<std::string, std::string>> getFolders();
 
