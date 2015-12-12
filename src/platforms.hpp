@@ -16,26 +16,25 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncthingTray_systemUtils_hpp
-#define QSyncthingTray_systemUtils_hpp
+#pragma once
 
-// CONCEPT
-// These functions have to be offered by both classes for
-// cross-platform maintainability.
-//
+#ifdef _WIN32
+#include "platforms/windows/winUtils.hpp"
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+#include "platforms/darwin/posixUtils.hpp"
+#endif
 
 namespace mfk
 {
 namespace sysutils
 {
-  template <typename T>
-  struct SystemUtility
-  {
-    bool isBinaryRunning(std::string binary)
-    {
-      return T::isBinaryRunningImpl(binary);
-    }
-  };
+  
+#ifdef _WIN32
+using SystemUtility = platforms::windows::WinUtils;
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+using SystemUtility = platforms::darwin::PosixUtils;
+#endif
+  
 } // sysutils
 } // mfk
-#endif
+
