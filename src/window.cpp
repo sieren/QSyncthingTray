@@ -525,6 +525,10 @@ void Window::saveSettings()
   mSettings.setValue("url", mCurrentUrl.toString());
   mSettings.setValue("username", mpUserNameLineEdit->text());
   mSettings.setValue("userpassword", userPassword->text());
+  if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
+  {
+    pathEnterPressed();
+  }
   mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
   mSettings.setValue("monochromeIcon", mIconMonochrome);
 }
