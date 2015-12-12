@@ -16,26 +16,42 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncthingTray_systemUtils_hpp
-#define QSyncthingTray_systemUtils_hpp
-
-// CONCEPT
-// These functions have to be offered by both classes for
-// cross-platform maintainability.
-//
+#ifndef QSyncthingTray_posixUtils_hpp
+#define QSyncthingTray_posixUtils_hpp
+#include <sstream>
+#include <string>
+#include <iostream>
 
 namespace mfk
 {
-namespace sysutils
+namespace platforms
 {
-  template <typename T>
-  struct SystemUtility
+namespace darwin
+{
+  struct PosixUtils
   {
-    bool isBinaryRunning(std::string binary)
+    static bool isBinaryRunning(std::string binary)
     {
-      return T::isBinaryRunningImpl(binary);
+      const char* someapp = binary.c_str();
+      std::stringstream cmd;
+      
+      cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";
+      
+      FILE* app = popen(cmd.str().c_str(), "r");
+      char instances = '0';
+      
+      if (app)
+      {
+        fread(&instances, sizeof(instances), 1, app);
+        pclose(app);
+      }
+      bool result = instances == '0' ? false : true;
+      return result;
     }
+
   };
+} // posix
 } // sysutils
 } // mfk
+
 #endif

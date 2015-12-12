@@ -16,48 +16,25 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncthingTray_winUtils_hpp
-#define QSyncthingTray_winUtils_hpp
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <cstdio>
-#include <windows.h>
-#include <tlhelp32.h>
+#pragma once
+
+#ifdef _WIN32
+#include "platforms/windows/winUtils.hpp"
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+#include "platforms/darwin/posixUtils.hpp"
+#endif
 
 namespace mfk
 {
 namespace sysutils
 {
-  struct WinUtils
-  {
-    static bool isBinaryRunningImpl(std::string binary)
-    {
-      const char *syncapp = binary.c_str();
-      bool result = false;
-      PROCESSENTRY32 entry;
-      entry.dwSize = sizeof(PROCESSENTRY32);
-
-      HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-
-      if (Process32First(snapshot, &entry))
-      {
-        while (Process32Next(snapshot, &entry))
-        {
-          if (!_stricmp(entry.szExeFile, syncapp))
-          {
-            result = true;
-          }
-        }
-      }
-
-      CloseHandle(snapshot);
-      return result;
-
-    }
-
-  };
+  
+#ifdef _WIN32
+using SystemUtility = platforms::windows::WinUtils;
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
+using SystemUtility = platforms::darwin::PosixUtils;
+#endif
+  
 } // sysutils
 } // mfk
 
-#endif

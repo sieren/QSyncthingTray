@@ -16,38 +16,50 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncthingTray_posixUtils_hpp
-#define QSyncthingTray_posixUtils_hpp
+#ifndef QSyncthingTray_winUtils_hpp
+#define QSyncthingTray_winUtils_hpp
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <cstdio>
+#include <windows.h>
+#include <tlhelp32.h>
+
 namespace mfk
 {
-namespace sysutils
+namespace platforms
 {
-  struct PosixUtils
+namespace windows
+{
+  struct WinUtils
   {
-    static bool isBinaryRunningImpl(std::string binary)
+    static bool isBinaryRunning(std::string binary)
     {
-      const char* someapp = binary.c_str();
-      std::stringstream cmd;
-      
-      cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";
-      
-      FILE* app = popen(cmd.str().c_str(), "r");
-      char instances = '0';
-      
-      if (app)
-      {
-        fread(&instances, sizeof(instances), 1, app);
-        pclose(app);
-      }
-      bool result = instances == '0' ? false : true;
-      return result;
-    }
+      const char *syncapp = binary.c_str();
+      bool result = false;
+      PROCESSENTRY32 entry;
+      entry.dwSize = sizeof(PROCESSENTRY32);
 
+      HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+      if (Process32First(snapshot, &entry))
+      {
+        while (Process32Next(snapshot, &entry))
+        {
+          if (!_stricmp(entry.szExeFile, syncapp))
+          {
+            result = true;
+          }
+        }
+      }
+
+      CloseHandle(snapshot);
+      return result;
+
+    }
   };
-  } // posixutils
+} // windows
+} // platforms
 } // mfk
 
 #endif

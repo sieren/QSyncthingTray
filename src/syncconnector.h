@@ -34,15 +34,9 @@
 #include <map>
 #include <thread>
 #include <utility>
-#include "systemUtils.hpp"
+#include "platforms.hpp"
 #include "syncconnector.h"
-#if defined(__APPLE__) && defined(__MACH__) || defined(__linux__)
-/* Apple OSX and iOS (Darwin) */
-#include "posixUtils.hpp"
-#endif
-#ifdef _WIN32
-#include "winUtils.hpp"
-#endif
+
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -128,13 +122,8 @@ namespace connector
     std::shared_ptr<SyncConnector> mpSyncConnector;
     
     std::string mAPIKey;
-  
-    #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-    mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
-    #endif
-    #ifdef _WIN32
-    mfk::sysutils::SystemUtility<sysutils::WinUtils> systemUtil;
-    #endif
+    
+    mfk::sysutils::SystemUtility systemUtil;
   };
 } // connector
 } // mfk

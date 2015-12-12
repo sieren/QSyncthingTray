@@ -79,12 +79,7 @@ private:
   
   std::unique_ptr<QTimer> mpProcessCheckTimer;
   
-  #if (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-    mfk::sysutils::SystemUtility<sysutils::PosixUtils> systemUtil;
-  #endif
-  #ifdef _WIN32
-    mfk::sysutils::SystemUtility<sysutils::WinUtils> systemUtil;
-  #endif
+  mfk::sysutils::SystemUtility systemUtil;
 };
 
 } // monitor
