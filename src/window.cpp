@@ -68,7 +68,7 @@ Window::Window()
       SLOT(monoChromeIconChanged(int)));
     connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
     connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
-  
+
     mpSettingsTabsWidget = new QTabWidget;
     QVBoxLayout *settingsLayout = new QVBoxLayout;
     QWidget *settingsPageWidget = new QWidget;
@@ -97,7 +97,7 @@ Window::Window()
             mpAppSpawnedLabel->setText(tr("Status: Not started"));
             break;
           case kSyncthingProcessState::ALREADY_RUNNING:
-            mpAppSpawnedLabel->setText(tr("Already Runnning"));
+            mpAppSpawnedLabel->setText(tr("Already Running"));
             break;
           case kSyncthingProcessState::PAUSED:
             mpAppSpawnedLabel->setText(tr("Paused"));
@@ -243,7 +243,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
   }
   catch (std::exception &e)
   {
-    
+
   }
   createFoldersMenu();
 }
@@ -423,7 +423,7 @@ void Window::createSettingsGroupBox()
   mpFilePathGroupBox->setLayout(filePathLayout);
   mpFilePathGroupBox->setMinimumWidth(400);
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  
+
   mpAppearanceGroupBox = new QGroupBox(tr("Appearance"));
   mpMonochromeIconBox = new QCheckBox("Monochrome Icon");
   QGridLayout *appearanceLayout = new QGridLayout;
@@ -446,10 +446,10 @@ void Window::createActions()
 
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
-      
+
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-  
+
   mpShowGitHubAction = new QAction(tr("Help"), this);
   connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
 
@@ -502,7 +502,7 @@ void Window::createTrayIcon()
     QAction *aAction = it->data();
     mpTrayIconMenu->addAction(std::move(aAction));
   }
-  
+
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpShowWebViewAction);
   mpTrayIconMenu->addAction(mpPreferencesAction);
