@@ -41,7 +41,7 @@ qt5_add_resources(UI_RESOURCES src/qsyncthing.qrc)
 
 add_subdirectory(src src-binary)
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src)
-file(GLOB FILES_WP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SRC_ROOT}/*.cpp ${SRC_ROOT}/*.h ${SRC_ROOT}/*.hpp)
+file(GLOB_RECURSE FILES_WP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SRC_ROOT}/*.cpp ${SRC_ROOT}/*.h ${SRC_ROOT}/*.hpp)
 
 
 

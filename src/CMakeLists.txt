@@ -4,7 +4,7 @@
 
 
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-file(GLOB FILES_WP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SRC_ROOT}/*.cpp ${SRC_ROOT}/*.h(pp))
+file(GLOB_RECURSE FILES_WP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SRC_ROOT}/*.cpp ${SRC_ROOT}/*.h(pp))
 
 ##  --------------------------------------------------------------------------------------
 ##   Dependencies
