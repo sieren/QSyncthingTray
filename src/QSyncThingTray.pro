@@ -1,9 +1,9 @@
 HEADERS       = window.h \
                 syncconnector.h \
-                systemUtils.hpp \
-                posixUtils.hpp \
-                winUtils.hpp \
-                processmonitor.hpp
+                platforms/darwin/posixUtils.hpp \
+                platforms/windows/winUtils.hpp \
+                processmonitor.hpp \
+                platforms.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp \
