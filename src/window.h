@@ -87,7 +87,7 @@ private:
     void showAuthentication(bool show);
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
-
+    void createDefaultSettings();
 
     QTabWidget *mpSettingsTabsWidget;
     QGroupBox *mpSettingsGroupBox;
@@ -111,6 +111,7 @@ private:
   
     QGroupBox *mpAppearanceGroupBox;
     QCheckBox *mpMonochromeIconBox;
+    QCheckBox *mpNotificationsIconBox;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
@@ -132,6 +133,7 @@ private:
     std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
     QSettings mSettings;
     bool mIconMonochrome;
+    bool mNotificationsEnabled;
     int mLastConnectionState;
 
   };

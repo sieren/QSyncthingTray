@@ -138,11 +138,11 @@ void Window::closeEvent(QCloseEvent *event)
         if (mpFilePathLine->text().toStdString() != mCurrentSyncthingPath)
         {
           mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-          saveSettings();
           spawnSyncthingApp();
         }
         event->ignore();
     }
+  saveSettings();
 }
 
 
@@ -302,8 +302,11 @@ void Window::authCheckBoxChanged(int state)
 
 void Window::showMessage(std::string title, std::string body)
 {
-  mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
-                        1000);
+  if (mNotificationsEnabled)
+  {
+    mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
+      1000);
+  }
 }
 
 
@@ -427,8 +430,10 @@ void Window::createSettingsGroupBox()
 
   mpAppearanceGroupBox = new QGroupBox(tr("Appearance"));
   mpMonochromeIconBox = new QCheckBox("Monochrome Icon");
+  mpNotificationsIconBox = new QCheckBox("Notifications");
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
+  appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -450,6 +455,7 @@ void Window::createActions()
 
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+  connect(mpPreferencesAction, SIGNAL(closeEvent()), this, SLOT(closePrefs()));
 
   mpShowGitHubAction = new QAction(tr("Help"), this);
   connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
@@ -532,6 +538,7 @@ void Window::saveSettings()
   }
   mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
   mSettings.setValue("monochromeIcon", mIconMonochrome);
+  mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
 }
 
 
@@ -560,6 +567,11 @@ void Window::showAuthentication(bool show)
 
 void Window::loadSettings()
 {
+  if (!mSettings.value("doSettingsExist").toBool())
+  {
+    createDefaultSettings();
+  }
+
   mCurrentUrl.setUrl(mSettings.value("url").toString());
   if (mCurrentUrl.toString().length() == 0)
   {
@@ -569,8 +581,19 @@ void Window::loadSettings()
   mCurrentUserName = mSettings.value("username").toString().toStdString();
   mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
+  mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void Window::createDefaultSettings()
+{
+  mSettings.setValue("url", tr("http://127.0.0.1:8384"));
+  mSettings.setValue("monochromeIcon", false);
+  mSettings.setValue("notificationsEnabled", true);
+  mSettings.setValue("doSettingsExist", true);
+}
 
 //------------------------------------------------------------------------------------//
 
