@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <windows.h>
 #include <tlhelp32.h>
+#include <comdef.h>
 
 namespace mfk
 {
@@ -46,7 +47,8 @@ namespace windows
       {
         while (Process32Next(snapshot, &entry))
         {
-          if (!_stricmp(entry.szExeFile, syncapp))
+          _bstr_t cmpStr(entry.szExeFile);
+          if (!_stricmp(cmpStr, syncapp))
           {
             result = true;
           }
