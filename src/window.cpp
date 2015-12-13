@@ -212,6 +212,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
       setIcon(1);
       mLastConnectionState = 99;
     }
+    return;
   }
   else if (status.at("state") == "1")
   {
