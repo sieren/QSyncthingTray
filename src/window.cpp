@@ -567,6 +567,11 @@ void Window::showAuthentication(bool show)
 
 void Window::loadSettings()
 {
+  if (!mSettings.value("doSettingsExist").toBool())
+  {
+    createDefaultSettings();
+  }
+
   mCurrentUrl.setUrl(mSettings.value("url").toString());
   if (mCurrentUrl.toString().length() == 0)
   {
@@ -579,6 +584,16 @@ void Window::loadSettings()
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void Window::createDefaultSettings()
+{
+  mSettings.setValue("url", tr("http://127.0.0.1:8384"));
+  mSettings.setValue("monochromeIcon", false);
+  mSettings.setValue("notificationsEnabled", true);
+  mSettings.setValue("doSettingsExist", true);
+}
 
 //------------------------------------------------------------------------------------//
 

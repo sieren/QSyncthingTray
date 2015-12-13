@@ -87,7 +87,7 @@ private:
     void showAuthentication(bool show);
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
-
+    void createDefaultSettings();
 
     QTabWidget *mpSettingsTabsWidget;
     QGroupBox *mpSettingsGroupBox;
