@@ -1,10 +1,20 @@
+/******************************************************************************
+// QSyncthingTray
+// Copyright (c) Matthias Frick, All rights reserved.
 //
-//  processmonitor.hpp
-//  QSyncthingTray
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
 //
-//  Created by Matthias Frick on 11.10.2015.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library.
+******************************************************************************/
 
 #ifndef __systray__processmonitor__
 #define __systray__processmonitor__
@@ -53,18 +63,18 @@ namespace monitor
 class ProcessMonitor : public QWidget
 {
   Q_OBJECT
-  
+
 public:
   ProcessMonitor(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector);
   virtual ~ProcessMonitor() = default;
   bool isPausingProcessRunning();
-  
+
 private slots:
   void addButtonClicked();
   void deleteButtonClicked();
   void cellSelected(int nRow, int nColumn);
   void checkProcessList();
-  
+
 private:
   void loadSettings();
   void saveSettings();
@@ -76,9 +86,9 @@ private:
   std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
   QSettings mSettings;
   QStringList mProcessList;
-  
+
   std::unique_ptr<QTimer> mpProcessCheckTimer;
-  
+
   mfk::sysutils::SystemUtility systemUtil;
 };
 
