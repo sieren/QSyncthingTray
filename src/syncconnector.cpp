@@ -219,7 +219,15 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
       QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
       QJsonObject replyData = replyDoc.object();
       QJsonObject connectionArray = replyData["connections"].toObject();
-      result.emplace("connections", std::to_string(connectionArray.size()));
+      int active = 0;
+      for (QJsonObject::Iterator it = connectionArray.begin();
+           it != connectionArray.end(); it++)
+      {
+        QJsonObject jObj = it->toObject();
+        active += jObj.find("connected").value().toBool() ? 1 : 0;
+      }
+      result.emplace("activeConnections", std::to_string(active));
+      result.emplace("totalConnections", std::to_string(connectionArray.size()));
     }
   }
   if (mConnectionHealthCallback != nullptr)
