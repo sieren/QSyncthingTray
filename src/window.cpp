@@ -216,9 +216,11 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
   }
   else if (status.at("state") == "1")
   {
-    std::string connectionNumber = status.at("connections");
+    std::string activeConnections = status.at("activeConnections");
+    std::string totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
-    mpNumberOfConnectionsAction->setText(tr("Connections: ") + connectionNumber.c_str());
+    mpNumberOfConnectionsAction->setText(tr("Connections: ") + activeConnections.c_str()
+      + "/" + totalConnections.c_str());
     mpConnectedState->setText(tr("Connected"));
     setIcon(0);
     if (mLastConnectionState != 1)

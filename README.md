@@ -39,6 +39,7 @@ To start Syncthing at boot (OS X):
 
 ## Requirements
 QSyncthingTray has been targeted for OS X 10.7, however only been tested on 10.10. Feedback is highly appreciated.
+Using Syncthing v12+ is recommended.
 
 ## Build & Run
 + Get a recent version of Qt (5.5+)  
