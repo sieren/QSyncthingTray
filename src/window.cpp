@@ -432,7 +432,9 @@ void Window::createSettingsGroupBox()
 
   mpAppearanceGroupBox = new QGroupBox(tr("Appearance"));
   mpMonochromeIconBox = new QCheckBox("Monochrome Icon");
+  mpMonochromeIconBox->setChecked(mIconMonochrome);
   mpNotificationsIconBox = new QCheckBox("Notifications");
+  mpNotificationsIconBox->setChecked(mNotificationsEnabled);
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
