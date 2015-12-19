@@ -103,6 +103,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   {
     mConnectionStateCallback(result, success);
   }
+  reply->deleteLater();
 }
 
 
@@ -234,6 +235,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   {
     mConnectionHealthCallback(result);
   }
+  reply->deleteLater();
 }
 
 
@@ -269,6 +271,7 @@ void SyncConnector::currentConfigReceived(QNetworkReply *reply)
       mFolders = result;
     }
   }
+  reply->deleteLater();
 }
 
 
@@ -300,11 +303,11 @@ void SyncConnector::shutdownSyncthingProcess()
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 {
-#pragma unused(reply)
   if (mProcessSpawnedCallback)
   {
     mProcessSpawnedCallback(kSyncthingProcessState::PAUSED);
   }
+  reply->deleteLater();
 }
 
 
