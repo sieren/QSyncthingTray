@@ -88,6 +88,7 @@ private:
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
     void createDefaultSettings();
+    int getCurrentVersion(std::string reply);
 
     QTabWidget *mpSettingsTabsWidget;
     QGroupBox *mpSettingsGroupBox;

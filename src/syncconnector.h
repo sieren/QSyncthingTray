@@ -35,8 +35,7 @@
 #include <thread>
 #include <utility>
 #include "platforms.hpp"
-#include "syncconnector.h"
-
+#include "apihandler.hpp"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -59,7 +58,7 @@ typedef enum processState
   PAUSED
 } kSyncthingProcessState;
 
-using ConnectionStateCallback = std::function<void(std::string, bool)>;
+using ConnectionStateCallback = std::function<void(std::pair<std::string, bool>)>;
 using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
 using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
 
@@ -97,6 +96,7 @@ namespace connector
     void urlTested(QNetworkReply* reply);
     void connectionHealthReceived(QNetworkReply* reply);
     void currentConfigReceived(QNetworkReply* reply);
+    int getCurrentVersion(std::string reply);
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
     ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
@@ -124,6 +124,7 @@ namespace connector
     std::string mAPIKey;
     
     mfk::sysutils::SystemUtility systemUtil;
+    std::unique_ptr<api::APIHandlerBase> mAPIHandler;
   };
 } // connector
 } // mfk

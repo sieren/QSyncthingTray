@@ -180,9 +180,9 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-    mCurrentUserPassword, [&](std::string result, bool success)
+     mCurrentUserPassword, [&](std::pair<std::string, bool> result)
   {
-    if (success)
+    if (result.second)
     {
       mpUrlTestResultLabel->setText(tr("Status: Connected"));
       mpConnectedState->setText(tr("Connected"));
@@ -190,7 +190,7 @@ void Window::testURL()
     }
     else
     {
-      mpUrlTestResultLabel->setText(tr("Status: ") + result.c_str());
+      mpUrlTestResultLabel->setText(tr("Status: ") + result.first.c_str());
       setIcon(1);
     }
   });

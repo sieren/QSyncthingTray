@@ -73,7 +73,6 @@ void SyncConnector::showWebView()
   std::unique_ptr<QWebView> pWeb(new QWebView());
   mpWebView = std::move(pWeb);
   mpWebView->show();
-  mpWebView->page()->setNetworkAccessManager(&network);
   mpWebView->load(mCurrentUrl);
   mpWebView->raise();
 }
@@ -84,24 +83,16 @@ void SyncConnector::showWebView()
 void SyncConnector::urlTested(QNetworkReply* reply)
 {
   ignoreSslErrors(reply);
-  std::string result;
-  bool success = false;
 
-  if (reply->error() != QNetworkReply::NoError)
-  {
-    result = reply->errorString().toStdString();
-  }
-  else
-  {
-    QString m_DownloadedData = static_cast<QString>(reply->readAll());
-    QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-    QJsonObject replyData = replyDoc.object();
-    result = replyData.value(tr("version")).toString().toStdString();
-    success = true;
-  }
+  std::pair<std::string, bool> connectionInfo =
+    api::V12API().getConnectionInfo(reply);
+  
+  int versionNumber = getCurrentVersion(connectionInfo.first);
+  mAPIHandler =
+    std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
   if (mConnectionStateCallback != nullptr)
   {
-    mConnectionStateCallback(result, success);
+    mConnectionStateCallback(connectionInfo);
   }
   reply->deleteLater();
 }
@@ -204,33 +195,12 @@ void SyncConnector::netRequestfinished(QNetworkReply* reply)
 void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 {
   ignoreSslErrors(reply);
-  std::map<std::string, std::string> result;
-  result.emplace("state", "0");
-  if (reply->error() != QNetworkReply::NoError)
+  QByteArray replyData;
+  if (reply->error() == QNetworkReply::NoError)
   {
-  //  TODO: Error Handling
+    replyData = reply->readAll();
   }
-  else
-  {
-    if (reply->bytesAvailable() > 0)
-    {
-      result.clear();
-      result.emplace("state", "1");
-      QString m_DownloadedData = static_cast<QString>(reply->readAll());
-      QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-      QJsonObject replyData = replyDoc.object();
-      QJsonObject connectionArray = replyData["connections"].toObject();
-      int active = 0;
-      for (QJsonObject::Iterator it = connectionArray.begin();
-           it != connectionArray.end(); it++)
-      {
-        QJsonObject jObj = it->toObject();
-        active += jObj.find("connected").value().toBool() ? 1 : 0;
-      }
-      result.emplace("activeConnections", std::to_string(active));
-      result.emplace("totalConnections", std::to_string(connectionArray.size()));
-    }
-  }
+  std::map<std::string, std::string> result = mAPIHandler->getConnections(replyData);
   if (mConnectionHealthCallback != nullptr)
   {
     mConnectionHealthCallback(result);
@@ -244,33 +214,13 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
 void SyncConnector::currentConfigReceived(QNetworkReply *reply)
 {
   ignoreSslErrors(reply);
-  std::list<std::pair<std::string, std::string>> result;
-  if (reply->error() != QNetworkReply::NoError)
+  QByteArray replyData;
+  if (reply->error() == QNetworkReply::NoError)
   {
-    // do nothing for now
+    replyData = reply->readAll();
   }
-  else
-  {
-    if (reply->bytesAvailable() > 0)
-    {
-      QString m_DownloadedData = static_cast<QString>(reply->readAll());
-      QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-      QJsonObject replyData = replyDoc.object();
-      QJsonObject guiData = replyData["gui"].toObject();
-      mAPIKey =  guiData["apiKey"].toString().toStdString();
-      QJsonArray foldersArray = replyData["folders"].toArray();
-      QJsonArray::iterator it;
-      foreach (const QJsonValue & value, foldersArray)
-      {
-        std::pair<std::string, std::string> aResult;
-        QJsonObject singleEntry = value.toObject();
-        aResult.first = singleEntry.find("id").value().toString().toStdString();
-        aResult.second = singleEntry.find("path").value().toString().toStdString();
-        result.emplace_back(aResult);
-      }
-      mFolders = result;
-    }
-  }
+  mAPIKey = mAPIHandler->getCurrentAPIKey(replyData);
+  mFolders = mAPIHandler->getCurrentFolderList(replyData);
   reply->deleteLater();
 }
 
@@ -292,7 +242,6 @@ void SyncConnector::shutdownSyncthingProcess()
           );
   QNetworkRequest networkRequest(requestUrl);
   std::string headerStr = "X-API-KEY: " + mAPIKey;
-  std::cout << headerStr << std::endl;
   QByteArray headerByte(mAPIKey.c_str(), mAPIKey.length());
   networkRequest.setRawHeader("X-API-Key", headerByte);
   
@@ -386,6 +335,27 @@ bool SyncConnector::checkIfFileExists(QString path)
   {
     return false;
   }
+}
+
+  
+//------------------------------------------------------------------------------------//
+
+int SyncConnector::getCurrentVersion(std::string reply)
+{
+  std::string separator(".");
+  std::size_t pos1 = reply.find(separator);
+  std::size_t pos2 = reply.find(separator, pos1+1);
+  std::string result = reply.substr (pos1+1, pos2-pos1-1);
+  int version = 0;
+  try
+  {
+    version = std::stoi(result);
+  }
+  catch (std::exception &e)
+  {
+    std::cerr << "Error getting current version: " << e.what() << std::endl;
+  }
+  return version;
 }
 
 
