@@ -52,8 +52,8 @@ SET_SOURCE_FILES_PROPERTIES(
   MACOSX_PACKAGE_LOCATION Resources
   )
 
-
   if(APPLE)
+    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
     add_executable(QSyncthingTray MACOSX_BUNDLE src/Syncthing.icns ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
   elseif(WIN32)
     add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
@@ -61,9 +61,16 @@ SET_SOURCE_FILES_PROPERTIES(
     add_executable(QSyncthingTray ${FILES_WP})
   endif()
   
-target_link_libraries(
-    QSyncthingTray
-    ${Qt5Core_QTMAIN_LIBRARIES})
+if (APPLE)
+  target_link_libraries(
+      QSyncthingTray
+      ${Qt5Core_QTMAIN_LIBRARIES}
+      ${COCOA_LIBRARY})
+else()
+  target_link_libraries(
+      QSyncthingTray
+      ${Qt5Core_QTMAIN_LIBRARIES})
+endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set_target_properties(QSyncthingTray PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")

@@ -18,10 +18,11 @@
 
 #ifndef QSyncthingTray_posixUtils_hpp
 #define QSyncthingTray_posixUtils_hpp
+#pragma once
 #include <sstream>
 #include <string>
 #include <iostream>
-#include <CoreFoundation/CoreFoundation.h>
+#include <Carbon/Carbon.h>
 
 namespace mfk
 {
@@ -31,11 +32,28 @@ namespace darwin
 {
   struct MacUtils
   {
+    
+    void showDockIcon(bool show)
+    {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      ProcessSerialNumber psn;
+      UInt32 transformState = show ? kProcessTransformToForegroundApplication :
+        kProcessTransformToUIElementApplication;
+      if (GetCurrentProcess(&psn) == noErr)
+      {
+        TransformProcessType(&psn,
+          transformState);
+      }
+    #pragma clang diagnostic pop
+    }
+
     std::string getSSLLibraryText()
     {
       return std::string("HTTPS is not supported on this platform. "
         "This can happen when OpenSSL is missing.");
     }
+
     static bool isBinaryRunning(std::string binary)
     {
       const char* someapp = binary.c_str();
