@@ -19,6 +19,7 @@
 
 #include "processmonitor.hpp"
 #include <QApplication>
+#include <QHeaderView>
 
 using namespace mfk::monitor;
 
@@ -36,6 +37,7 @@ ProcessMonitor::ProcessMonitor(std::shared_ptr<mfk::connector::SyncConnector> pS
   tableHeaders << "Process";
 
   mpProcessTable = new QTableWidget();
+  mpProcessTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   refreshTable();
   mpProcessTable->setHorizontalHeaderLabels(tableHeaders);
   connect(mpProcessTable, SIGNAL(cellDoubleClicked(int, int)),
