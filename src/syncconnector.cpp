@@ -74,6 +74,10 @@ void SyncConnector::showWebView()
   std::unique_ptr<QWebView> pWeb(new QWebView());
   mpWebView = std::move(pWeb);
   mpWebView->show();
+  connect(mpWebView->page()->networkAccessManager(),
+    SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
+    this,
+    SLOT(onSslError(QNetworkReply*)));
   mpWebView->load(mCurrentUrl);
   mpWebView->setStyle(QStyleFactory::create("Fusion"));
   mpWebView->raise();
@@ -320,7 +324,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   
   errorsThatCanBeIgnored<<QSslError(QSslError::HostNameMismatch);
   errorsThatCanBeIgnored<<QSslError(QSslError::SelfSignedCertificate);
-  reply->ignoreSslErrors(errorsThatCanBeIgnored);
+  reply->ignoreSslErrors();
 }
 
 
