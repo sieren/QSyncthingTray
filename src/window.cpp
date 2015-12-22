@@ -64,6 +64,8 @@ Window::Window()
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(mpAuthCheckBox, SIGNAL(stateChanged(int)), this,
       SLOT(authCheckBoxChanged(int)));
+    connect(mpShouldLaunchSyncthingBox, SIGNAL(stateChanged(int)), this,
+      SLOT(launchSyncthingBoxChanged(int)));
     connect(mpMonochromeIconBox, SIGNAL(stateChanged(int)), this,
       SLOT(monoChromeIconChanged(int)));
     connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
@@ -107,7 +109,7 @@ Window::Window()
         }
       });
 
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 
     setIcon(0);
     mpTrayIcon->show();
@@ -180,9 +182,9 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-    mCurrentUserPassword, [&](std::string result, bool success)
+     mCurrentUserPassword, [&](std::pair<std::string, bool> result)
   {
-    if (success)
+    if (result.second)
     {
       mpUrlTestResultLabel->setText(tr("Status: Connected"));
       mpConnectedState->setText(tr("Connected"));
@@ -190,7 +192,7 @@ void Window::testURL()
     }
     else
     {
-      mpUrlTestResultLabel->setText(tr("Status: ") + result.c_str());
+      mpUrlTestResultLabel->setText(tr("Status: ") + result.first.c_str());
       setIcon(1);
     }
   });
@@ -237,7 +239,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     }
     // syncthing takes a while to shut down, in case someone
     // would reopen qsyncthingtray it wouldnt restart the process
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
     setIcon(1);
   }
   try
@@ -302,6 +304,29 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
+void Window::launchSyncthingBoxChanged(int state)
+{
+  if (state)
+  {
+    mpFilePathLabel->show();
+    mpFilePathLine->show();
+    mpFilePathBrowse->show();
+    mpAppSpawnedLabel->show();
+    mShouldLaunchSyncthing = true;
+  }
+  else
+  {
+    mpFilePathLabel->hide();
+    mpFilePathLine->hide();
+    mpFilePathBrowse->hide();
+    mpAppSpawnedLabel->hide();
+    mShouldLaunchSyncthing = false;
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::showMessage(std::string title, std::string body)
 {
   if (mNotificationsEnabled)
@@ -329,7 +354,7 @@ void Window::showFileBrowser()
 void Window::pathEnterPressed()
 {
     mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true);
+    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true, true);
 }
 
 //------------------------------------------------------------------------------------//
@@ -337,7 +362,7 @@ void Window::pathEnterPressed()
 void Window::spawnSyncthingApp()
 {
   saveSettings();
-  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath);
+  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 }
 
 
@@ -370,12 +395,16 @@ void Window::folderClicked()
 
 void Window::createSettingsGroupBox()
 {
+  
+  //
+  // SYNCTHING API URL
+  //
+
   mpSettingsGroupBox = new QGroupBox(tr("Syncthing URL"));
 
   mpURLLabel = new QLabel("URL");
 
   mpSyncthingUrlLineEdit = new QLineEdit(mCurrentUrl.toString());
-  // mpSyncthingUrlLineEdit->setFixedWidth(maximumWidth - 40 / devicePixelRatio());
   mpTestConnectionButton = new QPushButton(tr("Connect"));
 
   mpAuthCheckBox = new QCheckBox(tr("Authentication"), this);
@@ -388,6 +417,13 @@ void Window::createSettingsGroupBox()
   userPassword->setEchoMode(QLineEdit::Password);
 
   mpUrlTestResultLabel = new QLabel("Not Tested");
+
+  mpAuthCheckBox->setCheckState(Qt::Checked);
+  if (mCurrentUserName.length() == 0)
+  {
+    showAuthentication(false);
+    mpAuthCheckBox->setCheckState(Qt::Unchecked);
+  }
 
   QGridLayout *iconLayout = new QGridLayout;
   iconLayout->addWidget(mpURLLabel, 0, 0);
@@ -403,7 +439,16 @@ void Window::createSettingsGroupBox()
   mpSettingsGroupBox->setMinimumWidth(400);
   mpSettingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
+  //
+  // SYNCTHING BINARY PATH
+  //
+
   mpFilePathGroupBox = new QGroupBox(tr("Syncthing Application"));
+
+  mpShouldLaunchSyncthingBox = new QCheckBox(tr("Launch Syncthing"));
+  Qt::CheckState launchState = mShouldLaunchSyncthing ? Qt::Checked : Qt::Unchecked;
+  mpShouldLaunchSyncthingBox->setCheckState(launchState);
+  QGridLayout *filePathLayout = new QGridLayout;
 
   mpFilePathLabel = new QLabel("Binary with Path");
 
@@ -412,23 +457,22 @@ void Window::createSettingsGroupBox()
   mpFilePathBrowse = new QPushButton(tr("Browse"));
 
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
+  
+  filePathLayout->addWidget(mpFilePathLabel, 1, 0);
+  filePathLayout->addWidget(mpFilePathLine,2, 0, 1, 4);
+  filePathLayout->addWidget(mpFilePathBrowse,3, 0, 1, 1);
+  filePathLayout->addWidget(mpAppSpawnedLabel, 3, 1, 1, 1);
 
-  mpAuthCheckBox->setCheckState(Qt::Checked);
-  if (mCurrentUserName.length() == 0)
-  {
-    showAuthentication(false);
-    mpAuthCheckBox->setCheckState(Qt::Unchecked);
-  }
-
-  QGridLayout *filePathLayout = new QGridLayout;
-  filePathLayout->addWidget(mpFilePathLabel, 0, 0);
-  filePathLayout->addWidget(mpFilePathLine,1, 0, 1, 4);
-  filePathLayout->addWidget(mpFilePathBrowse,2, 0, 1, 1);
-  filePathLayout->addWidget(mpAppSpawnedLabel, 2, 1, 1, 1);
-
+  filePathLayout->addWidget(mpShouldLaunchSyncthingBox, 0, 0);
   mpFilePathGroupBox->setLayout(filePathLayout);
   mpFilePathGroupBox->setMinimumWidth(400);
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  
+  launchSyncthingBoxChanged(launchState);
+
+  //
+  // APPEARANCE BOX
+  //
 
   mpAppearanceGroupBox = new QGroupBox(tr("Appearance"));
   mpMonochromeIconBox = new QCheckBox("Monochrome Icon");
@@ -543,6 +587,12 @@ void Window::saveSettings()
   mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
+  if (mSettings.value("launchSyncthingAtStartup").toBool() != mShouldLaunchSyncthing)
+  {
+    mpSyncConnector->spawnSyncthingProcess(
+      mCurrentSyncthingPath, mShouldLaunchSyncthing);
+  }
+  mSettings.setValue("launchSyncthingAtStartup", mShouldLaunchSyncthing);
 }
 
 
@@ -586,6 +636,7 @@ void Window::loadSettings()
   mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
+  mShouldLaunchSyncthing = mSettings.value("launchSyncthingAtStartup").toBool();
 }
 
 
@@ -597,6 +648,7 @@ void Window::createDefaultSettings()
   mSettings.setValue("monochromeIcon", false);
   mSettings.setValue("notificationsEnabled", true);
   mSettings.setValue("doSettingsExist", true);
+  mSettings.setValue("launchSyncthingAtStartup", false);
 }
 
 //------------------------------------------------------------------------------------//
