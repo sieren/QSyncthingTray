@@ -126,6 +126,7 @@ Window::Window()
 void Window::setVisible(bool visible)
 {
   QDialog::setVisible(visible);
+  mfk::sysutils::SystemUtility().showDockIcon(visible);
   raise();
 }
 
@@ -144,6 +145,7 @@ void Window::closeEvent(QCloseEvent *event)
         }
         event->ignore();
     }
+  mfk::sysutils::SystemUtility().showDockIcon(false);
   saveSettings();
 }
 

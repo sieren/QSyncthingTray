@@ -16,62 +16,51 @@
 // License along with this library.
 ******************************************************************************/
 
-#ifndef QSyncthingTray_winUtils_hpp
-#define QSyncthingTray_winUtils_hpp
+#ifndef QSyncthingTray_posixUtils_hpp
+#define QSyncthingTray_posixUtils_hpp
 #include <sstream>
 #include <string>
 #include <iostream>
-#include <cstdio>
-#include <windows.h>
-#include <tlhelp32.h>
-#include <comdef.h>
 
 namespace mfk
 {
 namespace platforms
 {
-namespace windows
+namespace linux
 {
-  struct WinUtils
+  struct PosixUtils
   {
-    // stubbed out, does nothing on windows
+    // stubbed out, does nothing on linux
     void showDockIcon(bool show) { }
 
     std::string getSSLLibraryText()
     {
-      return std::string("In order to use HTTPS URLs on Windows, the "
-        "<a href='http://slproweb.com/products/Win32OpenSSL.html'>OpenSSL "
-        "Library</a> is required. Please install and restart QSyncthingTray.");
+      return std::string("In order to use HTTPS URLs on Linux, please \
+        install OpenSSL");
     }
 
     static bool isBinaryRunning(std::string binary)
     {
-      const char *syncapp = binary.c_str();
-      bool result = false;
-      PROCESSENTRY32 entry;
-      entry.dwSize = sizeof(PROCESSENTRY32);
-
-      HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-
-      if (Process32First(snapshot, &entry))
+      const char* someapp = binary.c_str();
+      std::stringstream cmd;
+      
+      cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";
+      
+      FILE* app = popen(cmd.str().c_str(), "r");
+      char instances = '0';
+      
+      if (app)
       {
-        while (Process32Next(snapshot, &entry))
-        {
-          _bstr_t cmpStr(entry.szExeFile);
-          if (!_stricmp(cmpStr, syncapp))
-          {
-            result = true;
-          }
-        }
+        fread(&instances, sizeof(instances), 1, app);
+        pclose(app);
       }
-
-      CloseHandle(snapshot);
+      bool result = instances == '0' ? false : true;
       return result;
-
     }
+
   };
-} // windows
-} // platforms
+} // posix
+} // sysutils
 } // mfk
 
 #endif

@@ -23,6 +23,7 @@ INSTALLS += target
 CONFIG += c++11
 macx {
 QMAKE_INFO_PLIST = Info.plist
+LIBS += -framework ApplicationServices
 }
 #QMAKE_CXXFLAGS += /wd4996
 ICON = Syncthing.icns
