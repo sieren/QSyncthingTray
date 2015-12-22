@@ -20,6 +20,7 @@
 #include <QtGui>
 #include <QObject>
 #include <QMessageBox>
+#include <QStyleFactory>
 #include <iostream>
 
 namespace mfk
@@ -74,6 +75,7 @@ void SyncConnector::showWebView()
   mpWebView = std::move(pWeb);
   mpWebView->show();
   mpWebView->load(mCurrentUrl);
+  mpWebView->setStyle(QStyleFactory::create("Fusion"));
   mpWebView->raise();
 }
 
