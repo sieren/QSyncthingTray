@@ -178,6 +178,12 @@ void Window::setIcon(int index)
 
 void Window::testURL()
 {
+  std::string validateUrl = mpSyncthingUrlLineEdit->text().toStdString();
+  std::size_t foundSSL = validateUrl.find("https");
+  if (foundSSL!=std::string::npos)
+  {
+    validateSSLSupport();
+  }
   mCurrentUrl = QUrl(mpSyncthingUrlLineEdit->text());
   mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
@@ -650,6 +656,22 @@ void Window::createDefaultSettings()
   mSettings.setValue("doSettingsExist", true);
   mSettings.setValue("launchSyncthingAtStartup", false);
 }
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::validateSSLSupport()
+{
+  if (!QSslSocket::supportsSsl())
+  {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("OpenSSL Not Found");
+    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+    msgBox.setText(mfk::sysutils::SystemUtility().getSSLLibraryText().c_str());
+    msgBox.exec();
+  }
+}
+
 
 //------------------------------------------------------------------------------------//
 

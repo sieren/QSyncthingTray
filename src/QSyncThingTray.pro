@@ -1,7 +1,8 @@
 HEADERS       = window.h \
                 syncconnector.h \
-                platforms/darwin/posixUtils.hpp \
+                platforms/darwin/macUtils.hpp \
                 platforms/windows/winUtils.hpp \
+                platforms/linux/posixUtils.hpp \
                 processmonitor.hpp \
                 platforms.hpp \
                 apihandler.hpp
