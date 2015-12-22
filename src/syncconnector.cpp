@@ -71,7 +71,7 @@ void SyncConnector::showWebView()
   {
     mpWebView->close();
   }
-  std::unique_ptr<QWebView> pWeb(new QWebView());
+  std::unique_ptr<QWebViewClose> pWeb(new QWebViewClose());
   mpWebView = std::move(pWeb);
   mpWebView->show();
   connect(mpWebView->page()->networkAccessManager(),
@@ -80,6 +80,7 @@ void SyncConnector::showWebView()
     SLOT(onSslError(QNetworkReply*)));
   mpWebView->load(mCurrentUrl);
   mpWebView->setStyle(QStyleFactory::create("Fusion"));
+  sysutils::SystemUtility().showDockIcon(true);
   mpWebView->raise();
 }
 
@@ -396,6 +397,16 @@ void SyncConnector::killProcesses()
 SyncConnector::~SyncConnector()
 {
   killProcesses();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void QWebViewClose::closeEvent(QCloseEvent *event)
+{
+#pragma unused(event)
+  mfk::sysutils::SystemUtility().showDockIcon(false);
+  close();
 }
   
 } // connector

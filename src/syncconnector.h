@@ -66,6 +66,7 @@ namespace mfk
 {
 namespace connector
 {
+  class QWebViewClose;
   class SyncConnector : public QObject
   {
     Q_OBJECT
@@ -117,7 +118,7 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<QWebView> mpWebView;
+    std::unique_ptr<QWebViewClose> mpWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     QProcess *mpSyncthingNotifierProcess = nullptr;
     std::list<std::pair<std::string, std::string>> mFolders;
@@ -129,6 +130,13 @@ namespace connector
     
     mfk::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
+  };
+
+  class QWebViewClose : public QWebView
+  {
+    Q_OBJECT;
+    public slots:
+      void closeEvent(QCloseEvent *event) override;
   };
 } // connector
 } // mfk
