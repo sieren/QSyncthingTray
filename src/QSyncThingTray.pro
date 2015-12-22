@@ -3,7 +3,8 @@ HEADERS       = window.h \
                 platforms/darwin/posixUtils.hpp \
                 platforms/windows/winUtils.hpp \
                 processmonitor.hpp \
-                platforms.hpp
+                platforms.hpp \
+                apihandler.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp \
