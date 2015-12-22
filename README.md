@@ -38,8 +38,7 @@ To start Syncthing at boot (OS X):
 + Drag QSyncthingTray into the **Login Items** list
 
 ## Requirements
-QSyncthingTray has been targeted for OS X 10.7, however only been tested on 10.10. Feedback is highly appreciated.
-Using Syncthing v12+ is recommended.
+If you want to use HTTPS to connect to Syncthing on Windows, please download and install the [OpenSSL DLLs](http://slproweb.com/products/Win32OpenSSL.html). Then restart QSyncthingTray.
 
 ## Build & Run
 + Get a recent version of Qt (5.5+)  
