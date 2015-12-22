@@ -71,6 +71,7 @@ private slots:
     void messageClicked();
     void testURL();
     void authCheckBoxChanged(int state);
+    void launchSyncthingBoxChanged(int state);
     void monoChromeIconChanged(int state);
     void spawnSyncthingApp();
     void showFileBrowser();
@@ -105,6 +106,7 @@ private:
     QLabel *mpFilePathLabel;
     QLineEdit *mpFilePathLine;
     QPushButton *mpFilePathBrowse;
+    QCheckBox *mpShouldLaunchSyncthingBox;
 
     QLabel *mpUrlTestResultLabel;
     QLabel *mpAppSpawnedLabel;
@@ -135,6 +137,7 @@ private:
     QSettings mSettings;
     bool mIconMonochrome;
     bool mNotificationsEnabled;
+    bool mShouldLaunchSyncthing;
     int mLastConnectionState;
 
   };

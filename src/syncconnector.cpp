@@ -262,33 +262,42 @@ void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::spawnSyncthingProcess(std::string filePath, const bool onSetPath)
+void SyncConnector::spawnSyncthingProcess(
+  std::string filePath, const bool shouldSpawn, const bool onSetPath)
 {
-  if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
+  if (shouldSpawn)
   {
-    QMessageBox msgBox;
-    msgBox.setText("Could not find Syncthing.");
-    msgBox.setInformativeText("Are you sure the path is correct?");
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    msgBox.exec();
-  }
-  if (!systemUtil.isBinaryRunning(std::string("syncthing")))
-  {
-    mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
-    connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
-      this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-    QString processPath = filePath.c_str();
-    QStringList launchArgs;
-    launchArgs << "-no-browser";
-    mpSyncProcess->start(processPath, launchArgs);
+    if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
+    {
+      QMessageBox msgBox;
+      msgBox.setText("Could not find Syncthing.");
+      msgBox.setInformativeText("Are you sure the path is correct?");
+      msgBox.setStandardButtons(QMessageBox::Ok);
+      msgBox.setDefaultButton(QMessageBox::Ok);
+      msgBox.exec();
+    }
+    if (!systemUtil.isBinaryRunning(std::string("syncthing")))
+    {
+      mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
+      connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
+        this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
+      QString processPath = filePath.c_str();
+      QStringList launchArgs;
+      launchArgs << "-no-browser";
+      mpSyncProcess->start(processPath, launchArgs);
+    }
+    else
+    {
+      if (mProcessSpawnedCallback != nullptr)
+      {
+        mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
+      }
+    }
   }
   else
   {
-    if (mProcessSpawnedCallback != nullptr)
-    {
-      mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
-    }
+    shutdownSyncthingProcess();
+    killProcesses();
   }
 }
 
@@ -361,7 +370,7 @@ int SyncConnector::getCurrentVersion(std::string reply)
 
 //------------------------------------------------------------------------------------//
 
-SyncConnector::~SyncConnector()
+void SyncConnector::killProcesses()
 {
   if (mpSyncProcess != nullptr
       && mpSyncProcess->state() == QProcess::Running)
@@ -373,6 +382,14 @@ SyncConnector::~SyncConnector()
   {
     mpSyncthingNotifierProcess->kill();
   }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+SyncConnector::~SyncConnector()
+{
+  killProcesses();
 }
   
 } // connector

@@ -78,7 +78,10 @@ namespace connector
     void setConnectionHealthCallback(ConnectionHealthCallback cb);
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
     void showWebView();
-    void spawnSyncthingProcess(std::string filePath, const bool onSetPath = false);
+    void spawnSyncthingProcess(
+      std::string filePath,
+      const bool shouldSpawn,
+      const bool onSetPath = false);
     void shutdownSyncthingProcess();
     std::list<std::pair<std::string, std::string>> getFolders();
 
@@ -96,6 +99,7 @@ namespace connector
     void urlTested(QNetworkReply* reply);
     void connectionHealthReceived(QNetworkReply* reply);
     void currentConfigReceived(QNetworkReply* reply);
+    void killProcesses();
     int getCurrentVersion(std::string reply);
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
