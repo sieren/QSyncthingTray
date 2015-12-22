@@ -20,8 +20,10 @@
 
 #ifdef _WIN32
 #include "platforms/windows/winUtils.hpp"
-#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-#include "platforms/darwin/posixUtils.hpp"
+#elif defined(__linux__)
+#include "platforms/linux/posixUtils.hpp"
+#elif (defined(__APPLE__) && defined(__MACH__))
+#include "platforms/darwin/macUtils.hpp"
 #endif
 
 namespace mfk
@@ -31,8 +33,10 @@ namespace sysutils
   
 #ifdef _WIN32
 using SystemUtility = platforms::windows::WinUtils;
-#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__linux__)
-using SystemUtility = platforms::darwin::PosixUtils;
+#elif defined(__linux__)
+using SystemUtility = platforms::linux::PosixUtils;
+#elif (defined(__APPLE__) && defined(__MACH__))
+using SystemUtility = platforms::darwin::MacUtils;
 #endif
   
 } // sysutils

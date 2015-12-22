@@ -21,6 +21,7 @@
 
 #include "syncconnector.h"
 #include "processmonitor.hpp"
+#include "platforms.hpp"
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -89,6 +90,7 @@ private:
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
     void createDefaultSettings();
+    void validateSSLSupport();
     int getCurrentVersion(std::string reply);
 
     QTabWidget *mpSettingsTabsWidget;

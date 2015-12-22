@@ -34,6 +34,12 @@ namespace windows
 {
   struct WinUtils
   {
+    std::string getSSLLibraryText()
+    {
+      return std::string("In order to use HTTPS URLs on Windows, the "
+        "<a href='http://slproweb.com/products/Win32OpenSSL.html'>OpenSSL "
+        "Library</a> is required. Please install and restart QSyncthingTray.");
+    }
     static bool isBinaryRunning(std::string binary)
     {
       const char *syncapp = binary.c_str();

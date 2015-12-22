@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <CoreFoundation/CoreFoundation.h>
 
 namespace mfk
 {
@@ -28,8 +29,13 @@ namespace platforms
 {
 namespace darwin
 {
-  struct PosixUtils
+  struct MacUtils
   {
+    std::string getSSLLibraryText()
+    {
+      return std::string("HTTPS is not supported on this platform. "
+        "This can happen when OpenSSL is missing.");
+    }
     static bool isBinaryRunning(std::string binary)
     {
       const char* someapp = binary.c_str();
