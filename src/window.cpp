@@ -350,9 +350,9 @@ void Window::folderClicked()
   QObject *obj = sender();
   QAction * senderObject = static_cast<QAction*>(obj);
   std::string findFolder = senderObject->text().toStdString();
-  std::list<std::pair<std::string, std::string>>::iterator folder =
+  std::list<FolderNameFullPath>::iterator folder =
     std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
-      [&findFolder](std::pair<std::string, std::string> const& elem) {
+      [&findFolder](FolderNameFullPath const& elem) {
         return elem.first == findFolder;
       });
   QDesktopServices::openUrl(QUrl::fromLocalFile(tr(folder->second.c_str())));

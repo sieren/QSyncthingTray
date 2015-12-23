@@ -375,7 +375,7 @@ void SyncConnector::spawnINotifyProcess(
 
 //------------------------------------------------------------------------------------//
 
-std::list<std::pair<std::string, std::string>> SyncConnector::getFolders()
+std::list<FolderNameFullPath> SyncConnector::getFolders()
 {
   return mFolders;
 }

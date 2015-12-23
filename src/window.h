@@ -127,7 +127,7 @@ private:
     QMenu *mpCurrentFoldersMenu;
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
 
-    std::list<std::pair<std::string, std::string>> mCurrentFoldersLocations;
+    std::list<FolderNameFullPath> mCurrentFoldersLocations;
     QSystemTrayIcon *mpTrayIcon = nullptr;
     QMenu *mpTrayIconMenu = nullptr;
     QUrl mCurrentUrl;

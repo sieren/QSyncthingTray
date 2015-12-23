@@ -62,6 +62,7 @@ using ConnectionStateCallback = std::function<void(std::pair<std::string, bool>)
 using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
 using NetworkActivityCallback = std::function<void(bool)>;
 using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
+using FolderNameFullPath = std::pair<std::string, std::string>;
 
 namespace mfk
 {
@@ -90,7 +91,8 @@ namespace connector
      const bool shouldSpawn,
      const bool onSetPath = false);
     void shutdownSyncthingProcess();
-    std::list<std::pair<std::string, std::string>> getFolders();
+    std::list<FolderNameFullPath> getFolders();
+
 
   private slots:
     void onSslError(QNetworkReply* reply);
@@ -128,7 +130,7 @@ namespace connector
     std::unique_ptr<QWebViewClose> mpWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
-    std::list<std::pair<std::string, std::string>> mFolders;
+    std::list<FolderNameFullPath> mFolders;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
