@@ -92,7 +92,7 @@ namespace connector
      const bool onSetPath = false);
     void shutdownSyncthingProcess();
     std::list<FolderNameFullPath> getFolders();
-
+    LastSyncedFileList getLastSyncedFiles();
 
   private slots:
     void onSslError(QNetworkReply* reply);
@@ -108,6 +108,7 @@ namespace connector
     void urlTested(QNetworkReply* reply);
     void connectionHealthReceived(QNetworkReply* reply);
     void currentConfigReceived(QNetworkReply* reply);
+    void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
     int getCurrentVersion(std::string reply);
     ConnectionStateCallback mConnectionStateCallback = nullptr;
@@ -124,6 +125,7 @@ namespace connector
       urlTested,
       connectionHealth,
       getCurrentConfig,
+      getLastSyncedFiles,
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
@@ -131,6 +133,7 @@ namespace connector
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
+    LastSyncedFileList mLastSyncedFiles;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;

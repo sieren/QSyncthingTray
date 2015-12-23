@@ -34,6 +34,11 @@ namespace windows
 {
   struct WinUtils
   {
+
+    char getPlatformDelimiter()
+    {
+      return '\';
+    }
     // stubbed out, does nothing on windows
     void showDockIcon(bool show) { }
 

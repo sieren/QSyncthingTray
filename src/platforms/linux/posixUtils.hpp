@@ -30,6 +30,11 @@ namespace linux
 {
   struct PosixUtils
   {
+    char getPlatformDelimiter()
+    {
+      return '/';
+    }
+
     // stubbed out, does nothing on linux
     void showDockIcon(bool show) { }
 

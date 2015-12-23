@@ -112,10 +112,16 @@ void SyncConnector::checkConnectionHealth()
 {
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
-  QNetworkRequest request(requestUrl);
-
-  QNetworkReply *reply = network.get(request);
+  QNetworkRequest healthRequest(requestUrl);
+  QNetworkReply *reply = network.get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
+  
+  QUrl lastSyncedListURL = mCurrentUrl;
+  lastSyncedListURL.setPath(tr("/rest/stats/folder"));
+  QNetworkRequest lastSyncedRequest(lastSyncedListURL);
+  QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
+  requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
+  
   getCurrentConfig();
 }
 
@@ -201,6 +207,9 @@ void SyncConnector::netRequestfinished(QNetworkReply* reply)
     case kRequestMethod::urlTested:
       urlTested(reply);
       break;
+    case kRequestMethod::getLastSyncedFiles:
+      lastSyncedFilesReceived(reply);
+      break;
   }
   requestMap.remove(reply);
 }
@@ -262,6 +271,27 @@ void SyncConnector::currentConfigReceived(QNetworkReply *reply)
   reply->deleteLater();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::lastSyncedFilesReceived(QNetworkReply *reply)
+{
+  QByteArray replyData;
+  if (reply->error() == QNetworkReply::NoError)
+  {
+    replyData = reply->readAll();
+  }
+  mLastSyncedFiles = mAPIHandler->getLastSyncedFiles(replyData);
+  reply->deleteLater();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+LastSyncedFileList SyncConnector::getLastSyncedFiles()
+{
+  return mLastSyncedFiles;
+}
 
 //------------------------------------------------------------------------------------//
 

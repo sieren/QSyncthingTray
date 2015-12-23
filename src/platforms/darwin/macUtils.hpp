@@ -33,6 +33,11 @@ namespace darwin
   struct MacUtils
   {
     
+    char getPlatformDelimiter()
+    {
+      return '/';
+    }
+
     void showDockIcon(bool show)
     {
     #pragma clang diagnostic push

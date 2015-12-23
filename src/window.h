@@ -79,6 +79,7 @@ private slots:
     void animateIconBoxChanged(int state);
     void showGitPage();
     void folderClicked();
+    void syncedFileClicked();
     void onUpdateIcon();
 
 private:
@@ -90,6 +91,7 @@ private:
     void showAuthentication(bool show);
     void showMessage(std::string title, std::string body);
     void createFoldersMenu();
+    void createLastSyncedMenu();
     void createDefaultSettings();
     void validateSSLSupport();
     int getCurrentVersion(std::string reply);
@@ -126,8 +128,11 @@ private:
 
     QMenu *mpCurrentFoldersMenu;
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
+    std::list<QSharedPointer<QAction>> mCurrentSyncedFilesActions;
 
     std::list<FolderNameFullPath> mCurrentFoldersLocations;
+    LastSyncedFileList mLastSyncedFiles;
+
     QSystemTrayIcon *mpTrayIcon = nullptr;
     QMenu *mpTrayIconMenu = nullptr;
     QUrl mCurrentUrl;

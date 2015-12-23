@@ -101,6 +101,7 @@ Window::Window()
       this,
       std::placeholders::_1));
 
+    mpStartupTab->spawnSyncthingApp();
     setIcon(0);
     mpTrayIcon->show();
     #ifdef Q_OS_MAC
@@ -226,6 +227,12 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
       + status.at("globalTraffic").c_str());
     mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
     mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
+    
+    if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
+    {
+      mLastSyncedFiles = mpSyncConnector->getLastSyncedFiles();
+      createLastSyncedMenu();
+    }
     setIcon(0);
     if (mLastConnectionState != 1)
     {
@@ -361,6 +368,35 @@ void Window::folderClicked()
 
 //------------------------------------------------------------------------------------//
 
+void Window::syncedFileClicked()
+{
+  using namespace mfk::utilities;
+  using namespace mfk::sysutils;
+
+  QObject *obj = sender();
+  QAction * senderObject = static_cast<QAction*>(obj);
+  std::string findFile = senderObject->text().toStdString();
+  LastSyncedFileList::iterator fileIterator =
+  std::find_if(mLastSyncedFiles.begin(), mLastSyncedFiles.end(),
+               [&findFile](DateFolderFile const& elem) {
+                 return getCleanFileName(std::get<2>(elem)) == findFile;
+               });
+  
+  // get full path to folder
+  std::list<std::pair<std::string, std::string>>::iterator folder =
+  std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
+               [&fileIterator](std::pair<std::string, std::string> const& elem) {
+                 return getFullCleanFileName(elem.first) == std::get<1>(*fileIterator);
+               });
+  std::string fullPath = folder->second + getPathToFileName(std::get<2>(*fileIterator))
+    + SystemUtility().getPlatformDelimiter();
+  std::cout << "FineFile " << findFile << "Opening " << fullPath << std::endl;
+  QDesktopServices::openUrl(QUrl::fromLocalFile(tr(fullPath.c_str())));
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::createSettingsGroupBox()
 {
   
@@ -490,6 +526,32 @@ void Window::createFoldersMenu()
 
 //------------------------------------------------------------------------------------//
 
+void Window::createLastSyncedMenu()
+{
+  using namespace mfk::utilities;
+  if (mLastSyncedFiles.size() > 0)
+  {
+    std::list<QSharedPointer<QAction>> syncedFilesActions;
+    for (LastSyncedFileList::iterator it=mLastSyncedFiles.begin();
+         it != mLastSyncedFiles.end(); ++it)
+    {
+      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
+        new QAction(tr(getCleanFileName(std::get<2>(*it)).c_str()), this));
+
+      // 4th item of tuple is file-erased-bool
+      aAction->setDisabled(std::get<3>(*it));
+      connect(aAction.data(), SIGNAL(triggered()), this, SLOT(syncedFileClicked()));
+      syncedFilesActions.emplace_back(aAction);
+    }
+    mCurrentSyncedFilesActions = syncedFilesActions;
+  }
+  // Update Menu
+  createTrayIcon();
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::createTrayIcon()
 {
   if (mpTrayIconMenu == nullptr)
@@ -510,6 +572,19 @@ void Window::createTrayIcon()
     mpCurrentFoldersMenu->addAction(std::move(aAction));
   }
 
+  if (mCurrentSyncedFilesActions.size() > 0)
+  {
+    mpTrayIconMenu->addSeparator();
+    mpTrayIconMenu->addAction(new QAction(tr("Last Synced Files"), this));
+
+    for (std::list<QSharedPointer<QAction>>::iterator it =
+        mCurrentSyncedFilesActions.begin();
+      it != mCurrentSyncedFilesActions.end(); ++it)
+    {
+      QAction *aAction = it->data();
+      mpTrayIconMenu->addAction(aAction);
+    }
+  }
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpShowWebViewAction);
   mpTrayIconMenu->addAction(mpPreferencesAction);
