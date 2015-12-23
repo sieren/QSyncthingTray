@@ -311,6 +311,39 @@ void SyncConnector::spawnSyncthingProcess(
 
 //------------------------------------------------------------------------------------//
 
+void SyncConnector::spawnINotifyProcess(
+  std::string filePath, const bool shouldSpawn, const bool onSetPath)
+{
+  if (shouldSpawn)
+  {
+    if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
+    {
+      QMessageBox msgBox;
+      msgBox.setText("Could not find iNotify.");
+      msgBox.setInformativeText("Are you sure the path is correct?");
+      msgBox.setStandardButtons(QMessageBox::Ok);
+      msgBox.setDefaultButton(QMessageBox::Ok);
+      msgBox.exec();
+    }
+    if (!systemUtil.isBinaryRunning(std::string("syncthing-inotify")))
+    {
+      mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
+      QString processPath = filePath.c_str();
+      mpSyncthingNotifierProcess->start(processPath);
+    }
+  }
+  else
+  {
+    if (mpSyncthingNotifierProcess != nullptr
+        && mpSyncthingNotifierProcess->state() == QProcess::Running)
+    {
+      mpSyncthingNotifierProcess->kill();
+    }
+  }
+}
+
+//------------------------------------------------------------------------------------//
+
 std::list<std::pair<std::string, std::string>> SyncConnector::getFolders()
 {
   return mFolders;

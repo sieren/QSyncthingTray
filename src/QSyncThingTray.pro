@@ -5,11 +5,13 @@ HEADERS       = window.h \
                 platforms/linux/posixUtils.hpp \
                 processmonitor.hpp \
                 platforms.hpp \
-                apihandler.hpp
+                apihandler.hpp \
+                startuptab.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp \
-                processmonitor.cpp
+                processmonitor.cpp \
+                startuptab.cpp
 RESOURCES     = \
                 qsyncthing.qrc
 

@@ -83,6 +83,10 @@ namespace connector
       std::string filePath,
       const bool shouldSpawn,
       const bool onSetPath = false);
+    void spawnINotifyProcess(
+     std::string filePath,
+     const bool shouldSpawn,
+     const bool onSetPath = false);
     void shutdownSyncthingProcess();
     std::list<std::pair<std::string, std::string>> getFolders();
 
@@ -120,7 +124,7 @@ namespace connector
 
     std::unique_ptr<QWebViewClose> mpWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
-    QProcess *mpSyncthingNotifierProcess = nullptr;
+    std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<std::pair<std::string, std::string>> mFolders;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
