@@ -409,6 +409,8 @@ void Window::createActions()
   mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
   mpCurrentTrafficAction->addAction(mpTrafficInAction);
   mpCurrentTrafficAction->addAction(mpTrafficOutAction);
+  
+  mpCurrentFoldersMenu = new QMenu(tr("Folders"), this);
 
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
@@ -464,11 +466,12 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addMenu(mpCurrentTrafficAction);
   mpTrayIconMenu->addSeparator();
 
+  mpTrayIconMenu->addMenu(mpCurrentFoldersMenu);
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
       it != mCurrentFoldersActions.end(); ++it)
   {
     QAction *aAction = it->data();
-    mpTrayIconMenu->addAction(std::move(aAction));
+    mpCurrentFoldersMenu->addAction(std::move(aAction));
   }
 
   mpTrayIconMenu->addSeparator();

@@ -118,7 +118,9 @@ private:
     QAction *mpShowGitHubAction;
     QAction *mpQuitAction;
 
+    QMenu *mpCurrentFoldersMenu;
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
+
     std::list<std::pair<std::string, std::string>> mCurrentFoldersLocations;
     QSystemTrayIcon *mpTrayIcon = nullptr;
     QMenu *mpTrayIconMenu = nullptr;
