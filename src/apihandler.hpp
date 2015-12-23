@@ -24,6 +24,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <map>
+#include <chrono>
+#include <algorithm>
+#include "utilities.hpp"
 
 namespace mfk
 {
@@ -54,6 +57,7 @@ namespace api
     }
     
     virtual std::map<std::string, std::string> getConnections(QByteArray reply) = 0;
+
     APIHandlerBase *getAPIForVersion(int version);
     
     // Consistent across V11/V12
@@ -81,6 +85,32 @@ namespace api
       return result;
     }
     
+    // return current traffic in byte/s
+    std::pair<double, double> getCurrentTraffic(QByteArray reply)
+    {
+      using namespace std::chrono;
+      auto now = system_clock::now();
+      auto timeDelta = duration_cast<seconds>(now - std::get<2>(oldTraffic));
+      double curInBytes, curOutBytes;
+      if (reply.size() == 0)
+      {
+        curInBytes = curOutBytes = std::numeric_limits<double>::min();
+      }
+      else
+      {
+        QString m_DownloadedData = static_cast<QString>(reply);
+        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
+        QJsonObject replyData = replyDoc.object();
+        QJsonObject connectionArray = replyData["total"].toObject();
+        int inBytes = connectionArray.find("inBytesTotal").value().toInt();
+        int outBytes = connectionArray.find("outBytesTotal").value().toInt();
+        curInBytes = std::max(0.0, ((inBytes - std::get<0>(oldTraffic)) / timeDelta.count()));
+        curOutBytes = std::max(0.0, ((outBytes - std::get<1>(oldTraffic)) / timeDelta.count()));
+        oldTraffic = {inBytes, outBytes, now};
+      }
+      return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
+    }
+    
     std::string getCurrentAPIKey(QByteArray reply)
     {
       std::string apiKey;
@@ -94,6 +124,8 @@ namespace api
       }
       return apiKey;
     }
+    
+    std::tuple<double, double, std::chrono::time_point<std::chrono::system_clock>> oldTraffic;
   };
   
   // API Specializations
