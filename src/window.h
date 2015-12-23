@@ -32,6 +32,7 @@
 #include <QProcess>
 #include <QFileDialog>
 #include <QTabWidget>
+#include <QMovie>
 #include <memory>
 
 
@@ -62,6 +63,7 @@ public:
 
     void setVisible(bool visible) Q_DECL_OVERRIDE;
     void updateConnectionHealth(std::map<std::string, std::string> status);
+    void onNetworkActivity(bool activity);
 
 protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
@@ -74,8 +76,10 @@ private slots:
     void testURL();
     void authCheckBoxChanged(int state);
     void monoChromeIconChanged(int state);
+    void animateIconBoxChanged(int state);
     void showGitPage();
     void folderClicked();
+    void onUpdateIcon();
 
 private:
     void createSettingsGroupBox();
@@ -89,6 +93,7 @@ private:
     void createDefaultSettings();
     void validateSSLSupport();
     int getCurrentVersion(std::string reply);
+    void onStartAnimation(bool animate);
 
     QTabWidget *mpSettingsTabsWidget;
     QGroupBox *mpSettingsGroupBox;
@@ -107,6 +112,7 @@ private:
     QGroupBox *mpAppearanceGroupBox;
     QCheckBox *mpMonochromeIconBox;
     QCheckBox *mpNotificationsIconBox;
+    QCheckBox *mpShouldAnimateIconBox;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
@@ -132,8 +138,12 @@ private:
     std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
     std::unique_ptr<mfk::settings::StartupTab> mpStartupTab;
     QSettings mSettings;
+  
+    std::unique_ptr<QMovie> mpAnimatedIconMovie;
+
     bool mIconMonochrome;
     bool mNotificationsEnabled;
+    bool mShouldAnimateIcon;
     int mLastConnectionState;
 
   };

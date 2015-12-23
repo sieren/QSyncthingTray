@@ -180,6 +180,14 @@ void SyncConnector::setProcessSpawnedCallback(ProcessSpawnedCallback cb)
 
 //------------------------------------------------------------------------------------//
 
+void SyncConnector::setNetworkActivityCallback(NetworkActivityCallback cb)
+{
+  mNetworkActivityCallback = cb;
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void SyncConnector::netRequestfinished(QNetworkReply* reply)
 {
   switch (requestMap[reply])
@@ -225,6 +233,12 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   result.emplace("outTraffic", outTraff);
   result.emplace("inTraffic", inTraff);
   result.emplace("globalTraffic", globTraff);
+  
+  if (mNetworkActivityCallback != nullptr)
+  {
+    mNetworkActivityCallback(
+     traffic.first + traffic.second > kNetworkNoiseFloor);
+  }
   if (mConnectionHealthCallback != nullptr)
   {
     mConnectionHealthCallback(result);

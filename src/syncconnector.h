@@ -60,6 +60,7 @@ typedef enum processState
 
 using ConnectionStateCallback = std::function<void(std::pair<std::string, bool>)>;
 using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
+using NetworkActivityCallback = std::function<void(bool)>;
 using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
 
 namespace mfk
@@ -78,6 +79,7 @@ namespace connector
     void setConnectionStateCallback();
     void setConnectionHealthCallback(ConnectionHealthCallback cb);
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
+    void setNetworkActivityCallback(NetworkActivityCallback cb);
     void showWebView();
     void spawnSyncthingProcess(
       std::string filePath,
@@ -109,6 +111,7 @@ namespace connector
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
     ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
+    NetworkActivityCallback mNetworkActivityCallback = nullptr;
     std::thread mIoThread;
     QUrl mCurrentUrl;
 

@@ -25,6 +25,8 @@
 #include <iostream>
 
 static const int kBytesToKilobytes = 1024;
+// network noise floor in bytes to filter animations
+static const double kNetworkNoiseFloor = 0.5;
 
 namespace mfk
 {
