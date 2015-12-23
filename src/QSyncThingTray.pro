@@ -6,7 +6,8 @@ HEADERS       = window.h \
                 processmonitor.hpp \
                 platforms.hpp \
                 apihandler.hpp \
-                startuptab.hpp
+                startuptab.hpp \
+                utilities.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp \
