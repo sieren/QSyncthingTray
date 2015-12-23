@@ -50,6 +50,7 @@ static const std::list<std::pair<std::string, std::string>> kIconSet(
 Window::Window()
   : mpSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
   , mpProcessMonitor(new mfk::monitor::ProcessMonitor(mpSyncConnector))
+  , mpStartupTab(new mfk::settings::StartupTab(mpSyncConnector))
   , mSettings("sieren", "QSyncthingTray")
 {
     loadSettings();
@@ -64,22 +65,21 @@ Window::Window()
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(mpAuthCheckBox, SIGNAL(stateChanged(int)), this,
       SLOT(authCheckBoxChanged(int)));
-    connect(mpShouldLaunchSyncthingBox, SIGNAL(stateChanged(int)), this,
-      SLOT(launchSyncthingBoxChanged(int)));
     connect(mpMonochromeIconBox, SIGNAL(stateChanged(int)), this,
       SLOT(monoChromeIconChanged(int)));
-    connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
-    connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
+
 
     mpSettingsTabsWidget = new QTabWidget;
     QVBoxLayout *settingsLayout = new QVBoxLayout;
+    settingsLayout->setAlignment(Qt::AlignTop);
     QWidget *settingsPageWidget = new QWidget;
     settingsLayout->addWidget(mpSettingsGroupBox);
-    settingsLayout->addWidget(mpFilePathGroupBox);
+   // settingsLayout->addWidget(mpFilePathGroupBox);
     settingsLayout->addWidget(mpAppearanceGroupBox);
     settingsPageWidget->setLayout(settingsLayout);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mpSettingsTabsWidget->addTab(settingsPageWidget, "Main");
+    mpSettingsTabsWidget->addTab(mpStartupTab.get(), "Launcher");
     mpSettingsTabsWidget->addTab(mpProcessMonitor.get(), "Auto-Pause");
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
@@ -89,27 +89,6 @@ Window::Window()
       this,
       std::placeholders::_1));
 
-    mpSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
-      {
-        switch (state) {
-          case kSyncthingProcessState::SPAWNED:
-            mpAppSpawnedLabel->setText(tr("Status: Launched"));
-            break;
-          case kSyncthingProcessState::NOT_RUNNING:
-            mpAppSpawnedLabel->setText(tr("Status: Not started"));
-            break;
-          case kSyncthingProcessState::ALREADY_RUNNING:
-            mpAppSpawnedLabel->setText(tr("Already Running"));
-            break;
-          case kSyncthingProcessState::PAUSED:
-            mpAppSpawnedLabel->setText(tr("Paused"));
-            break;
-          default:
-            break;
-        }
-      });
-
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 
     setIcon(0);
     mpTrayIcon->show();
@@ -138,11 +117,6 @@ void Window::closeEvent(QCloseEvent *event)
     if (mpTrayIcon->isVisible())
     {
         hide();
-        if (mpFilePathLine->text().toStdString() != mCurrentSyncthingPath)
-        {
-          mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-          spawnSyncthingApp();
-        }
         event->ignore();
     }
   mfk::sysutils::SystemUtility().showDockIcon(false);
@@ -247,7 +221,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     }
     // syncthing takes a while to shut down, in case someone
     // would reopen qsyncthingtray it wouldnt restart the process
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
+    mpStartupTab->spawnSyncthingApp();
     setIcon(1);
   }
   try
@@ -312,29 +286,6 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::launchSyncthingBoxChanged(int state)
-{
-  if (state)
-  {
-    mpFilePathLabel->show();
-    mpFilePathLine->show();
-    mpFilePathBrowse->show();
-    mpAppSpawnedLabel->show();
-    mShouldLaunchSyncthing = true;
-  }
-  else
-  {
-    mpFilePathLabel->hide();
-    mpFilePathLine->hide();
-    mpFilePathBrowse->hide();
-    mpAppSpawnedLabel->hide();
-    mShouldLaunchSyncthing = false;
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
 void Window::showMessage(std::string title, std::string body)
 {
   if (mNotificationsEnabled)
@@ -342,35 +293,6 @@ void Window::showMessage(std::string title, std::string body)
     mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
       1000);
   }
-}
-
-
-//------------------------------------------------------------------------------------//
-
-void Window::showFileBrowser()
-{
-  QString filename = QFileDialog::getOpenFileName(this,
-                                          tr("Open Syncthing"), "", tr(""));
-  mCurrentSyncthingPath = filename.toStdString();
-  mpFilePathLine->setText(filename);
-  saveSettings();
-  spawnSyncthingApp();
-}
-
-
-//------------------------------------------------------------------------------------//
-void Window::pathEnterPressed()
-{
-    mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true, true);
-}
-
-//------------------------------------------------------------------------------------//
-
-void Window::spawnSyncthingApp()
-{
-  saveSettings();
-  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 }
 
 
@@ -447,36 +369,7 @@ void Window::createSettingsGroupBox()
   mpSettingsGroupBox->setMinimumWidth(400);
   mpSettingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-  //
-  // SYNCTHING BINARY PATH
-  //
-
-  mpFilePathGroupBox = new QGroupBox(tr("Syncthing Application"));
-
-  mpShouldLaunchSyncthingBox = new QCheckBox(tr("Launch Syncthing"));
-  Qt::CheckState launchState = mShouldLaunchSyncthing ? Qt::Checked : Qt::Unchecked;
-  mpShouldLaunchSyncthingBox->setCheckState(launchState);
-  QGridLayout *filePathLayout = new QGridLayout;
-
-  mpFilePathLabel = new QLabel("Binary with Path");
-
-  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
-//  mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
-  mpFilePathBrowse = new QPushButton(tr("Browse"));
-
-  mpAppSpawnedLabel = new QLabel(tr("Not started"));
   
-  filePathLayout->addWidget(mpFilePathLabel, 1, 0);
-  filePathLayout->addWidget(mpFilePathLine,2, 0, 1, 4);
-  filePathLayout->addWidget(mpFilePathBrowse,3, 0, 1, 1);
-  filePathLayout->addWidget(mpAppSpawnedLabel, 3, 1, 1, 1);
-
-  filePathLayout->addWidget(mpShouldLaunchSyncthingBox, 0, 0);
-  mpFilePathGroupBox->setLayout(filePathLayout);
-  mpFilePathGroupBox->setMinimumWidth(400);
-  mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  
-  launchSyncthingBoxChanged(launchState);
 
   //
   // APPEARANCE BOX
@@ -588,19 +481,8 @@ void Window::saveSettings()
   mSettings.setValue("url", mCurrentUrl.toString());
   mSettings.setValue("username", mpUserNameLineEdit->text());
   mSettings.setValue("userpassword", userPassword->text());
-  if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
-  {
-    pathEnterPressed();
-  }
-  mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
-  if (mSettings.value("launchSyncthingAtStartup").toBool() != mShouldLaunchSyncthing)
-  {
-    mpSyncConnector->spawnSyncthingProcess(
-      mCurrentSyncthingPath, mShouldLaunchSyncthing);
-  }
-  mSettings.setValue("launchSyncthingAtStartup", mShouldLaunchSyncthing);
 }
 
 
@@ -641,10 +523,8 @@ void Window::loadSettings()
   }
   mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
   mCurrentUserName = mSettings.value("username").toString().toStdString();
-  mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
-  mShouldLaunchSyncthing = mSettings.value("launchSyncthingAtStartup").toBool();
 }
 
 

@@ -21,6 +21,7 @@
 
 #include "syncconnector.h"
 #include "processmonitor.hpp"
+#include "startuptab.hpp"
 #include "platforms.hpp"
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
@@ -72,13 +73,9 @@ private slots:
     void messageClicked();
     void testURL();
     void authCheckBoxChanged(int state);
-    void launchSyncthingBoxChanged(int state);
     void monoChromeIconChanged(int state);
-    void spawnSyncthingApp();
-    void showFileBrowser();
     void showGitPage();
     void folderClicked();
-    void pathEnterPressed();
 
 private:
     void createSettingsGroupBox();
@@ -103,15 +100,8 @@ private:
     QLineEdit *mpUserNameLineEdit;
     QLineEdit *userPassword;
     QCheckBox *mpAuthCheckBox;
-  
-    QGroupBox *mpFilePathGroupBox;
-    QLabel *mpFilePathLabel;
-    QLineEdit *mpFilePathLine;
-    QPushButton *mpFilePathBrowse;
-    QCheckBox *mpShouldLaunchSyncthingBox;
 
     QLabel *mpUrlTestResultLabel;
-    QLabel *mpAppSpawnedLabel;
     QPushButton *mpTestConnectionButton;
   
     QGroupBox *mpAppearanceGroupBox;
@@ -133,13 +123,12 @@ private:
 
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
-    std::string mCurrentSyncthingPath;
     std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
     std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
+    std::unique_ptr<mfk::settings::StartupTab> mpStartupTab;
     QSettings mSettings;
     bool mIconMonochrome;
     bool mNotificationsEnabled;
-    bool mShouldLaunchSyncthing;
     int mLastConnectionState;
 
   };
