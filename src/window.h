@@ -134,6 +134,7 @@ private:
     QSettings mSettings;
     bool mIconMonochrome;
     bool mNotificationsEnabled;
+    bool mShouldAnimateIcon;
     int mLastConnectionState;
 
   };

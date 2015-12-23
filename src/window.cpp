@@ -498,6 +498,7 @@ void Window::saveSettings()
   mSettings.setValue("userpassword", userPassword->text());
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
+  mSettings.setValue("animationEnabled", mShouldAnimateIcon);
 }
 
 
@@ -540,6 +541,7 @@ void Window::loadSettings()
   mCurrentUserName = mSettings.value("username").toString().toStdString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
+  mShouldAnimateIcon = mSettings.value("animationEnabled").toBool();
 }
 
 
@@ -552,6 +554,7 @@ void Window::createDefaultSettings()
   mSettings.setValue("notificationsEnabled", true);
   mSettings.setValue("doSettingsExist", true);
   mSettings.setValue("launchSyncthingAtStartup", false);
+  mSettings.setValue("animationEnabled", false);
 }
 
 
