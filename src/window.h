@@ -110,6 +110,9 @@ private:
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
+    QMenu *mpCurrentTrafficAction;
+    QAction *mpTrafficInAction;
+    QAction *mpTrafficOutAction;
     QAction *mpShowWebViewAction;
     QAction *mpPreferencesAction;
     QAction *mpShowGitHubAction;

@@ -203,9 +203,14 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
     std::string activeConnections = status.at("activeConnections");
     std::string totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
-    mpNumberOfConnectionsAction->setText(tr("Connections: ") + activeConnections.c_str()
+    mpNumberOfConnectionsAction->setText(tr("Connections: ")
+      + activeConnections.c_str()
       + "/" + totalConnections.c_str());
     mpConnectedState->setText(tr("Connected"));
+    mpCurrentTrafficAction->setTitle(tr("Total: ")
+      + status.at("globalTraffic").c_str());
+    mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
+    mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
     setIcon(0);
     if (mLastConnectionState != 1)
     {
@@ -398,6 +403,12 @@ void Window::createActions()
 
   mpNumberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
   mpNumberOfConnectionsAction->setDisabled(true);
+  
+  mpCurrentTrafficAction = new QMenu(tr("Total: 0.00 KB/s"), this);
+  mpTrafficInAction = new QAction(tr("In: 0 KB/s"), this);
+  mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
+  mpCurrentTrafficAction->addAction(mpTrafficInAction);
+  mpCurrentTrafficAction->addAction(mpTrafficOutAction);
 
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
@@ -450,6 +461,7 @@ void Window::createTrayIcon()
   mpTrayIconMenu->clear();
   mpTrayIconMenu->addAction(mpConnectedState);
   mpTrayIconMenu->addAction(mpNumberOfConnectionsAction);
+  mpTrayIconMenu->addMenu(mpCurrentTrafficAction);
   mpTrayIconMenu->addSeparator();
 
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
