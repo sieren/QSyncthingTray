@@ -145,7 +145,7 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
     SLOT(checkConnectionHealth()));
-  mpConnectionHealthTimer->start(3000);
+  mpConnectionHealthTimer->start(1000);
 }
 
 
