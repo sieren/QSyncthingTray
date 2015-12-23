@@ -42,8 +42,11 @@
 //! Layout
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
-{{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
-{":/images/syncthingBlack.png", ":/images/syncthingGrey.png"}});
+  {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
+  {":/images/syncthingBlack.png", ":/images/syncthingGrey.png"}});
+static const std::list<std::string> kAnimatedIconSet(
+  {":/images/syncthingBlueAnim.gif",
+  ":/images/syncthingBlackAnim.gif"});
 //! [0]
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
@@ -52,6 +55,7 @@ Window::Window()
   , mpProcessMonitor(new mfk::monitor::ProcessMonitor(mpSyncConnector))
   , mpStartupTab(new mfk::settings::StartupTab(mpSyncConnector))
   , mSettings("sieren", "QSyncthingTray")
+  , mpAnimatedIconMovie(new QMovie())
 {
     loadSettings();
     createSettingsGroupBox();
@@ -67,6 +71,10 @@ Window::Window()
       SLOT(authCheckBoxChanged(int)));
     connect(mpMonochromeIconBox, SIGNAL(stateChanged(int)), this,
       SLOT(monoChromeIconChanged(int)));
+    connect(mpShouldAnimateIconBox, SIGNAL(stateChanged(int)), this,
+      SLOT(animateIconBoxChanged(int)));
+    connect(mpAnimatedIconMovie.get(), SIGNAL(frameChanged(int)),
+      this, SLOT(onUpdateIcon()));
 
 
     mpSettingsTabsWidget = new QTabWidget;
@@ -88,7 +96,10 @@ Window::Window()
       &Window::updateConnectionHealth,
       this,
       std::placeholders::_1));
-
+    mpSyncConnector->setNetworkActivityCallback(std::bind(
+      &Window::onNetworkActivity,
+      this,
+      std::placeholders::_1));
 
     setIcon(0);
     mpTrayIcon->show();
@@ -143,7 +154,10 @@ void Window::setIcon(int index)
       icon = QIcon(iconSet.second.c_str());
       break;
   }
-  mpTrayIcon->setIcon(icon);
+  if (mpAnimatedIconMovie->state() != QMovie::Running)
+  {
+    mpTrayIcon->setIcon(icon);
+  }
   setWindowIcon(icon);
 
   mpTrayIcon->setToolTip("Syncthing");
@@ -240,12 +254,30 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
   createFoldersMenu();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void Window::onNetworkActivity(bool activity)
+{
+  onStartAnimation(activity);
+}
+
+
 //------------------------------------------------------------------------------------//
 
 void Window::monoChromeIconChanged(int state)
 {
   mIconMonochrome = state == 2 ? true : false;
   mSettings.setValue("monochromeIcon", mIconMonochrome);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::animateIconBoxChanged(int state)
+{
+  mShouldAnimateIcon = state == Qt::CheckState::Checked ? true : false;
+  mSettings.setValue("animationEnabled", mShouldAnimateIcon);
 }
 
 
@@ -385,9 +417,12 @@ void Window::createSettingsGroupBox()
   mpMonochromeIconBox->setChecked(mIconMonochrome);
   mpNotificationsIconBox = new QCheckBox("Notifications");
   mpNotificationsIconBox->setChecked(mNotificationsEnabled);
+  mpShouldAnimateIconBox = new QCheckBox("Animate Icon on Activity");
+  mpShouldAnimateIconBox->setChecked(mShouldAnimateIcon);
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
+  appearanceLayout->addWidget(mpShouldAnimateIconBox, 2, 0);
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -570,6 +605,33 @@ void Window::validateSSLSupport()
     msgBox.setText(mfk::sysutils::SystemUtility().getSSLLibraryText().c_str());
     msgBox.exec();
   }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::onStartAnimation(bool animate)
+{
+  QString iconToAnimate = mpMonochromeIconBox ? tr(kAnimatedIconSet.back().c_str())
+    : tr(kAnimatedIconSet.front().c_str());
+  if (!animate || !mShouldAnimateIcon)
+  {
+    mpAnimatedIconMovie->stop();
+  }
+  else if (animate && mShouldAnimateIcon
+    && mpAnimatedIconMovie->state() != QMovie::Running)
+  {
+    mpAnimatedIconMovie->setFileName(iconToAnimate);
+    mpAnimatedIconMovie->start();
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::onUpdateIcon()
+{
+  mpTrayIcon->setIcon(QIcon(QPixmap::fromImage(mpAnimatedIconMovie->currentImage())));
 }
 
 

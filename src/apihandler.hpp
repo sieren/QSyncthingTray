@@ -102,8 +102,8 @@ namespace api
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject connectionArray = replyData["total"].toObject();
-        int inBytes = connectionArray.find("inBytesTotal").value().toInt();
-        int outBytes = connectionArray.find("outBytesTotal").value().toInt();
+        double inBytes = connectionArray.find("inBytesTotal").value().toDouble();
+        double outBytes = connectionArray.find("outBytesTotal").value().toDouble();
         curInBytes = std::max(0.0, ((inBytes - std::get<0>(oldTraffic)) / timeDelta.count()));
         curOutBytes = std::max(0.0, ((outBytes - std::get<1>(oldTraffic)) / timeDelta.count()));
         oldTraffic = {inBytes, outBytes, now};
