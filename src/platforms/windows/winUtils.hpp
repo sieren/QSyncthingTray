@@ -25,6 +25,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <comdef.h>
+#define UNUSED(x) (void)(x)
 
 namespace mfk
 {

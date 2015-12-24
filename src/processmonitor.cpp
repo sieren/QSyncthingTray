@@ -148,7 +148,7 @@ void ProcessMonitor::deleteButtonClicked()
 
 void ProcessMonitor::cellSelected(int nRow, int nColumn)
 {
-#pragma unused(nColumn)
+UNUSED(nColumn);
   mProcessList.removeAt(nRow);
   saveSettings();
   refreshTable();

@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#define UNUSED(x) (void)(x)
 
 namespace mfk
 {
@@ -36,7 +37,10 @@ namespace linux
     }
 
     // stubbed out, does nothing on linux
-    void showDockIcon(bool show) { }
+    void showDockIcon(bool show) 
+    {
+    UNUSED(show);
+    }
 
     std::string getSSLLibraryText()
     {
@@ -56,7 +60,8 @@ namespace linux
       
       if (app)
       {
-        fread(&instances, sizeof(instances), 1, app);
+        size_t x = fread(&instances, sizeof(instances), 1, app);
+        UNUSED(x);
         pclose(app);
       }
       bool result = instances == '0' ? false : true;

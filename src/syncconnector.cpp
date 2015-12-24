@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <iostream>
+#include "platforms.hpp"
 #include "utilities.hpp"
 
 namespace mfk
@@ -500,7 +501,7 @@ SyncConnector::~SyncConnector()
 
 void QWebViewClose::closeEvent(QCloseEvent *event)
 {
-#pragma unused(event)
+UNUSED(event);
   mfk::sysutils::SystemUtility().showDockIcon(false);
   close();
 }

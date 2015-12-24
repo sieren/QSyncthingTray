@@ -23,6 +23,7 @@
 #include <string>
 #include <iostream>
 #include <Carbon/Carbon.h>
+#define UNUSED(x) (void)(x)
 
 namespace mfk
 {
