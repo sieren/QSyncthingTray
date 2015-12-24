@@ -27,6 +27,7 @@
 #include <chrono>
 #include <algorithm>
 #include <vector>
+#include <limits>
 #include "utilities.hpp"
 
 #define kInternalChangedFilesCache 5
@@ -103,7 +104,7 @@ namespace api
       float curInBytes, curOutBytes;
       if (reply.size() == 0)
       {
-        curInBytes = curOutBytes = std::numeric_limits<float>::min();
+        curInBytes = curOutBytes = (std::numeric_limits<double>::min)();
       }
       else
       {
@@ -113,11 +114,11 @@ namespace api
         QJsonObject connectionArray = replyData["total"].toObject();
         float inBytes = static_cast<float>(connectionArray.find("inBytesTotal").value().toDouble());
         float outBytes = static_cast<float>(connectionArray.find("outBytesTotal").value().toDouble());
-        curInBytes = std::max(0.0, ((inBytes - std::get<0>(oldTraffic)) / (timeDelta.count() * 1e-3)))
-          + std::numeric_limits<double>::min();
-        curOutBytes = std::max(0.0, ((outBytes - std::get<1>(oldTraffic)) / (timeDelta.count()* 1e-3)))
-          + std::numeric_limits<double>::min();
-        oldTraffic = {inBytes, outBytes, now};
+        curInBytes = (std::max)(0.0, ((inBytes - std::get<0>(oldTraffic)) / (timeDelta.count() * 1e-3)))
+          + (std::numeric_limits<double>::min)();
+        curOutBytes = (std::max)(0.0, ((outBytes - std::get<1>(oldTraffic)) / (timeDelta.count()* 1e-3)))
+          + (std::numeric_limits<double>::min)();
+        oldTraffic = std::make_tuple(inBytes, outBytes, now);
       }
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }

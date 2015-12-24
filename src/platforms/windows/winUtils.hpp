@@ -37,7 +37,7 @@ namespace windows
 
     char getPlatformDelimiter()
     {
-      return '\';
+      return '\\';
     }
     // stubbed out, does nothing on windows
     void showDockIcon(bool show) { }
