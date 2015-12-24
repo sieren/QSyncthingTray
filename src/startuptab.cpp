@@ -167,7 +167,7 @@ void StartupTab::showINotifyFileBrowser()
 
 void StartupTab::launchSyncthingBoxChanged(int state)
 {
-  if (state)
+  if (state == Qt::Checked)
   {
     mpFilePathLine->show();
     mpFilePathBrowse->show();
@@ -189,7 +189,7 @@ void StartupTab::launchSyncthingBoxChanged(int state)
 
 void StartupTab::launchINotifyBoxChanged(int state)
 {
-  if (state)
+  if (state == Qt::Checked)
   {
     mpINotifyFilePath->show();
     mpINotifyBrowse->show();
@@ -199,7 +199,7 @@ void StartupTab::launchINotifyBoxChanged(int state)
   {
     mpINotifyFilePath->hide();
     mpINotifyBrowse->hide();
-    mShouldLaunchSyncthing = false;
+    mShouldLaunchINotify = false;
   }
 }
 

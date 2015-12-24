@@ -68,8 +68,8 @@ public:
   StartupTab(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector);
   ~StartupTab();
   bool isPausingProcessRunning();
-  void saveAndUpdateSettings();
   void spawnSyncthingApp();
+  void saveSettings();
   
 private slots:
   void launchSyncthingBoxChanged(int state);
@@ -80,7 +80,6 @@ private slots:
   
 private:
   void loadSettings();
-  void saveSettings();
   void initGUI();
 
   QGroupBox *mpFilePathGroupBox;
