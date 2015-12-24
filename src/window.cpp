@@ -131,6 +131,7 @@ void Window::closeEvent(QCloseEvent *event)
         event->ignore();
     }
   mfk::sysutils::SystemUtility().showDockIcon(false);
+  mpStartupTab->saveSettings();
   saveSettings();
 }
 
