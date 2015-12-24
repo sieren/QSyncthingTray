@@ -144,8 +144,11 @@ void StartupTab::showFileBrowser()
 {
   QString filename = QFileDialog::getOpenFileName(this,
     tr("Open Syncthing"), "", tr(""));
-  mCurrentSyncthingPath = filename.toStdString();
-  mpFilePathLine->setText(filename);
+  if (filename.toStdString() != "")
+  {
+    mCurrentSyncthingPath = filename.toStdString();
+    mpFilePathLine->setText(filename);
+  }
   saveSettings();
   spawnSyncthingApp();
 }
@@ -167,7 +170,7 @@ void StartupTab::showINotifyFileBrowser()
 
 void StartupTab::launchSyncthingBoxChanged(int state)
 {
-  if (state)
+  if (state == Qt::Checked)
   {
     mpFilePathLine->show();
     mpFilePathBrowse->show();
@@ -189,7 +192,7 @@ void StartupTab::launchSyncthingBoxChanged(int state)
 
 void StartupTab::launchINotifyBoxChanged(int state)
 {
-  if (state)
+  if (state == Qt::Checked)
   {
     mpINotifyFilePath->show();
     mpINotifyBrowse->show();
@@ -199,7 +202,7 @@ void StartupTab::launchINotifyBoxChanged(int state)
   {
     mpINotifyFilePath->hide();
     mpINotifyBrowse->hide();
-    mShouldLaunchSyncthing = false;
+    mShouldLaunchINotify = false;
   }
 }
 
@@ -268,6 +271,14 @@ void StartupTab::pathEnterPressed()
 void StartupTab::spawnSyncthingApp()
 {
   mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+StartupTab::~StartupTab()
+{
+  mpSyncConnector->setProcessSpawnedCallback(nullptr);
 }
 
 } // settings

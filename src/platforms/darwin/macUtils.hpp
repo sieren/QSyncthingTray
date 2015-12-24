@@ -23,6 +23,7 @@
 #include <string>
 #include <iostream>
 #include <Carbon/Carbon.h>
+#define UNUSED(x) (void)(x)
 
 namespace mfk
 {
@@ -33,6 +34,11 @@ namespace darwin
   struct MacUtils
   {
     
+    char getPlatformDelimiter()
+    {
+      return '/';
+    }
+
     void showDockIcon(bool show)
     {
     #pragma clang diagnostic push

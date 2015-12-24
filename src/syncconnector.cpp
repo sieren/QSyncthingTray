@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <iostream>
+#include "platforms.hpp"
 #include "utilities.hpp"
 
 namespace mfk
@@ -112,10 +113,16 @@ void SyncConnector::checkConnectionHealth()
 {
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
-  QNetworkRequest request(requestUrl);
-
-  QNetworkReply *reply = network.get(request);
+  QNetworkRequest healthRequest(requestUrl);
+  QNetworkReply *reply = network.get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
+  
+  QUrl lastSyncedListURL = mCurrentUrl;
+  lastSyncedListURL.setPath(tr("/rest/stats/folder"));
+  QNetworkRequest lastSyncedRequest(lastSyncedListURL);
+  QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
+  requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
+  
   getCurrentConfig();
 }
 
@@ -145,7 +152,7 @@ void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
     SLOT(checkConnectionHealth()));
-  mpConnectionHealthTimer->start(3000);
+  mpConnectionHealthTimer->start(1000);
 }
 
 
@@ -200,6 +207,9 @@ void SyncConnector::netRequestfinished(QNetworkReply* reply)
       break;
     case kRequestMethod::urlTested:
       urlTested(reply);
+      break;
+    case kRequestMethod::getLastSyncedFiles:
+      lastSyncedFilesReceived(reply);
       break;
   }
   requestMap.remove(reply);
@@ -262,6 +272,27 @@ void SyncConnector::currentConfigReceived(QNetworkReply *reply)
   reply->deleteLater();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::lastSyncedFilesReceived(QNetworkReply *reply)
+{
+  QByteArray replyData;
+  if (reply->error() == QNetworkReply::NoError)
+  {
+    replyData = reply->readAll();
+  }
+  mLastSyncedFiles = mAPIHandler->getLastSyncedFiles(replyData);
+  reply->deleteLater();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+LastSyncedFileList SyncConnector::getLastSyncedFiles()
+{
+  return mLastSyncedFiles;
+}
 
 //------------------------------------------------------------------------------------//
 
@@ -375,7 +406,7 @@ void SyncConnector::spawnINotifyProcess(
 
 //------------------------------------------------------------------------------------//
 
-std::list<std::pair<std::string, std::string>> SyncConnector::getFolders()
+std::list<FolderNameFullPath> SyncConnector::getFolders()
 {
   return mFolders;
 }
@@ -447,11 +478,13 @@ void SyncConnector::killProcesses()
       && mpSyncProcess->state() == QProcess::Running)
   {
     mpSyncProcess->kill();
+    mpSyncProcess->waitForFinished();
   }
   if (mpSyncthingNotifierProcess != nullptr
       && mpSyncthingNotifierProcess->state() == QProcess::Running)
   {
     mpSyncthingNotifierProcess->kill();
+    mpSyncthingNotifierProcess->waitForFinished();
   }
 }
 
@@ -468,7 +501,7 @@ SyncConnector::~SyncConnector()
 
 void QWebViewClose::closeEvent(QCloseEvent *event)
 {
-#pragma unused(event)
+UNUSED(event);
   mfk::sysutils::SystemUtility().showDockIcon(false);
   close();
 }

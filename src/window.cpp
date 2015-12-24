@@ -101,6 +101,7 @@ Window::Window()
       this,
       std::placeholders::_1));
 
+    mpStartupTab->spawnSyncthingApp();
     setIcon(0);
     mpTrayIcon->show();
     #ifdef Q_OS_MAC
@@ -131,6 +132,7 @@ void Window::closeEvent(QCloseEvent *event)
         event->ignore();
     }
   mfk::sysutils::SystemUtility().showDockIcon(false);
+  mpStartupTab->saveSettings();
   saveSettings();
 }
 
@@ -221,10 +223,16 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
       + activeConnections.c_str()
       + "/" + totalConnections.c_str());
     mpConnectedState->setText(tr("Connected"));
-    mpCurrentTrafficAction->setTitle(tr("Total: ")
+    mpCurrentTrafficAction->setText(tr("Total: ")
       + status.at("globalTraffic").c_str());
     mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
     mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
+    
+    if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
+    {
+      mLastSyncedFiles = mpSyncConnector->getLastSyncedFiles();
+      createLastSyncedMenu();
+    }
     setIcon(0);
     if (mLastConnectionState != 1)
     {
@@ -349,12 +357,41 @@ void Window::folderClicked()
   QObject *obj = sender();
   QAction * senderObject = static_cast<QAction*>(obj);
   std::string findFolder = senderObject->text().toStdString();
-  std::list<std::pair<std::string, std::string>>::iterator folder =
+  std::list<FolderNameFullPath>::iterator folder =
     std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
-      [&findFolder](std::pair<std::string, std::string> const& elem) {
+      [&findFolder](FolderNameFullPath const& elem) {
         return elem.first == findFolder;
       });
   QDesktopServices::openUrl(QUrl::fromLocalFile(tr(folder->second.c_str())));
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::syncedFileClicked()
+{
+  using namespace mfk::utilities;
+  using namespace mfk::sysutils;
+
+  QObject *obj = sender();
+  QAction * senderObject = static_cast<QAction*>(obj);
+  std::string findFile = senderObject->text().toStdString();
+  LastSyncedFileList::iterator fileIterator =
+  std::find_if(mLastSyncedFiles.begin(), mLastSyncedFiles.end(),
+               [&findFile](DateFolderFile const& elem) {
+                 return getCleanFileName(std::get<2>(elem)) == findFile;
+               });
+  
+  // get full path to folder
+  std::list<std::pair<std::string, std::string>>::iterator folder =
+  std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
+               [&fileIterator](std::pair<std::string, std::string> const& elem) {
+                 return getFullCleanFileName(elem.first) == std::get<1>(*fileIterator);
+               });
+  std::string fullPath = folder->second + getPathToFileName(std::get<2>(*fileIterator))
+    + SystemUtility().getPlatformDelimiter();
+  std::cout << "FineFile " << findFile << "Opening " << fullPath << std::endl;
+  QDesktopServices::openUrl(QUrl::fromLocalFile(tr(fullPath.c_str())));
 }
 
 
@@ -439,13 +476,9 @@ void Window::createActions()
   mpNumberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
   mpNumberOfConnectionsAction->setDisabled(true);
   
-  mpCurrentTrafficAction = new QMenu(tr("Total: 0.00 KB/s"), this);
+  mpCurrentTrafficAction = new QAction(tr("Total: 0.00 KB/s"), this);
   mpTrafficInAction = new QAction(tr("In: 0 KB/s"), this);
   mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
-  mpCurrentTrafficAction->addAction(mpTrafficInAction);
-  mpCurrentTrafficAction->addAction(mpTrafficOutAction);
-  
-  mpCurrentFoldersMenu = new QMenu(tr("Folders"), this);
 
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
@@ -489,6 +522,32 @@ void Window::createFoldersMenu()
 
 //------------------------------------------------------------------------------------//
 
+void Window::createLastSyncedMenu()
+{
+  using namespace mfk::utilities;
+  if (mLastSyncedFiles.size() > 0)
+  {
+    std::list<QSharedPointer<QAction>> syncedFilesActions;
+    for (LastSyncedFileList::iterator it=mLastSyncedFiles.begin();
+         it != mLastSyncedFiles.end(); ++it)
+    {
+      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
+        new QAction(tr(getCleanFileName(std::get<2>(*it)).c_str()), this));
+
+      // 4th item of tuple is file-erased-bool
+      aAction->setDisabled(std::get<3>(*it));
+      connect(aAction.data(), SIGNAL(triggered()), this, SLOT(syncedFileClicked()));
+      syncedFilesActions.emplace_back(aAction);
+    }
+    mCurrentSyncedFilesActions = syncedFilesActions;
+  }
+  // Update Menu
+  createTrayIcon();
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::createTrayIcon()
 {
   if (mpTrayIconMenu == nullptr)
@@ -498,17 +557,31 @@ void Window::createTrayIcon()
   mpTrayIconMenu->clear();
   mpTrayIconMenu->addAction(mpConnectedState);
   mpTrayIconMenu->addAction(mpNumberOfConnectionsAction);
-  mpTrayIconMenu->addMenu(mpCurrentTrafficAction);
+  mpTrayIconMenu->addAction(mpTrafficInAction);
+  mpTrayIconMenu->addAction(mpTrafficOutAction);
+  mpTrayIconMenu->addAction(mpCurrentTrafficAction);
   mpTrayIconMenu->addSeparator();
 
-  mpTrayIconMenu->addMenu(mpCurrentFoldersMenu);
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
       it != mCurrentFoldersActions.end(); ++it)
   {
     QAction *aAction = it->data();
-    mpCurrentFoldersMenu->addAction(std::move(aAction));
+    mpTrayIconMenu->addAction(std::move(aAction));
   }
 
+  if (mCurrentSyncedFilesActions.size() > 0)
+  {
+    mpTrayIconMenu->addSeparator();
+    mpTrayIconMenu->addAction(new QAction(tr("Last Synced Files"), this));
+
+    for (std::list<QSharedPointer<QAction>>::iterator it =
+        mCurrentSyncedFilesActions.begin();
+      it != mCurrentSyncedFilesActions.end(); ++it)
+    {
+      QAction *aAction = it->data();
+      mpTrayIconMenu->addAction(aAction);
+    }
+  }
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpShowWebViewAction);
   mpTrayIconMenu->addAction(mpPreferencesAction);

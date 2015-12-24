@@ -25,6 +25,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <comdef.h>
+#define UNUSED(x) (void)(x)
 
 namespace mfk
 {
@@ -34,6 +35,11 @@ namespace windows
 {
   struct WinUtils
   {
+
+    char getPlatformDelimiter()
+    {
+      return '\\';
+    }
     // stubbed out, does nothing on windows
     void showDockIcon(bool show) { }
 
