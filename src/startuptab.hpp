@@ -66,7 +66,7 @@ class StartupTab : public QWidget
   
 public:
   StartupTab(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector);
-  virtual ~StartupTab() = default;
+  ~StartupTab();
   bool isPausingProcessRunning();
   void saveAndUpdateSettings();
   void spawnSyncthingApp();

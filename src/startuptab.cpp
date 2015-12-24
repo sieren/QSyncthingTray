@@ -270,5 +270,13 @@ void StartupTab::spawnSyncthingApp()
   mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 }
 
+
+//------------------------------------------------------------------------------------//
+
+StartupTab::~StartupTab()
+{
+  mpSyncConnector->setProcessSpawnedCallback(nullptr);
+}
+
 } // settings
 } // mfk
