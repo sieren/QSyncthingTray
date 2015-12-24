@@ -447,11 +447,13 @@ void SyncConnector::killProcesses()
       && mpSyncProcess->state() == QProcess::Running)
   {
     mpSyncProcess->kill();
+    mpSyncProcess->waitForFinished();
   }
   if (mpSyncthingNotifierProcess != nullptr
       && mpSyncthingNotifierProcess->state() == QProcess::Running)
   {
     mpSyncthingNotifierProcess->kill();
+    mpSyncthingNotifierProcess->waitForFinished();
   }
 }
 
