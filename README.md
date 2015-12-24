@@ -11,20 +11,24 @@ Currently supports **OS X**, **Windows** and **Linux**.
 
 Written in C++ with Qt.
 
-![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtray.png "Mac OSX ")
-![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtraywin.png "Windows")
-![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingubuntu.png "Windows")
-
 ## Features
 
 + Shows number of connections at a glance.
++ Traffic statistics about incoming, outgoing and total throughput.
++ Launches Syncthing and Syncthing-iNotifier if specified.
++ Last Synced Files - Quickly see the recently synchronised files and open their folder.
++ Quick Access to all shared folders.
 + Presents Syncthing UI in a separate view instead of using the browser.
-+ [Syncthing-inotify](https://github.com/syncthing/syncthing-inotify) included and starts with program launch to keep track of file changes even faster.
 + Supports authenticated HTTPS connections.
-+ Uses OS X Notifications about current connection status.
++ Uses System Notifications about current connection status.
++ Toggle for monochrome icon.
 
 Is there a feature missing? Open an issue, send me an [email](mailto:info@s-r-n.de) or fork this project and add it yourself.
 
+
+![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtray.png "Mac OSX ")
+![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingubuntu.png "Ubuntu")
+![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtraywin.png "Windows")
 
 ## How To Use It
 QSyncthingTray does not come with Syncthing bundled. Therefore it needs to be downloaded from [Syncthing](http://syncthing.net/).
