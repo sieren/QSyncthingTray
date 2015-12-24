@@ -118,7 +118,7 @@ private:
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
-    QMenu *mpCurrentTrafficAction;
+    QAction *mpCurrentTrafficAction;
     QAction *mpTrafficInAction;
     QAction *mpTrafficOutAction;
     QAction *mpShowWebViewAction;
@@ -126,7 +126,6 @@ private:
     QAction *mpShowGitHubAction;
     QAction *mpQuitAction;
 
-    QMenu *mpCurrentFoldersMenu;
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
     std::list<QSharedPointer<QAction>> mCurrentSyncedFilesActions;
 

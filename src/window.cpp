@@ -223,7 +223,7 @@ void Window::updateConnectionHealth(std::map<std::string, std::string> status)
       + activeConnections.c_str()
       + "/" + totalConnections.c_str());
     mpConnectedState->setText(tr("Connected"));
-    mpCurrentTrafficAction->setTitle(tr("Total: ")
+    mpCurrentTrafficAction->setText(tr("Total: ")
       + status.at("globalTraffic").c_str());
     mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
     mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
@@ -476,13 +476,9 @@ void Window::createActions()
   mpNumberOfConnectionsAction = new QAction(tr("Connections: 0"), this);
   mpNumberOfConnectionsAction->setDisabled(true);
   
-  mpCurrentTrafficAction = new QMenu(tr("Total: 0.00 KB/s"), this);
+  mpCurrentTrafficAction = new QAction(tr("Total: 0.00 KB/s"), this);
   mpTrafficInAction = new QAction(tr("In: 0 KB/s"), this);
   mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
-  mpCurrentTrafficAction->addAction(mpTrafficInAction);
-  mpCurrentTrafficAction->addAction(mpTrafficOutAction);
-  
-  mpCurrentFoldersMenu = new QMenu(tr("Folders"), this);
 
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
@@ -561,15 +557,16 @@ void Window::createTrayIcon()
   mpTrayIconMenu->clear();
   mpTrayIconMenu->addAction(mpConnectedState);
   mpTrayIconMenu->addAction(mpNumberOfConnectionsAction);
-  mpTrayIconMenu->addMenu(mpCurrentTrafficAction);
+  mpTrayIconMenu->addAction(mpTrafficInAction);
+  mpTrayIconMenu->addAction(mpTrafficOutAction);
+  mpTrayIconMenu->addAction(mpCurrentTrafficAction);
   mpTrayIconMenu->addSeparator();
 
-  mpTrayIconMenu->addMenu(mpCurrentFoldersMenu);
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
       it != mCurrentFoldersActions.end(); ++it)
   {
     QAction *aAction = it->data();
-    mpCurrentFoldersMenu->addAction(std::move(aAction));
+    mpTrayIconMenu->addAction(std::move(aAction));
   }
 
   if (mCurrentSyncedFilesActions.size() > 0)
