@@ -91,9 +91,6 @@ void StartupTab::initGUI()
   mpFilePathGroupBox->setMinimumWidth(400);
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   
-  launchSyncthingBoxChanged(launchState);
-  
-  
   connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
   connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   connect(mpShouldLaunchSyncthingBox, SIGNAL(stateChanged(int)), this,
@@ -122,9 +119,6 @@ void StartupTab::initGUI()
   mpiNotifyGroupBox->setMinimumWidth(400);
   mpiNotifyGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   
-  launchINotifyBoxChanged(iNotifylaunchState);
-  
-  
   connect(mpINotifyBrowse, SIGNAL(clicked()), this, SLOT(showINotifyFileBrowser()));
   connect(mpINotifyFilePath, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   connect(mpShouldLaunchINotify, SIGNAL(stateChanged(int)), this,
@@ -135,6 +129,9 @@ void StartupTab::initGUI()
   launcherLayout->addWidget(mpiNotifyGroupBox);
   setLayout(launcherLayout);
 
+  launchSyncthingBoxChanged(launchState);
+  launchINotifyBoxChanged(iNotifylaunchState);
+  
 }
 
 
@@ -170,20 +167,9 @@ void StartupTab::showINotifyFileBrowser()
 
 void StartupTab::launchSyncthingBoxChanged(int state)
 {
-  if (state == Qt::Checked)
-  {
-    mpFilePathLine->show();
-    mpFilePathBrowse->show();
-    mpAppSpawnedLabel->show();
-    mShouldLaunchSyncthing = true;
-  }
-  else
-  {
-    mpFilePathLine->hide();
-    mpFilePathBrowse->hide();
-    mpAppSpawnedLabel->hide();
-    mShouldLaunchSyncthing = false;
-  }
+  hideShowElements(state == Qt::Checked, mpFilePathLine, mpFilePathBrowse,
+    mpAppSpawnedLabel);
+  mShouldLaunchSyncthing = state == Qt::Checked ? true : false;
 }
 
 
@@ -192,18 +178,8 @@ void StartupTab::launchSyncthingBoxChanged(int state)
 
 void StartupTab::launchINotifyBoxChanged(int state)
 {
-  if (state == Qt::Checked)
-  {
-    mpINotifyFilePath->show();
-    mpINotifyBrowse->show();
-    mShouldLaunchINotify = true;
-  }
-  else
-  {
-    mpINotifyFilePath->hide();
-    mpINotifyBrowse->hide();
-    mShouldLaunchINotify = false;
-  }
+  hideShowElements(state == Qt::Checked, mpINotifyFilePath, mpINotifyBrowse);
+  mShouldLaunchINotify = state == Qt::Checked ? true : false;
 }
 
 
@@ -280,6 +256,41 @@ StartupTab::~StartupTab()
 {
   mpSyncConnector->setProcessSpawnedCallback(nullptr);
 }
+
+
+//------------------------------------------------------------------------------------//
+
+template <typename T, typename ... TArgs>
+void StartupTab::hideShowElements(bool show, T uiElement, TArgs...   Elements)
+{
+  if (show)
+  {
+    uiElement->show();
+  }
+  else
+  {
+    uiElement->hide();
+  }
+  hideShowElements(show, std::forward<TArgs>(Elements)...);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+template <typename T>
+void StartupTab::hideShowElements(bool show, T uiElement)
+{
+  if (show)
+  {
+    uiElement->show();
+  }
+  else
+  {
+    uiElement->hide();
+  }
+}
+
+//------------------------------------------------------------------------------------//
 
 } // settings
 } // mfk

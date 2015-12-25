@@ -81,7 +81,12 @@ private slots:
 private:
   void loadSettings();
   void initGUI();
+  template <typename T, typename ... TArgs>
+  void hideShowElements(bool show, T uiElement, TArgs... Elements);
 
+  template <typename T>
+  void hideShowElements(bool show, T uiElement);
+  
   QGroupBox *mpFilePathGroupBox;
   QLineEdit *mpFilePathLine;
   QPushButton *mpFilePathBrowse;
