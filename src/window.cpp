@@ -200,7 +200,7 @@ void Window::testURL()
 
 //------------------------------------------------------------------------------------//
 
-void Window::updateConnectionHealth(std::map<std::string, std::string> status)
+void Window::updateConnectionHealth(ConnectionHealthStatus status)
 {
   if (mpProcessMonitor->isPausingProcessRunning())
   {

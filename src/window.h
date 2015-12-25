@@ -62,7 +62,7 @@ public:
     Window();
 
     void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void updateConnectionHealth(std::map<std::string, std::string> status);
+    void updateConnectionHealth(ConnectionHealthStatus status);
     void onNetworkActivity(bool activity);
 
 protected:

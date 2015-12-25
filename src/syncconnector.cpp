@@ -226,7 +226,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   {
     replyData = reply->readAll();
   }
-  std::map<std::string, std::string> result = mAPIHandler->getConnections(replyData);
+  ConnectionHealthStatus result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
   traffic.first = std::floor(traffic.first * 100) / 100;
   traffic.second = std::floor(traffic.second * 100) / 100;

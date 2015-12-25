@@ -36,6 +36,7 @@ namespace
 {
   using DateFolderFile = std::tuple<std::string, std::string, std::string, bool>;
   using LastSyncedFileList = std::vector<DateFolderFile>;
+  using ConnectionHealthStatus = std::map<std::string, std::string>;
 } // anon
 
 namespace mfk
@@ -66,7 +67,7 @@ namespace api
       return {result, success};
     }
     
-    virtual std::map<std::string, std::string> getConnections(QByteArray reply) = 0;
+    virtual ConnectionHealthStatus getConnections(QByteArray reply) = 0;
 
     APIHandlerBase *getAPIForVersion(int version);
     
@@ -193,9 +194,9 @@ namespace api
   // Syncthing API V11 Specializations
   struct V12API : public APIHandlerBase
   {
-    std::map<std::string, std::string> getConnections(QByteArray reply) override
+    ConnectionHealthStatus getConnections(QByteArray reply) override
     {
-      std::map<std::string, std::string> result;
+      ConnectionHealthStatus result;
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
@@ -227,9 +228,9 @@ namespace api
   // Syncthing API V11 Specializations
   struct V11API : public APIHandlerBase
   {
-    std::map<std::string, std::string> getConnections(QByteArray reply) override
+    ConnectionHealthStatus getConnections(QByteArray reply) override
     {
-      std::map<std::string, std::string> result;
+      ConnectionHealthStatus result;
       result.emplace("state", "0");
       if (reply.size() == 0)
       {

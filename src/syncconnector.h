@@ -59,7 +59,7 @@ typedef enum processState
 } kSyncthingProcessState;
 
 using ConnectionStateCallback = std::function<void(std::pair<std::string, bool>)>;
-using ConnectionHealthCallback = std::function<void(std::map<std::string, std::string>)>;
+using ConnectionHealthCallback = std::function<void(ConnectionHealthStatus)>;
 using NetworkActivityCallback = std::function<void(bool)>;
 using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
 using FolderNameFullPath = std::pair<std::string, std::string>;
