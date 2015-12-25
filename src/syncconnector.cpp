@@ -226,23 +226,14 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   {
     replyData = reply->readAll();
   }
-  ConnectionHealthStatus result = mAPIHandler->getConnections(replyData);
+  auto result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
   traffic.first = std::floor(traffic.first * 100) / 100;
   traffic.second = std::floor(traffic.second * 100) / 100;
-  std::string inTraff;
-  inTraff = traffic.first > 1000 ?
-    utilities::to_string_with_precision(traffic.first/kBytesToKilobytes, 2) + " MB/s" :
-    utilities::to_string_with_precision(traffic.first, 2) + " KB/s";
-  std::string outTraff = traffic.second > kBytesToKilobytes ?
-    utilities::to_string_with_precision(traffic.second/kBytesToKilobytes, 2) + " MB/s" :
-    utilities::to_string_with_precision(traffic.second, 2) + " KB/s";
-  std::string globTraff = (traffic.first + traffic.second) > kBytesToKilobytes ?
-    utilities::to_string_with_precision((traffic.first + traffic.second)/kBytesToKilobytes, 2) + " MB/s" :
-    utilities::to_string_with_precision((traffic.first + traffic.second), 2) + " KB/s";
-  result.emplace("outTraffic", outTraff);
-  result.emplace("inTraffic", inTraff);
-  result.emplace("globalTraffic", globTraff);
+
+  result.emplace("outTraffic", trafficToString(traffic.second));
+  result.emplace("inTraffic", trafficToString(traffic.first));
+  result.emplace("globalTraffic", trafficToString(traffic.first + traffic.second));
   
   if (mNetworkActivityCallback != nullptr)
   {
@@ -494,6 +485,18 @@ void SyncConnector::killProcesses()
 SyncConnector::~SyncConnector()
 {
   killProcesses();
+}
+
+//------------------------------------------------------------------------------------//
+
+template <typename T>
+std::string SyncConnector::trafficToString(T traffic)
+{
+  using namespace utilities;
+  std::string strTraffic = traffic > kBytesToKilobytes ?
+    to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
+    to_string_with_precision(traffic, 2) + " KB/s";
+  return strTraffic;
 }
 
 

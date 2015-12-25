@@ -110,6 +110,10 @@ namespace connector
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
     int getCurrentVersion(std::string reply);
+
+    template <typename T>
+    std::string trafficToString(T traffic);
+
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     ConnectionHealthCallback mConnectionHealthCallback = nullptr;
     ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
