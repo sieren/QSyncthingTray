@@ -37,6 +37,7 @@ namespace
   using DateFolderFile = std::tuple<std::string, std::string, std::string, bool>;
   using LastSyncedFileList = std::vector<DateFolderFile>;
   using ConnectionHealthStatus = std::map<std::string, std::string>;
+  using FolderNameFullPath = std::pair<std::string, std::string>;
 } // anon
 
 namespace mfk
@@ -73,7 +74,7 @@ namespace api
     
     // Consistent across V11/V12
     
-    std::list<std::pair<std::string, std::string>> getCurrentFolderList(QByteArray reply)
+    std::list<FolderNameFullPath> getCurrentFolderList(QByteArray reply)
     {
       std::list<std::pair<std::string, std::string>> result;
 
@@ -86,7 +87,7 @@ namespace api
         QJsonArray::iterator it;
         foreach (const QJsonValue & value, foldersArray)
         {
-          std::pair<std::string, std::string> aResult;
+          FolderNameFullPath aResult;
           QJsonObject singleEntry = value.toObject();
           aResult.first = singleEntry.find("id").value().toString().toStdString();
           aResult.second = singleEntry.find("path").value().toString().toStdString();

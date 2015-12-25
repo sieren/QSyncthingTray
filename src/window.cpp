@@ -383,9 +383,9 @@ void Window::syncedFileClicked()
                });
   
   // get full path to folder
-  std::list<std::pair<std::string, std::string>>::iterator folder =
+  std::list<FolderNameFullPath>::iterator folder =
   std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
-               [&fileIterator](std::pair<std::string, std::string> const& elem) {
+               [&fileIterator](FolderNameFullPath const& elem) {
                  return getFullCleanFileName(elem.first) == std::get<1>(*fileIterator);
                });
   std::string fullPath = folder->second + getPathToFileName(std::get<2>(*fileIterator))
