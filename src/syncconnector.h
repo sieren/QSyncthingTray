@@ -76,7 +76,6 @@ namespace connector
     virtual ~SyncConnector();
     void setURL(QUrl url, std::string userName, std::string password,
       ConnectionStateCallback setText);
-    void setConnectionStateCallback();
     void setConnectionHealthCallback(ConnectionHealthCallback cb);
     void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
     void setNetworkActivityCallback(NetworkActivityCallback cb);
