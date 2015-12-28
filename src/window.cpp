@@ -486,7 +486,6 @@ void Window::createActions()
 
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-  connect(mpPreferencesAction, SIGNAL(closeEvent()), this, SLOT(closePrefs()));
 
   mpShowGitHubAction = new QAction(tr("Help"), this);
   connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
