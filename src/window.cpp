@@ -258,7 +258,7 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
   }
   catch (std::exception &e)
   {
-
+    std::cerr << "Unable to get current Connection Status!" << std::endl;
   }
   createFoldersMenu();
 }
@@ -502,7 +502,6 @@ void Window::createFoldersMenu()
   std::list<QSharedPointer<QAction>> foldersActions;
   if (mCurrentFoldersLocations != mpSyncConnector->getFolders())
   {
-    std::cout << "Folder List has changed";
     mCurrentFoldersLocations = mpSyncConnector->getFolders();
     for (std::list<std::pair<std::string,
       std::string>>::iterator it=mCurrentFoldersLocations.begin();
