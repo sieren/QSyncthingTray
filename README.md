@@ -59,7 +59,6 @@ cmake ../ -G Xcode
 + I advise to use `qmake` for now, as there have been a few minor problems with the cmake script.  
 ```
 cd ./src  
-qmake -config release  
-make  
+./build_linux.sh  
 ./QSyncthingTray
 ```

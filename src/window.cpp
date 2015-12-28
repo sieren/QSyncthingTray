@@ -107,6 +107,7 @@ Window::Window()
     #ifdef Q_OS_MAC
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
+    this->setWindowFlags(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("QSyncthingTray"));
     resize(maximumWidth / devicePixelRatio(), 400);
 }
