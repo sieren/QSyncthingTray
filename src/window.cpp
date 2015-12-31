@@ -107,6 +107,7 @@ Window::Window()
     #ifdef Q_OS_MAC
       this->setWindowIcon(QIcon(":/images/syncthing.icns"));
     #endif
+    this->setWindowFlags(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("QSyncthingTray"));
     resize(maximumWidth / devicePixelRatio(), 400);
 }
@@ -257,7 +258,7 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
   }
   catch (std::exception &e)
   {
-
+    std::cerr << "Unable to get current Connection Status!" << std::endl;
   }
   createFoldersMenu();
 }
@@ -485,7 +486,6 @@ void Window::createActions()
 
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-  connect(mpPreferencesAction, SIGNAL(closeEvent()), this, SLOT(closePrefs()));
 
   mpShowGitHubAction = new QAction(tr("Help"), this);
   connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
@@ -502,7 +502,6 @@ void Window::createFoldersMenu()
   std::list<QSharedPointer<QAction>> foldersActions;
   if (mCurrentFoldersLocations != mpSyncConnector->getFolders())
   {
-    std::cout << "Folder List has changed";
     mCurrentFoldersLocations = mpSyncConnector->getFolders();
     for (std::list<std::pair<std::string,
       std::string>>::iterator it=mCurrentFoldersLocations.begin();

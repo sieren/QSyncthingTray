@@ -455,7 +455,8 @@ int SyncConnector::getCurrentVersion(std::string reply)
   }
   catch (std::exception &e)
   {
-    std::cerr << "Error getting current version: " << e.what() << std::endl;
+    std::cerr << "Error getting current version: No or invalid connection."
+      << std::endl;
   }
   return version;
 }

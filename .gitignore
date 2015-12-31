@@ -22,3 +22,4 @@ build/
 
 # Backup files
 *~.nib
+ctags
