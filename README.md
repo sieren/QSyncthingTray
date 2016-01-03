@@ -4,6 +4,10 @@ QSyncthingTray
 
 ![Travis CI](https://travis-ci.org/sieren/QSyncthingTray.svg?branch=master "Travis CI
 Status")
+[![Downloads](https://img.shields.io/github/downloads/sieren/QSyncthingTray/total.svg "Downloads")](https://github.com/sieren/QSyncthingTray/releases)
+[![Issues](https://img.shields.io/github/issues/sieren/QSyncthingTray.svg
+"Issues")](https://github.com/sieren/QSyncthingTray/issues)
+
 
 
 A cross-platform status bar for [Syncthing](http://syncthing.net/).  
