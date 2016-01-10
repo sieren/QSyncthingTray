@@ -69,21 +69,7 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::showWebView()
 {
-  if (mpWebView != nullptr)
-  {
-    mpWebView->close();
-  }
-  std::unique_ptr<QWebViewClose> pWeb(new QWebViewClose());
-  mpWebView = std::move(pWeb);
-  mpWebView->show();
-  connect(mpWebView->page()->networkAccessManager(),
-    SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
-    this,
-    SLOT(onSslError(QNetworkReply*)));
-  mpWebView->load(mCurrentUrl);
-  mpWebView->setStyle(QStyleFactory::create("Fusion"));
-  sysutils::SystemUtility().showDockIcon(true);
-  mpWebView->raise();
+
 }
 
 
@@ -500,15 +486,6 @@ std::string SyncConnector::trafficToString(T traffic)
   return strTraffic;
 }
 
-
-//------------------------------------------------------------------------------------//
-
-void QWebViewClose::closeEvent(QCloseEvent *event)
-{
-UNUSED(event);
-  mfk::sysutils::SystemUtility().showDockIcon(false);
-  close();
-}
   
 } // connector
 } //mfk

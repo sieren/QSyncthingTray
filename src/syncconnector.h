@@ -27,7 +27,6 @@
 #include <QNetworkRequest>
 #include <QAuthenticator>
 #include <QNetworkReply>
-#include <QWebView>
 #include <QProcess>
 #include <memory>
 #include <functional>
@@ -131,7 +130,6 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<QWebViewClose> mpWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
@@ -146,12 +144,6 @@ namespace connector
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
   };
 
-  class QWebViewClose : public QWebView
-  {
-    Q_OBJECT;
-    public slots:
-      void closeEvent(QCloseEvent *event) override;
-  };
 } // connector
 } // mfk
 

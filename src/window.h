@@ -28,7 +28,6 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSettings>
-#include <QWebView>
 #include <QProcess>
 #include <QFileDialog>
 #include <QTabWidget>
