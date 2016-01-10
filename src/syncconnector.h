@@ -27,14 +27,15 @@
 #include <QNetworkRequest>
 #include <QAuthenticator>
 #include <QNetworkReply>
-#include <QWebView>
 #include <QProcess>
+#include <QSettings>
 #include <memory>
 #include <functional>
 #include <map>
 #include <thread>
 #include <utility>
 #include "platforms.hpp"
+#include "syncwebview.h"
 #include "apihandler.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -98,6 +99,7 @@ namespace connector
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
+    void webViewClosed();
 
   private:
     void ignoreSslErrors(QNetworkReply *reply);
@@ -109,6 +111,8 @@ namespace connector
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
     int getCurrentVersion(std::string reply);
+
+    bool didShowSSLWarning;
 
     template <typename T>
     std::string trafficToString(T traffic);
@@ -131,7 +135,7 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<QWebViewClose> mpWebView;
+    std::unique_ptr<SyncWebView> mpSyncWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
@@ -146,12 +150,6 @@ namespace connector
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
   };
 
-  class QWebViewClose : public QWebView
-  {
-    Q_OBJECT;
-    public slots:
-      void closeEvent(QCloseEvent *event) override;
-  };
 } // connector
 } // mfk
 

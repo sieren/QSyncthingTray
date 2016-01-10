@@ -684,15 +684,16 @@ void Window::validateSSLSupport()
 
 void Window::onStartAnimation(bool animate)
 {
-  QString iconToAnimate = mpMonochromeIconBox ? tr(kAnimatedIconSet.back().c_str())
+  QString iconToAnimate = mIconMonochrome ? tr(kAnimatedIconSet.back().c_str())
     : tr(kAnimatedIconSet.front().c_str());
   if (!animate || !mShouldAnimateIcon)
   {
-    mpAnimatedIconMovie->stop();
+    mShouldStopAnimation = true;
   }
   else if (animate && mShouldAnimateIcon
     && mpAnimatedIconMovie->state() != QMovie::Running)
   {
+    mShouldStopAnimation = false;
     mpAnimatedIconMovie->setFileName(iconToAnimate);
     mpAnimatedIconMovie->start();
   }
@@ -703,6 +704,11 @@ void Window::onStartAnimation(bool animate)
 
 void Window::onUpdateIcon()
 {
+  if (mShouldStopAnimation && mpAnimatedIconMovie->currentFrameNumber() ==
+    mpAnimatedIconMovie->frameCount() - 1)
+  {
+    mpAnimatedIconMovie->stop();
+  }
   mpTrayIcon->setIcon(QIcon(QPixmap::fromImage(mpAnimatedIconMovie->currentImage())));
 }
 

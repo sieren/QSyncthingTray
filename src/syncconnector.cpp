@@ -62,6 +62,11 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   network.clearAccessCache();
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::urlTested;
+  if (mpSyncWebView != nullptr)
+  {
+    mpSyncWebView->updateConnection(url, mAuthentication);
+  }
+  didShowSSLWarning = false;
 }
 
 
@@ -69,21 +74,25 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::showWebView()
 {
-  if (mpWebView != nullptr)
+  if (mpSyncWebView != nullptr)
   {
-    mpWebView->close();
+    mpSyncWebView->close();
   }
-  std::unique_ptr<QWebViewClose> pWeb(new QWebViewClose());
-  mpWebView = std::move(pWeb);
-  mpWebView->show();
-  connect(mpWebView->page()->networkAccessManager(),
-    SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
-    this,
-    SLOT(onSslError(QNetworkReply*)));
-  mpWebView->load(mCurrentUrl);
-  mpWebView->setStyle(QStyleFactory::create("Fusion"));
-  sysutils::SystemUtility().showDockIcon(true);
-  mpWebView->raise();
+  mpSyncWebView = std::unique_ptr<SyncWebView>(new SyncWebView(mCurrentUrl,
+     mAuthentication));
+  connect(mpSyncWebView.get(), &SyncWebView::close, this, &SyncConnector::webViewClosed);
+  mpSyncWebView->show();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::webViewClosed()
+{
+  disconnect(mpSyncWebView.get(), &SyncWebView::close,
+    this, &SyncConnector::webViewClosed);
+  mpSyncWebView->deleteLater();
+  mpSyncWebView.release();
 }
 
 
@@ -408,6 +417,21 @@ std::list<FolderNameFullPath> SyncConnector::getFolders()
 void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
 {
   QList<QSslError> errorsThatCanBeIgnored;
+  std::string urlString = mCurrentUrl.toString().toStdString();
+  std::size_t found = urlString.find("http:");
+  if (found != std::string::npos && !didShowSSLWarning)
+  {
+    QMessageBox *msgBox = new QMessageBox;
+    msgBox->setText("SSL Warning");
+    msgBox->setInformativeText("The SyncThing Server seems to have HTTPS activated, "
+      "however you are using HTTP. Please make sure to use a correct URL.");
+    msgBox->setStandardButtons(QMessageBox::Ok);
+    msgBox->setDefaultButton(QMessageBox::Ok);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->show();
+    msgBox->setFocus();
+    didShowSSLWarning = true;
+  }
   
   errorsThatCanBeIgnored<<QSslError(QSslError::HostNameMismatch);
   errorsThatCanBeIgnored<<QSslError(QSslError::SelfSignedCertificate);
@@ -500,15 +524,6 @@ std::string SyncConnector::trafficToString(T traffic)
   return strTraffic;
 }
 
-
-//------------------------------------------------------------------------------------//
-
-void QWebViewClose::closeEvent(QCloseEvent *event)
-{
-UNUSED(event);
-  mfk::sysutils::SystemUtility().showDockIcon(false);
-  close();
-}
   
 } // connector
 } //mfk

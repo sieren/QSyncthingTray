@@ -28,7 +28,6 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSettings>
-#include <QWebView>
 #include <QProcess>
 #include <QFileDialog>
 #include <QTabWidget>
@@ -148,6 +147,7 @@ private:
     bool mIconMonochrome;
     bool mNotificationsEnabled;
     bool mShouldAnimateIcon;
+    bool mShouldStopAnimation;
     int mLastConnectionState;
 
   };
