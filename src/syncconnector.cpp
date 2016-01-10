@@ -419,7 +419,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   QList<QSslError> errorsThatCanBeIgnored;
   std::string urlString = mCurrentUrl.toString().toStdString();
   std::size_t found = urlString.find("http:");
-  if (found != std::string::npos && !didShowSSLWarning)
+  if (found != std::string::npos && !didShowSSLWarning && QSslSocket::supportsSsl())
   {
     QMessageBox *msgBox = new QMessageBox;
     msgBox->setText("SSL Warning");
