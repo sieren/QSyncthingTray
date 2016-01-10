@@ -684,7 +684,7 @@ void Window::validateSSLSupport()
 
 void Window::onStartAnimation(bool animate)
 {
-  QString iconToAnimate = mpMonochromeIconBox ? tr(kAnimatedIconSet.back().c_str())
+  QString iconToAnimate = mIconMonochrome ? tr(kAnimatedIconSet.back().c_str())
     : tr(kAnimatedIconSet.front().c_str());
   if (!animate || !mShouldAnimateIcon)
   {
