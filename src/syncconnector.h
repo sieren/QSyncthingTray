@@ -28,6 +28,7 @@
 #include <QAuthenticator>
 #include <QNetworkReply>
 #include <QProcess>
+#include <QSettings>
 #include <memory>
 #include <functional>
 #include <map>
@@ -110,6 +111,8 @@ namespace connector
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
     int getCurrentVersion(std::string reply);
+
+    bool didShowSSLWarning;
 
     template <typename T>
     std::string trafficToString(T traffic);
