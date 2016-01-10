@@ -98,6 +98,7 @@ namespace connector
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
+    void webViewClosed();
 
   private:
     void ignoreSslErrors(QNetworkReply *reply);

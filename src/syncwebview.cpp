@@ -41,14 +41,14 @@ void SyncWebView::initWebView()
 {
   QWebEngineProfile *profile = QWebEngineProfile::defaultProfile();
   profile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
-  mpPageView = new SyncWebPage(profile);
+  mpPageView = std::unique_ptr<SyncWebPage>(new SyncWebPage(profile));
 
   QWebEngineSettings* settings = mpPageView->settings();
   settings->setAttribute(QWebEngineSettings::WebAttribute::JavascriptEnabled, true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::AutoLoadImages,true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::LocalContentCanAccessRemoteUrls, true);
   mpPageView->load(mSyncThingUrl);
-  setPage(mpPageView);
+  setPage(mpPageView.get());
 }
 
 
@@ -57,7 +57,7 @@ void SyncWebView::initWebView()
 void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 {
   mpPageView->updateConnInfo(url, authInfo);
-  setPage(mpPageView);
+  setPage(mpPageView.get());
   reload();
 }
 
@@ -68,6 +68,7 @@ void SyncWebView::closeEvent(QCloseEvent *event)
 {
   QWebEngineView::closeEvent(event);
   mfk::sysutils::SystemUtility().showDockIcon(false);
+  emit close();
 }
 
 
@@ -87,20 +88,24 @@ void SyncWebView::show()
 
 void SyncWebView::setupMenu()
 {
-  QAction *shrtCut = pageAction(QWebEnginePage::Cut);
+  shrtCut =
+    std::unique_ptr<QAction>(pageAction(QWebEnginePage::Cut));
   shrtCut->setShortcut(QKeySequence::Cut);
-  QAction *shrtCopy = pageAction(QWebEnginePage::Copy);;
+  shrtCopy =
+    std::unique_ptr<QAction>(pageAction(QWebEnginePage::Copy));
   shrtCopy->setShortcut(QKeySequence::Copy);
-  QAction *shrtPaste = pageAction(QWebEnginePage::Paste);
+  shrtPaste =
+    std::unique_ptr<QAction>(pageAction(QWebEnginePage::Paste));
   shrtPaste->setShortcut(QKeySequence::Paste);
-  QAction *slctAll = pageAction(QWebEnginePage::SelectAll);
+  slctAll =
+  std::unique_ptr<QAction>(pageAction(QWebEnginePage::SelectAll));
   slctAll->setShortcut(QKeySequence::SelectAll);
   
   using namespace std::placeholders;
   addActions(std::bind(&QWidget::addAction, &mContextMenu, _1),
-             shrtCut, shrtCopy, shrtPaste, slctAll);
+    shrtCut.get(), shrtCopy.get(), shrtPaste.get(), slctAll.get());
   addActions(std::bind(&QWebEngineView::addAction, this, _1),
-             shrtCut, shrtCopy, shrtPaste, slctAll);
+    shrtCut.get(), shrtCopy.get(), shrtPaste.get(), slctAll.get());
   
   mContextMenu.addSeparator();
   QAction *shrtReload = pageAction(QWebEnginePage::Reload);

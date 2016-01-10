@@ -30,6 +30,15 @@ SyncWebPage::SyncWebPage()
 
 //------------------------------------------------------------------------------------//
 
+SyncWebPage::~SyncWebPage()
+{
+  disconnect(this, &QWebEnginePage::authenticationRequired,
+          this, &SyncWebPage::requireAuthentication);
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void SyncWebPage::updateConnInfo(QUrl url, Authentication authInfo)
 {
   mAuthInfo = authInfo;
@@ -54,3 +63,8 @@ bool SyncWebPage::certificateError(const QWebEngineCertificateError &certificate
   return true; // TODO: Figure out whether there is a syncthing CA so we can use the
                // real certificate
 }
+
+//------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------//
+// EOF
+//------------------------------------------------------------------------------------//

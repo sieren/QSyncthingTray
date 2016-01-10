@@ -79,7 +79,19 @@ void SyncConnector::showWebView()
   }
   mpSyncWebView = std::unique_ptr<SyncWebView>(new SyncWebView(mCurrentUrl,
      mAuthentication));
+  connect(mpSyncWebView.get(), &SyncWebView::close, this, &SyncConnector::webViewClosed);
   mpSyncWebView->show();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::webViewClosed()
+{
+  disconnect(mpSyncWebView.get(), &SyncWebView::close,
+    this, &SyncConnector::webViewClosed);
+  mpSyncWebView->deleteLater();
+  mpSyncWebView.release();
 }
 
 

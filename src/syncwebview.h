@@ -30,25 +30,36 @@
 
 class SyncWebView : public QWebEngineView
 {
-
+  Q_OBJECT;
 public:
   SyncWebView() = default;
   SyncWebView(QUrl url, Authentication authInfo);
+  ~SyncWebView() = default;
+
   void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
   void show();
   virtual void contextMenuEvent(QContextMenuEvent * event) override;
   void updateConnection(QUrl url, Authentication authInfo);
 
+signals:
+  void close();
+
 private:
   void initWebView();
   void setupMenu();
   
-  SyncWebPage *mpPageView;
+  std::unique_ptr<SyncWebPage> mpPageView;
   QUrl mSyncThingUrl;
   Authentication mAuthInfo;
   
   QMenu mContextMenu;
   
+  std::unique_ptr<QAction> shrtCut;
+  std::unique_ptr<QAction> shrtPaste;
+  std::unique_ptr<QAction> shrtCopy;
+  std::unique_ptr<QAction> slctAll;
+
+
   template<typename F, typename T, typename... TArgs>
   void addActions(F &&funct, T action, TArgs... Actions);
   
@@ -57,3 +68,7 @@ private:
 };
 
 #endif // SYNCWEBVIEW_H
+//------------------------------------------------------------------------------------//
+//------------------------------------------------------------------------------------//
+// EOF
+//------------------------------------------------------------------------------------//
