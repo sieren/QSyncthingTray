@@ -147,6 +147,7 @@ private:
     bool mIconMonochrome;
     bool mNotificationsEnabled;
     bool mShouldAnimateIcon;
+    bool mShouldStopAnimation;
     int mLastConnectionState;
 
   };
