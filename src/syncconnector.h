@@ -34,6 +34,7 @@
 #include <thread>
 #include <utility>
 #include "platforms.hpp"
+#include "syncwebview.h"
 #include "apihandler.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -130,6 +131,7 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
+    std::unique_ptr<SyncWebView> mpSyncWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;

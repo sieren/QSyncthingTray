@@ -79,5 +79,5 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     get_target_property(QtCore_location Qt5::Core LOCATION)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-qt5_use_modules(QSyncthingTray Widgets Network WebKitWidgets)
+qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
 

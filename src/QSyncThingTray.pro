@@ -7,18 +7,22 @@ HEADERS       = window.h \
                 platforms.hpp \
                 apihandler.hpp \
                 startuptab.hpp \
-                utilities.hpp
+                utilities.hpp \
+                syncwebview.h \
+                syncwebpage.h
 SOURCES       = main.cpp \
                 window.cpp \
                 syncconnector.cpp \
                 processmonitor.cpp \
-                startuptab.cpp
+                startuptab.cpp \
+                syncwebview.cpp \
+                syncwebpage.cpp
 RESOURCES     = \
                 qsyncthing.qrc
 
 QT += widgets
 QT += network
-QT += webkitwidgets
+QT += webenginewidgets
 
 # install
 target.path = binary/

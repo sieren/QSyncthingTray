@@ -62,6 +62,10 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   network.clearAccessCache();
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::urlTested;
+  if (mpSyncWebView != nullptr)
+  {
+    mpSyncWebView->updateConnection(url, mAuthentication);
+  }
 }
 
 
@@ -69,7 +73,13 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::showWebView()
 {
-
+  if (mpSyncWebView != nullptr)
+  {
+    mpSyncWebView->close();
+  }
+  mpSyncWebView = std::unique_ptr<SyncWebView>(new SyncWebView(mCurrentUrl,
+     mAuthentication));
+  mpSyncWebView->show();
 }
 
 
