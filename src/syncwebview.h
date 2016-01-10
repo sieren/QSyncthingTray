@@ -23,6 +23,7 @@
 #include <QMenu>
 #include <QObject>
 #include <QtWebEngineWidgets/QWebEngineView>
+#include <memory>
 #include "utilities.hpp"
 #include "syncwebpage.h"
 
