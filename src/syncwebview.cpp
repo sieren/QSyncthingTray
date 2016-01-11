@@ -66,7 +66,6 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
-  QWebEngineView::closeEvent(event);
   mfk::sysutils::SystemUtility().showDockIcon(false);
   emit close();
 }
