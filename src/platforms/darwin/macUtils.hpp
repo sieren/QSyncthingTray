@@ -31,9 +31,10 @@ namespace platforms
 {
 namespace darwin
 {
+  static int windowCounter = 0;
+
   struct MacUtils
   {
-    
     char getPlatformDelimiter()
     {
       return '/';
@@ -44,9 +45,16 @@ namespace darwin
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       ProcessSerialNumber psn;
+      windowCounter += show ? 1 : -1;
       UInt32 transformState = show ? kProcessTransformToForegroundApplication :
         kProcessTransformToUIElementApplication;
-      if (GetCurrentProcess(&psn) == noErr)
+      const bool shouldHideLastWindow =
+        (transformState == kProcessTransformToUIElementApplication &&
+         windowCounter == 0) ? true : false;
+      const bool shouldShowWindow =
+        (transformState == kProcessTransformToForegroundApplication &&
+         windowCounter > 0) ? true : false;
+      if (GetCurrentProcess(&psn) == noErr && (shouldShowWindow || shouldHideLastWindow))
       {
         TransformProcessType(&psn,
           transformState);

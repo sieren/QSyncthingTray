@@ -417,20 +417,27 @@ std::list<FolderNameFullPath> SyncConnector::getFolders()
 void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
 {
   QList<QSslError> errorsThatCanBeIgnored;
-  std::string urlString = mCurrentUrl.toString().toStdString();
-  std::size_t found = urlString.find("http:");
-  if (found != std::string::npos && !didShowSSLWarning && QSslSocket::supportsSsl())
+  size_t foundHttp = mCurrentUrl.toString().toStdString().find("http:");
+  QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+  
+  if (statusCode.toInt() == 302) // we're getting redirected, find out if to HTTPS
   {
-    QMessageBox *msgBox = new QMessageBox;
-    msgBox->setText("SSL Warning");
-    msgBox->setInformativeText("The SyncThing Server seems to have HTTPS activated, "
-      "however you are using HTTP. Please make sure to use a correct URL.");
-    msgBox->setStandardButtons(QMessageBox::Ok);
-    msgBox->setDefaultButton(QMessageBox::Ok);
-    msgBox->setAttribute(Qt::WA_DeleteOnClose);
-    msgBox->show();
-    msgBox->setFocus();
-    didShowSSLWarning = true;
+    QVariant url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    size_t found = url.toString().toStdString().find("https:");
+    if (found != std::string::npos && foundHttp != std::string::npos
+      && !didShowSSLWarning)
+    {
+      QMessageBox *msgBox = new QMessageBox;
+      msgBox->setText("SSL Warning");
+      msgBox->setInformativeText("The SyncThing Server seems to have HTTPS activated, "
+        "however you are using HTTP. Please make sure to use a correct URL.");
+      msgBox->setStandardButtons(QMessageBox::Ok);
+      msgBox->setDefaultButton(QMessageBox::Ok);
+      msgBox->setAttribute(Qt::WA_DeleteOnClose);
+      msgBox->show();
+      msgBox->setFocus();
+      didShowSSLWarning = true;
+    }
   }
   
   errorsThatCanBeIgnored<<QSslError(QSslError::HostNameMismatch);
