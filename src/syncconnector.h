@@ -132,6 +132,7 @@ namespace connector
       connectionHealth,
       getCurrentConfig,
       getLastSyncedFiles,
+      shutdownRequested
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
