@@ -211,6 +211,9 @@ void SyncConnector::netRequestfinished(QNetworkReply* reply)
     case kRequestMethod::getLastSyncedFiles:
       lastSyncedFilesReceived(reply);
       break;
+    case kRequestMethod::shutdownRequested:
+      shutdownProcessPosted(reply);
+      break;
   }
   requestMap.remove(reply);
 }
@@ -294,18 +297,11 @@ void SyncConnector::shutdownSyncthingProcess()
   QNetworkRequest request(requestUrl);
   QByteArray postData;
   // Call the webservice
-  QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-  connect(networkManager, SIGNAL(finished(QNetworkReply*)),
-          SLOT(shutdownProcessPosted(QNetworkReply*)));
-  connect(networkManager, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
-          this, SLOT (onSslError(QNetworkReply*))
-          );
   QNetworkRequest networkRequest(requestUrl);
-  std::string headerStr = "X-API-KEY: " + mAPIKey;
   QByteArray headerByte(mAPIKey.c_str(), mAPIKey.length());
-  networkRequest.setRawHeader("X-API-Key", headerByte);
-  
-  networkManager->post(networkRequest,postData);
+  networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
+  QNetworkReply *reply = network.post(networkRequest, postData);
+  requestMap[reply] = kRequestMethod::shutdownRequested;
 }
 
 //------------------------------------------------------------------------------------//
