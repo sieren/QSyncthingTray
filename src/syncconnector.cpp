@@ -302,6 +302,9 @@ void SyncConnector::shutdownSyncthingProcess()
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
+  QEventLoop loop;
+  connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+  loop.exec();
 }
 
 //------------------------------------------------------------------------------------//
