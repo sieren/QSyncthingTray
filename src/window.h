@@ -81,6 +81,7 @@ private slots:
     void folderClicked();
     void syncedFileClicked();
     void onUpdateIcon();
+    void quit();
 
 private:
     void createSettingsGroupBox();
