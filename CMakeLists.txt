@@ -2,17 +2,26 @@ cmake_minimum_required(VERSION 3.2)
 
 project (QSyncthingTray)
 
+if ("$ENV{QTDIR}" STREQUAL "")
+  MESSAGE(FATAL_ERROR "QTDIR not specified. Please export QTDIR 
+  e.g. export QTDIR = ~/Qt/5.5/gcc_64/")
+endif ("$ENV{QTDIR}" STREQUAL "")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   if (${CMAKE_CL_64} MATCHES 0)
     message (STATUS "MSVC 64 Bit: ${CMAKE_CL_64}")
-    set(CMAKE_PREFIX_PATH "C:\\Qt\\5.5\\msvc2013\\")
+    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
   else(${CMAKE_CL_64} MATCHES 0)
-    set(CMAKE_PREFIX_PATH "C:\\Qt\\5.5\\msvc2013_64\\")
+    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
   endif(${CMAKE_CL_64} MATCHES 0)
-else(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(CMAKE_PREFIX_PATH "~/Qt/5.5/clang_64/")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 
 
 # Find includes in corresponding build directories
@@ -58,7 +67,7 @@ SET_SOURCE_FILES_PROPERTIES(
   elseif(WIN32)
     add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
   elseif(UNIX)
-    add_executable(QSyncthingTray ${FILES_WP})
+    add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
   endif()
   
 if (APPLE)
