@@ -20,6 +20,8 @@
 #include "syncwebpage.h"
 
 //------------------------------------------------------------------------------------//
+#define UNUSED(x) (void)(x)
+//------------------------------------------------------------------------------------//
 
 SyncWebPage::SyncWebPage()
 {
@@ -51,6 +53,7 @@ void SyncWebPage::updateConnInfo(QUrl url, Authentication authInfo)
 void SyncWebPage::requireAuthentication(
   const QUrl &requestUrl, QAuthenticator *authenticator)
 {
+UNUSED(requestUrl);
   authenticator->setUser(tr(mAuthInfo.first.c_str()));
   authenticator->setPassword(tr(mAuthInfo.first.c_str()));
 }
@@ -60,6 +63,7 @@ void SyncWebPage::requireAuthentication(
 
 bool SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
 {
+UNUSED(certificateError);
   return true; // TODO: Figure out whether there is a syncthing CA so we can use the
                // real certificate
 }

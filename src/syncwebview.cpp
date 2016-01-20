@@ -23,6 +23,9 @@
 #include <QWebEngineSettings>
 #include <functional>
 
+
+//------------------------------------------------------------------------------------//
+#define UNUSED(x) (void)(x)
 //------------------------------------------------------------------------------------//
 
 SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
@@ -66,6 +69,7 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
+UNUSED(event);
   qst::sysutils::SystemUtility().showDockIcon(false);
   emit close();
 }
