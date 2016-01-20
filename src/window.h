@@ -76,7 +76,7 @@ private slots:
     void authCheckBoxChanged(int state);
     void monoChromeIconChanged(int state);
     void animateIconBoxChanged(int state);
-    void showGitPage();
+    void showAboutPage();
     void folderClicked();
     void syncedFileClicked();
     void onUpdateIcon();

@@ -40,6 +40,7 @@
 
 
 //! Layout
+#define currentVersion "v0.4.2"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -488,8 +489,8 @@ void Window::createActions()
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
-  mpShowGitHubAction = new QAction(tr("Help"), this);
-  connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
+  mpShowGitHubAction = new QAction(tr("About"), this);
+  connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showAboutPage()));
 
   mpQuitAction = new QAction(tr("&Quit"), this);
   connect(mpQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -725,10 +726,16 @@ void Window::onUpdateIcon()
 
 //------------------------------------------------------------------------------------//
 
-void Window::showGitPage()
+void Window::showAboutPage()
 {
-  QString link = "http://www.github.com/sieren/QSyncthingTray";
-  QDesktopServices::openUrl(QUrl(link));
+  QMessageBox msgBox(this);
+  msgBox.setWindowTitle("About QSyncthingTray");
+  msgBox.setTextFormat(Qt::RichText);
+  msgBox.setText("<p align='center'>" currentVersion " (c) 2015 The QSyncthingTray " \
+    "Authors. <br/> This program comes with absolutely no warranty. <br/><br/>" \
+    "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
+    "QSyncthingTray on Github</a></p>");
+  msgBox.exec();
 }
 
 #endif
