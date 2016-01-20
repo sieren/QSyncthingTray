@@ -21,9 +21,9 @@
 #include <QApplication>
 #include <QHeaderView>
 
-using namespace mfk::monitor;
+using namespace qst::monitor;
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector)
   : mpSyncConnector(pSyncConnector)
   , mSettings("sieren", "QSyncthingTray")
 {

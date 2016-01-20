@@ -25,7 +25,7 @@
 #include <Carbon/Carbon.h>
 #define UNUSED(x) (void)(x)
 
-namespace mfk
+namespace qst
 {
 namespace platforms
 {
@@ -90,6 +90,6 @@ namespace darwin
   };
 } // posix
 } // sysutils
-} // mfk
+} // qst
 
 #endif

@@ -25,7 +25,7 @@
 #include "platforms.hpp"
 #include "utilities.hpp"
 
-namespace mfk
+namespace qst
 {
 namespace connector
 {
@@ -532,4 +532,4 @@ std::string SyncConnector::trafficToString(T traffic)
 
   
 } // connector
-} //mfk
+} //qst

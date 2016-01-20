@@ -64,7 +64,7 @@ using ConnectionHealthCallback = std::function<void(ConnectionHealthStatus)>;
 using NetworkActivityCallback = std::function<void(bool)>;
 using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
 
-namespace mfk
+namespace qst
 {
 namespace connector
 {
@@ -147,12 +147,12 @@ namespace connector
     
     std::string mAPIKey;
     
-    mfk::sysutils::SystemUtility systemUtil;
+    qst::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
   };
 
 } // connector
-} // mfk
+} // qst
 
 
 

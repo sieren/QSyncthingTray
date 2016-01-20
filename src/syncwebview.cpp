@@ -66,7 +66,7 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
-  mfk::sysutils::SystemUtility().showDockIcon(false);
+  qst::sysutils::SystemUtility().showDockIcon(false);
   emit close();
 }
 
@@ -79,7 +79,7 @@ void SyncWebView::show()
   setFocusPolicy(Qt::ClickFocus);
   setEnabled(true);
   setFocus();
-  mfk::sysutils::SystemUtility().showDockIcon(true);
+  qst::sysutils::SystemUtility().showDockIcon(true);
 }
 
 

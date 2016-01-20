@@ -31,7 +31,7 @@ static const double kNetworkNoiseFloor = 0.5;
 // maximum characters for shortened filenames in UI
 static const int kMaxDisplayFileNameChars = 20;
 
-namespace mfk
+namespace qst
 {
 namespace utilities
 {

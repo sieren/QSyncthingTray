@@ -40,7 +40,7 @@ namespace
   using FolderNameFullPath = std::pair<std::string, std::string>;
 } // anon
 
-namespace mfk
+namespace qst
 {
 namespace api
 {
@@ -269,5 +269,5 @@ namespace api
   }
   
 } // api
-} // mfk
+} // qst
 #endif /* apihandler_h */
