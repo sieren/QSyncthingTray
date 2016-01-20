@@ -89,7 +89,8 @@ private:
     void saveSettings();
     void loadSettings();
     void showAuthentication(bool show);
-    void showMessage(std::string title, std::string body);
+    void showMessage(std::string title, std::string body,
+      QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information);
     void createFoldersMenu();
     void createLastSyncedMenu();
     void createDefaultSettings();

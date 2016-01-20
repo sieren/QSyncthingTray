@@ -245,7 +245,8 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
     mpConnectedState->setText(tr("Not Connected"));
     if (mLastConnectionState != 0)
     {
-      showMessage("Not Connected", "Could not find Syncthing.");
+      showMessage("Not Connected", "Could not find Syncthing.",
+        QSystemTrayIcon::Warning);
     }
     // syncthing takes a while to shut down, in case someone
     // would reopen qsyncthingtray it wouldnt restart the process
@@ -332,12 +333,12 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::showMessage(std::string title, std::string body)
+void Window::showMessage(std::string title, std::string body,
+  QSystemTrayIcon::MessageIcon icon)
 {
   if (mNotificationsEnabled)
   {
-    mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
-      1000);
+    mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), icon, 1000);
   }
 }
 
