@@ -27,7 +27,7 @@
 #include <comdef.h>
 #define UNUSED(x) (void)(x)
 
-namespace mfk
+namespace qst
 {
 namespace platforms
 {
@@ -78,6 +78,6 @@ namespace windows
   };
 } // windows
 } // platforms
-} // mfk
+} // qst
 
 #endif

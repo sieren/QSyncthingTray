@@ -76,7 +76,7 @@ private slots:
     void authCheckBoxChanged(int state);
     void monoChromeIconChanged(int state);
     void animateIconBoxChanged(int state);
-    void showGitPage();
+    void showAboutPage();
     void folderClicked();
     void syncedFileClicked();
     void onUpdateIcon();
@@ -89,7 +89,8 @@ private:
     void saveSettings();
     void loadSettings();
     void showAuthentication(bool show);
-    void showMessage(std::string title, std::string body);
+    void showMessage(std::string title, std::string body,
+      QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information);
     void createFoldersMenu();
     void createLastSyncedMenu();
     void createDefaultSettings();
@@ -138,9 +139,9 @@ private:
 
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
-    std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
-    std::unique_ptr<mfk::monitor::ProcessMonitor> mpProcessMonitor;
-    std::unique_ptr<mfk::settings::StartupTab> mpStartupTab;
+    std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
+    std::unique_ptr<qst::monitor::ProcessMonitor> mpProcessMonitor;
+    std::unique_ptr<qst::settings::StartupTab> mpStartupTab;
     QSettings mSettings;
   
     std::unique_ptr<QMovie> mpAnimatedIconMovie;

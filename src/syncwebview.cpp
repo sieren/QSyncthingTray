@@ -23,6 +23,9 @@
 #include <QWebEngineSettings>
 #include <functional>
 
+
+//------------------------------------------------------------------------------------//
+#define UNUSED(x) (void)(x)
 //------------------------------------------------------------------------------------//
 
 SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
@@ -66,7 +69,8 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
-  mfk::sysutils::SystemUtility().showDockIcon(false);
+UNUSED(event);
+  qst::sysutils::SystemUtility().showDockIcon(false);
   emit close();
 }
 
@@ -79,7 +83,7 @@ void SyncWebView::show()
   setFocusPolicy(Qt::ClickFocus);
   setEnabled(true);
   setFocus();
-  mfk::sysutils::SystemUtility().showDockIcon(true);
+  qst::sysutils::SystemUtility().showDockIcon(true);
 }
 
 

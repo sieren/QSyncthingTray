@@ -55,7 +55,7 @@ class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace mfk
+namespace qst
 {
 namespace settings
 {
@@ -65,7 +65,7 @@ class StartupTab : public QWidget
   Q_OBJECT
   
 public:
-  StartupTab(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector);
+  StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector);
   ~StartupTab();
   bool isPausingProcessRunning();
   void spawnSyncthingApp();
@@ -104,12 +104,12 @@ private:
   std::string mCurrentSyncthingPath;
   std::string mCurrentINotifyPath;
 
-  std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
-  mfk::sysutils::SystemUtility systemUtil;
+  std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
+  qst::sysutils::SystemUtility systemUtil;
   QSettings mSettings;
 };
 
 } // monitor
-} // mfk
+} // qst
 
 #endif

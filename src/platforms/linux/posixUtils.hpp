@@ -23,7 +23,7 @@
 #include <iostream>
 #define UNUSED(x) (void)(x)
 
-namespace mfk
+namespace qst
 {
 namespace platforms
 {
@@ -71,6 +71,6 @@ namespace linux
   };
 } // posix
 } // sysutils
-} // mfk
+} // qst
 
 #endif

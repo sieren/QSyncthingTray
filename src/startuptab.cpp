@@ -19,12 +19,12 @@
 #include "startuptab.hpp"
 #include <QFileDialog>
 
-namespace mfk
+namespace qst
 {
 namespace settings
 {
 
-StartupTab::StartupTab(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector) :
+StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector) :
     mpSyncConnector(pSyncConnector)
   , mSettings("sieren", "QSyncthingTray")
 {
@@ -293,4 +293,4 @@ void StartupTab::hideShowElements(bool show, T uiElement)
 //------------------------------------------------------------------------------------//
 
 } // settings
-} // mfk
+} // qst

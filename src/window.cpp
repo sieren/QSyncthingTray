@@ -40,6 +40,7 @@
 
 
 //! Layout
+#define currentVersion "v0.4.2"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -51,9 +52,9 @@ static const std::list<std::string> kAnimatedIconSet(
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 Window::Window()
-  : mpSyncConnector(new mfk::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
-  , mpProcessMonitor(new mfk::monitor::ProcessMonitor(mpSyncConnector))
-  , mpStartupTab(new mfk::settings::StartupTab(mpSyncConnector))
+  : mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
+  , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector))
+  , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
   , mSettings("sieren", "QSyncthingTray")
   , mpAnimatedIconMovie(new QMovie())
 {
@@ -118,7 +119,7 @@ Window::Window()
 void Window::setVisible(bool visible)
 {
   QDialog::setVisible(visible);
-  mfk::sysutils::SystemUtility().showDockIcon(visible);
+  qst::sysutils::SystemUtility().showDockIcon(visible);
   raise();
 }
 
@@ -132,7 +133,7 @@ void Window::closeEvent(QCloseEvent *event)
         hide();
         event->ignore();
     }
-  mfk::sysutils::SystemUtility().showDockIcon(false);
+  qst::sysutils::SystemUtility().showDockIcon(false);
   mpStartupTab->saveSettings();
   saveSettings();
 }
@@ -245,7 +246,8 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
     mpConnectedState->setText(tr("Not Connected"));
     if (mLastConnectionState != 0)
     {
-      showMessage("Not Connected", "Could not find Syncthing.");
+      showMessage("Not Connected", "Could not find Syncthing.",
+        QSystemTrayIcon::Warning);
     }
     // syncthing takes a while to shut down, in case someone
     // would reopen qsyncthingtray it wouldnt restart the process
@@ -332,12 +334,12 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::showMessage(std::string title, std::string body)
+void Window::showMessage(std::string title, std::string body,
+  QSystemTrayIcon::MessageIcon icon)
 {
   if (mNotificationsEnabled)
   {
-    mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), QSystemTrayIcon::Warning,
-      1000);
+    mpTrayIcon->showMessage(tr(title.c_str()), tr(body.c_str()), icon, 1000);
   }
 }
 
@@ -371,8 +373,8 @@ void Window::folderClicked()
 
 void Window::syncedFileClicked()
 {
-  using namespace mfk::utilities;
-  using namespace mfk::sysutils;
+  using namespace qst::utilities;
+  using namespace qst::sysutils;
 
   QObject *obj = sender();
   QAction * senderObject = static_cast<QAction*>(obj);
@@ -487,8 +489,8 @@ void Window::createActions()
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
-  mpShowGitHubAction = new QAction(tr("Help"), this);
-  connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showGitPage()));
+  mpShowGitHubAction = new QAction(tr("About"), this);
+  connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showAboutPage()));
 
   mpQuitAction = new QAction(tr("&Quit"), this);
   connect(mpQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -532,7 +534,7 @@ void Window::createFoldersMenu()
 
 void Window::createLastSyncedMenu()
 {
-  using namespace mfk::utilities;
+  using namespace qst::utilities;
   if (mLastSyncedFiles.size() > 0)
   {
     std::list<QSharedPointer<QAction>> syncedFilesActions;
@@ -683,7 +685,7 @@ void Window::validateSSLSupport()
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("OpenSSL Not Found");
     msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-    msgBox.setText(mfk::sysutils::SystemUtility().getSSLLibraryText().c_str());
+    msgBox.setText(qst::sysutils::SystemUtility().getSSLLibraryText().c_str());
     msgBox.exec();
   }
 }
@@ -724,10 +726,16 @@ void Window::onUpdateIcon()
 
 //------------------------------------------------------------------------------------//
 
-void Window::showGitPage()
+void Window::showAboutPage()
 {
-  QString link = "http://www.github.com/sieren/QSyncthingTray";
-  QDesktopServices::openUrl(QUrl(link));
+  QMessageBox msgBox(this);
+  msgBox.setWindowTitle("About QSyncthingTray");
+  msgBox.setTextFormat(Qt::RichText);
+  msgBox.setText("<p align='center'>" currentVersion " (c) 2015 The QSyncthingTray " \
+    "Authors. <br/> This program comes with absolutely no warranty. <br/><br/>" \
+    "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
+    "QSyncthingTray on Github</a></p>");
+  msgBox.exec();
 }
 
 #endif

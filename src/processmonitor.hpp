@@ -55,7 +55,7 @@ class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace mfk
+namespace qst
 {
 namespace monitor
 {
@@ -65,7 +65,7 @@ class ProcessMonitor : public QWidget
   Q_OBJECT
 
 public:
-  ProcessMonitor(std::shared_ptr<mfk::connector::SyncConnector> pSyncConnector);
+  ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector);
   virtual ~ProcessMonitor() = default;
   bool isPausingProcessRunning();
 
@@ -83,16 +83,16 @@ private:
   QLineEdit *mpProcessLineEdit;
   QPushButton *mpAddToListButton;
   QPushButton *mpDeleteFromListButton;
-  std::shared_ptr<mfk::connector::SyncConnector> mpSyncConnector;
+  std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
   QSettings mSettings;
   QStringList mProcessList;
 
   std::unique_ptr<QTimer> mpProcessCheckTimer;
 
-  mfk::sysutils::SystemUtility systemUtil;
+  qst::sysutils::SystemUtility systemUtil;
 };
 
 } // monitor
-} // mfk
+} // qst
 
 #endif

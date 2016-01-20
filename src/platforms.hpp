@@ -26,7 +26,7 @@
 #include "platforms/darwin/macUtils.hpp"
 #endif
 
-namespace mfk
+namespace qst
 {
 namespace sysutils
 {
@@ -40,5 +40,5 @@ using SystemUtility = platforms::darwin::MacUtils;
 #endif
   
 } // sysutils
-} // mfk
+} // qst
 
