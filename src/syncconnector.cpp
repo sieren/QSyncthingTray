@@ -48,7 +48,6 @@ SyncConnector::SyncConnector(QUrl url)
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
           SLOT(checkConnectionHealth()));
-  mpConnectionHealthTimer->start(1000);
 }
 
   
@@ -117,6 +116,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   {
     mConnectionStateCallback(connectionInfo);
   }
+  mpConnectionHealthTimer->start(1000);
   reply->deleteLater();
 }
 
@@ -495,6 +495,14 @@ void SyncConnector::killProcesses()
     mpSyncthingNotifierProcess->kill();
     mpSyncthingNotifierProcess->waitForFinished();
   }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+SyncWebView *SyncConnector::getWebView()
+{
+  return mpSyncWebView.get();
 }
 
 

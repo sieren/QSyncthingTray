@@ -87,6 +87,7 @@ namespace connector
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
+    SyncWebView *getWebView();
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);

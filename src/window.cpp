@@ -76,6 +76,8 @@ Window::Window()
       SLOT(animateIconBoxChanged(int)));
     connect(mpAnimatedIconMovie.get(), SIGNAL(frameChanged(int)),
       this, SLOT(onUpdateIcon()));
+    connect(mpWebViewZoomFactor, SIGNAL(valueChanged(double)), this,
+      SLOT(webViewZoomFactorChanged(double)));
 
     // Setup SyncthingConnector
     using namespace qst::connector;
@@ -341,6 +343,18 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
+void Window::webViewZoomFactorChanged(double value)
+{
+  if (mpSyncConnector->getWebView())
+  {
+    mpSyncConnector->getWebView()->setZoomFactor(value);
+  }
+   mSettings.setValue("WebZoomFactor", value);
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::showMessage(std::string title, std::string body,
   QSystemTrayIcon::MessageIcon icon)
 {
@@ -466,10 +480,19 @@ void Window::createSettingsGroupBox()
   mpNotificationsIconBox->setChecked(mNotificationsEnabled);
   mpShouldAnimateIconBox = new QCheckBox("Animate Icon on Activity");
   mpShouldAnimateIconBox->setChecked(mShouldAnimateIcon);
+  mpWebViewZoomFactorLabel = new QLabel(tr("Web View Zoom Factor"));
+  mpWebViewZoomFactor = new QDoubleSpinBox();
+  mpWebViewZoomFactor->setRange(0.0, 4.0);
+  mpWebViewZoomFactor->setSingleStep(0.25);
+  mpWebViewZoomFactor->setMaximumWidth(80);
+  mpWebViewZoomFactor->setValue(mSettings.value("WebZoomFactor").toDouble());
+
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
   appearanceLayout->addWidget(mpShouldAnimateIconBox, 2, 0);
+  appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
+  appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -682,6 +705,7 @@ void Window::createDefaultSettings()
 {
   mSettings.setValue("url", tr("http://127.0.0.1:8384"));
   mSettings.setValue("monochromeIcon", false);
+  mSettings.setValue("WebZoomFactor", 1.0);
   mSettings.setValue("notificationsEnabled", true);
   mSettings.setValue("doSettingsExist", true);
   mSettings.setValue("launchSyncthingAtStartup", false);
