@@ -500,6 +500,14 @@ void SyncConnector::killProcesses()
 
 //------------------------------------------------------------------------------------//
 
+SyncWebView *SyncConnector::getWebView()
+{
+  return mpSyncWebView.get();
+}
+
+
+//------------------------------------------------------------------------------------//
+
 SyncConnector::~SyncConnector()
 {
   killProcesses();

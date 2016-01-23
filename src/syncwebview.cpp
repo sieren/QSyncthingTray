@@ -83,6 +83,8 @@ void SyncWebView::show()
   setFocusPolicy(Qt::ClickFocus);
   setEnabled(true);
   setFocus();
+  QSettings settings("sieren", "QSyncthingTray");
+  setZoomFactor(settings.value("WebZoomFactor").toDouble());
   qst::sysutils::SystemUtility().showDockIcon(true);
 }
 

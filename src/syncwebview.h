@@ -22,6 +22,7 @@
 #include <QDialog>
 #include <QMenu>
 #include <QObject>
+#include <QSettings>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <memory>
 #include "utilities.hpp"

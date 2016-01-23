@@ -23,6 +23,7 @@
 #include "processmonitor.hpp"
 #include "startuptab.hpp"
 #include "platforms.hpp"
+#include <QDoubleSpinBox>
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -76,6 +77,7 @@ private slots:
     void authCheckBoxChanged(int state);
     void monoChromeIconChanged(int state);
     void animateIconBoxChanged(int state);
+    void webViewZoomFactorChanged(double value);
     void showAboutPage();
     void folderClicked();
     void syncedFileClicked();
@@ -117,6 +119,8 @@ private:
     QCheckBox *mpMonochromeIconBox;
     QCheckBox *mpNotificationsIconBox;
     QCheckBox *mpShouldAnimateIconBox;
+    QLabel *mpWebViewZoomFactorLabel;
+    QDoubleSpinBox *mpWebViewZoomFactor;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
