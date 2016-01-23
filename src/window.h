@@ -61,13 +61,13 @@ public:
     Window();
 
     void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void updateConnectionHealth(ConnectionHealthStatus status);
-    void onNetworkActivity(bool activity);
 
 protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
+    void updateConnectionHealth(ConnectionHealthStatus status);
+    void onNetworkActivity(bool activity);
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showWebView();
@@ -80,6 +80,7 @@ private slots:
     void folderClicked();
     void syncedFileClicked();
     void onUpdateIcon();
+    void pauseSyncthingClicked(int state);
     void quit();
 
 private:
@@ -125,6 +126,7 @@ private:
     QAction *mpShowWebViewAction;
     QAction *mpPreferencesAction;
     QAction *mpShowGitHubAction;
+    QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
 
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;

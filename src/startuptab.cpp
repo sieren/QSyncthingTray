@@ -33,25 +33,8 @@ StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConne
 
   initGUI();
   
-  mpSyncConnector->setProcessSpawnedCallback([&](kSyncthingProcessState state)
-   {
-     switch (state) {
-       case kSyncthingProcessState::SPAWNED:
-         mpAppSpawnedLabel->setText(tr("Status: Launched"));
-         break;
-       case kSyncthingProcessState::NOT_RUNNING:
-         mpAppSpawnedLabel->setText(tr("Status: Not started"));
-         break;
-       case kSyncthingProcessState::ALREADY_RUNNING:
-         mpAppSpawnedLabel->setText(tr("Already Running"));
-         break;
-       case kSyncthingProcessState::PAUSED:
-         mpAppSpawnedLabel->setText(tr("Paused"));
-         break;
-       default:
-         break;
-     }
-   });
+  connect(pSyncConnector.get(), &connector::SyncConnector::onProcessSpawned, this,
+    &StartupTab::processSpawnedChanged);
   
   mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
   mpSyncConnector->spawnINotifyProcess(mCurrentINotifyPath, mShouldLaunchINotify);
@@ -132,6 +115,28 @@ void StartupTab::initGUI()
   launchSyncthingBoxChanged(launchState);
   launchINotifyBoxChanged(iNotifylaunchState);
   
+}
+
+//------------------------------------------------------------------------------------//
+
+void StartupTab::processSpawnedChanged(kSyncthingProcessState state)
+{
+  switch (state) {
+    case kSyncthingProcessState::SPAWNED:
+      mpAppSpawnedLabel->setText(tr("Status: Launched"));
+      break;
+    case kSyncthingProcessState::NOT_RUNNING:
+      mpAppSpawnedLabel->setText(tr("Status: Not started"));
+      break;
+    case kSyncthingProcessState::ALREADY_RUNNING:
+      mpAppSpawnedLabel->setText(tr("Already Running"));
+      break;
+    case kSyncthingProcessState::PAUSED:
+      mpAppSpawnedLabel->setText(tr("Paused"));
+      break;
+    default:
+      break;
+  }
 }
 
 
@@ -254,7 +259,8 @@ void StartupTab::spawnSyncthingApp()
 
 StartupTab::~StartupTab()
 {
-  mpSyncConnector->setProcessSpawnedCallback(nullptr);
+  disconnect(mpSyncConnector.get(), &connector::SyncConnector::onProcessSpawned, this,
+          &StartupTab::processSpawnedChanged);
 }
 
 

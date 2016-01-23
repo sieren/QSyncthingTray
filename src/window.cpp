@@ -77,6 +77,13 @@ Window::Window()
     connect(mpAnimatedIconMovie.get(), SIGNAL(frameChanged(int)),
       this, SLOT(onUpdateIcon()));
 
+    // Setup SyncthingConnector
+    using namespace qst::connector;
+    connect(mpSyncConnector.get(), &SyncConnector::onConnectionHealthChanged, this,
+      &Window::updateConnectionHealth);
+    connect(mpSyncConnector.get(), &SyncConnector::onNetworkActivityChanged, this,
+          &Window::onNetworkActivity);
+
 
     mpSettingsTabsWidget = new QTabWidget;
     QVBoxLayout *settingsLayout = new QVBoxLayout;
@@ -93,14 +100,6 @@ Window::Window()
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
     testURL();
-    mpSyncConnector->setConnectionHealthCallback(std::bind(
-      &Window::updateConnectionHealth,
-      this,
-      std::placeholders::_1));
-    mpSyncConnector->setNetworkActivityCallback(std::bind(
-      &Window::onNetworkActivity,
-      this,
-      std::placeholders::_1));
 
     mpStartupTab->spawnSyncthingApp();
     setIcon(0);
@@ -182,7 +181,7 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-     mCurrentUserPassword, [&](std::pair<std::string, bool> result)
+     mCurrentUserPassword, [&](ConnectionState result)
   {
     if (result.second)
     {
@@ -224,10 +223,14 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
       + activeConnections.c_str()
       + "/" + totalConnections.c_str());
+    mpConnectedState->setVisible(true);
     mpConnectedState->setText(tr("Connected"));
+    mpCurrentTrafficAction->setVisible(true);
     mpCurrentTrafficAction->setText(tr("Total: ")
       + status.at("globalTraffic").c_str());
+    mpTrafficInAction->setVisible(true);
     mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
+    mpTrafficOutAction->setVisible(true);
     mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
     
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
@@ -244,14 +247,10 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
   else
   {
     mpConnectedState->setText(tr("Not Connected"));
-    if (mLastConnectionState != 0)
-    {
-      showMessage("Not Connected", "Could not find Syncthing.",
-        QSystemTrayIcon::Warning);
-    }
-    // syncthing takes a while to shut down, in case someone
-    // would reopen qsyncthingtray it wouldnt restart the process
-    mpStartupTab->spawnSyncthingApp();
+    mpTrafficInAction->setVisible(false);
+    mpTrafficOutAction->setVisible(false);
+    mpCurrentTrafficAction->setVisible(false);
+    mpNumberOfConnectionsAction->setVisible(false);
     setIcon(1);
   }
   try
@@ -280,6 +279,14 @@ void Window::monoChromeIconChanged(int state)
 {
   mIconMonochrome = state == 2 ? true : false;
   mSettings.setValue("monochromeIcon", mIconMonochrome);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::pauseSyncthingClicked(int state)
+{
+  mpSyncConnector->pauseSyncthing(state == 1);
 }
 
 
@@ -486,6 +493,11 @@ void Window::createActions()
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
 
+  mpPauseSyncthingAction = new QAction(tr("Pause Syncthing"), this);
+  mpPauseSyncthingAction->setCheckable(true);
+  connect(mpPauseSyncthingAction, &QAction::triggered, this,
+    &Window::pauseSyncthingClicked);
+
   mpPreferencesAction = new QAction(tr("Preferences"), this);
   connect(mpPreferencesAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
@@ -570,6 +582,7 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addAction(mpTrafficInAction);
   mpTrayIconMenu->addAction(mpTrafficOutAction);
   mpTrayIconMenu->addAction(mpCurrentTrafficAction);
+  mpTrayIconMenu->addAction(mpPauseSyncthingAction);
   mpTrayIconMenu->addSeparator();
 
   for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();

@@ -44,6 +44,11 @@ SyncConnector::SyncConnector(QUrl url)
           &network, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
           this, SLOT (onSslError(QNetworkReply*))
           );
+
+  mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
+  connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
+          SLOT(checkConnectionHealth()));
+  mpConnectionHealthTimer->start(1000);
 }
 
   
@@ -151,54 +156,19 @@ void SyncConnector::getCurrentConfig()
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::setConnectionHealthCallback(ConnectionHealthCallback cb)
-{
-  mConnectionHealthCallback = cb;
-  if (mpConnectionHealthTimer)
-  {
-    mpConnectionHealthTimer->stop();
-  }
-  mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
-  connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
-    SLOT(checkConnectionHealth()));
-  mpConnectionHealthTimer->start(1000);
-}
-
-
-//------------------------------------------------------------------------------------//
-
 void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
 {
-  if (mProcessSpawnedCallback)
+  switch (newState)
   {
-    switch (newState)
-    {
-      case QProcess::Running:
-        mProcessSpawnedCallback(kSyncthingProcessState::SPAWNED);
-        break;
-      case QProcess::NotRunning:
-         mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
-        break;
-      default:
-        mProcessSpawnedCallback(kSyncthingProcessState::NOT_RUNNING);
-    }
+    case QProcess::Running:
+      emit(onProcessSpawned(kSyncthingProcessState::SPAWNED));
+      break;
+    case QProcess::NotRunning:
+       emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
+      break;
+    default:
+      emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
   }
-}
-
- 
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::setProcessSpawnedCallback(ProcessSpawnedCallback cb)
-{
-  mProcessSpawnedCallback = cb;
-}
-
-
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::setNetworkActivityCallback(NetworkActivityCallback cb)
-{
-  mNetworkActivityCallback = cb;
 }
 
 
@@ -246,16 +216,10 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   result.emplace("outTraffic", trafficToString(traffic.second));
   result.emplace("inTraffic", trafficToString(traffic.first));
   result.emplace("globalTraffic", trafficToString(traffic.first + traffic.second));
-  
-  if (mNetworkActivityCallback != nullptr)
-  {
-    mNetworkActivityCallback(
-     traffic.first + traffic.second > kNetworkNoiseFloor);
-  }
-  if (mConnectionHealthCallback != nullptr)
-  {
-    mConnectionHealthCallback(result);
-  }
+
+  emit(onNetworkActivityChanged(traffic.first + traffic.second > kNetworkNoiseFloor));
+  emit(onConnectionHealthChanged(result));
+
   reply->deleteLater();
 }
 
@@ -297,6 +261,29 @@ LastSyncedFileList SyncConnector::getLastSyncedFiles()
   return mLastSyncedFiles;
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::pauseSyncthing(bool paused)
+{
+  mSyncthingPaused = paused;
+  if (paused)
+  {
+ //   mpConnectionHealthTimer->stop();
+    shutdownSyncthingProcess();
+    killProcesses();
+  }
+  else
+  {
+    spawnSyncthingProcess(mSyncthingFilePath, true);
+    spawnINotifyProcess(mINotifyFilePath, true);
+   // mpConnectionHealthTimer->start(1000);
+    setURL(mCurrentUrl, mCurrentUrl.userName().toStdString(),
+     mCurrentUrl.password().toStdString(), mConnectionStateCallback);
+  }
+}
+
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::shutdownSyncthingProcess()
@@ -311,19 +298,20 @@ void SyncConnector::shutdownSyncthingProcess()
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
-  QEventLoop loop;
-  connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  loop.exec();
+
+  if (!mSyncthingPaused)
+  {
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+  }
 }
 
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 {
-  if (mProcessSpawnedCallback)
-  {
-    mProcessSpawnedCallback(kSyncthingProcessState::PAUSED);
-  }
+  emit(onProcessSpawned(kSyncthingProcessState::PAUSED));
   reply->deleteLater();
 }
 
@@ -333,6 +321,7 @@ void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 void SyncConnector::spawnSyncthingProcess(
   std::string filePath, const bool shouldSpawn, const bool onSetPath)
 {
+  mSyncthingFilePath = filePath;
   if (shouldSpawn)
   {
     if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
@@ -356,10 +345,7 @@ void SyncConnector::spawnSyncthingProcess(
     }
     else
     {
-      if (mProcessSpawnedCallback != nullptr)
-      {
-        mProcessSpawnedCallback(kSyncthingProcessState::ALREADY_RUNNING);
-      }
+      emit(onProcessSpawned(kSyncthingProcessState::ALREADY_RUNNING));
     }
   }
   else
@@ -375,6 +361,7 @@ void SyncConnector::spawnSyncthingProcess(
 void SyncConnector::spawnINotifyProcess(
   std::string filePath, const bool shouldSpawn, const bool onSetPath)
 {
+  mINotifyFilePath = filePath;
   if (shouldSpawn)
   {
     if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
