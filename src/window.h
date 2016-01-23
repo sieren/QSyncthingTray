@@ -80,6 +80,7 @@ private slots:
     void folderClicked();
     void syncedFileClicked();
     void onUpdateIcon();
+    void pauseSyncthingClicked(int state);
     void quit();
 
 private:
@@ -125,6 +126,7 @@ private:
     QAction *mpShowWebViewAction;
     QAction *mpPreferencesAction;
     QAction *mpShowGitHubAction;
+    QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
 
     std::list<QSharedPointer<QAction>> mCurrentFoldersActions;

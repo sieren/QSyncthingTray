@@ -261,6 +261,29 @@ LastSyncedFileList SyncConnector::getLastSyncedFiles()
   return mLastSyncedFiles;
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::pauseSyncthing(bool paused)
+{
+  mSyncthingPaused = paused;
+  if (paused)
+  {
+ //   mpConnectionHealthTimer->stop();
+    shutdownSyncthingProcess();
+    killProcesses();
+  }
+  else
+  {
+    spawnSyncthingProcess(mSyncthingFilePath, true);
+    spawnINotifyProcess(mINotifyFilePath, true);
+   // mpConnectionHealthTimer->start(1000);
+    setURL(mCurrentUrl, mCurrentUrl.userName().toStdString(),
+     mCurrentUrl.password().toStdString(), mConnectionStateCallback);
+  }
+}
+
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::shutdownSyncthingProcess()
@@ -275,9 +298,13 @@ void SyncConnector::shutdownSyncthingProcess()
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
-  QEventLoop loop;
-  connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  loop.exec();
+
+  if (!mSyncthingPaused)
+  {
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+  }
 }
 
 //------------------------------------------------------------------------------------//
@@ -294,6 +321,7 @@ void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 void SyncConnector::spawnSyncthingProcess(
   std::string filePath, const bool shouldSpawn, const bool onSetPath)
 {
+  mSyncthingFilePath = filePath;
   if (shouldSpawn)
   {
     if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
@@ -333,6 +361,7 @@ void SyncConnector::spawnSyncthingProcess(
 void SyncConnector::spawnINotifyProcess(
   std::string filePath, const bool shouldSpawn, const bool onSetPath)
 {
+  mINotifyFilePath = filePath;
   if (shouldSpawn)
   {
     if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)

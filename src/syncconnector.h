@@ -86,6 +86,7 @@ namespace connector
     void shutdownSyncthingProcess();
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
+    void pauseSyncthing(bool paused);
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
@@ -112,6 +113,7 @@ namespace connector
     int getCurrentVersion(std::string reply);
 
     bool didShowSSLWarning;
+    bool mSyncthingPaused;
 
     template <typename T>
     std::string trafficToString(T traffic);
@@ -141,6 +143,8 @@ namespace connector
     std::pair<std::string, std::string> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
     
+    std::string mSyncthingFilePath;
+    std::string mINotifyFilePath;
     std::string mAPIKey;
     
     qst::sysutils::SystemUtility systemUtil;
