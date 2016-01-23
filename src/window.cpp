@@ -77,6 +77,13 @@ Window::Window()
     connect(mpAnimatedIconMovie.get(), SIGNAL(frameChanged(int)),
       this, SLOT(onUpdateIcon()));
 
+    // Setup SyncthingConnector
+    using namespace qst::connector;
+    connect(mpSyncConnector.get(), &SyncConnector::onConnectionHealthChanged, this,
+      &Window::updateConnectionHealth);
+    connect(mpSyncConnector.get(), &SyncConnector::onNetworkActivityChanged, this,
+          &Window::onNetworkActivity);
+
 
     mpSettingsTabsWidget = new QTabWidget;
     QVBoxLayout *settingsLayout = new QVBoxLayout;
@@ -93,14 +100,6 @@ Window::Window()
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
     testURL();
-    mpSyncConnector->setConnectionHealthCallback(std::bind(
-      &Window::updateConnectionHealth,
-      this,
-      std::placeholders::_1));
-    mpSyncConnector->setNetworkActivityCallback(std::bind(
-      &Window::onNetworkActivity,
-      this,
-      std::placeholders::_1));
 
     mpStartupTab->spawnSyncthingApp();
     setIcon(0);
@@ -182,7 +181,7 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text().toStdString();
   mCurrentUserPassword = userPassword->text().toStdString();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-     mCurrentUserPassword, [&](std::pair<std::string, bool> result)
+     mCurrentUserPassword, [&](ConnectionState result)
   {
     if (result.second)
     {

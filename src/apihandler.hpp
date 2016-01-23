@@ -38,6 +38,7 @@ namespace
   using LastSyncedFileList = std::vector<DateFolderFile>;
   using ConnectionHealthStatus = std::map<std::string, std::string>;
   using FolderNameFullPath = std::pair<std::string, std::string>;
+  using ConnectionState = std::pair<std::string, bool>;
 } // anon
 
 namespace qst

@@ -61,13 +61,13 @@ public:
     Window();
 
     void setVisible(bool visible) Q_DECL_OVERRIDE;
-    void updateConnectionHealth(ConnectionHealthStatus status);
-    void onNetworkActivity(bool activity);
 
 protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
+    void updateConnectionHealth(ConnectionHealthStatus status);
+    void onNetworkActivity(bool activity);
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showWebView();

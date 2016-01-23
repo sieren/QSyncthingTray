@@ -59,10 +59,7 @@ typedef enum processState
   PAUSED
 } kSyncthingProcessState;
 
-using ConnectionStateCallback = std::function<void(std::pair<std::string, bool>)>;
-using ConnectionHealthCallback = std::function<void(ConnectionHealthStatus)>;
-using NetworkActivityCallback = std::function<void(bool)>;
-using ProcessSpawnedCallback = std::function<void(kSyncthingProcessState)>;
+using ConnectionStateCallback = std::function<void(ConnectionState)>;
 
 namespace qst
 {
@@ -77,9 +74,6 @@ namespace connector
     virtual ~SyncConnector();
     void setURL(QUrl url, std::string userName, std::string password,
       ConnectionStateCallback setText);
-    void setConnectionHealthCallback(ConnectionHealthCallback cb);
-    void setProcessSpawnedCallback(ProcessSpawnedCallback cb);
-    void setNetworkActivityCallback(NetworkActivityCallback cb);
     void showWebView();
     void spawnSyncthingProcess(
       std::string filePath,
@@ -93,6 +87,11 @@ namespace connector
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
 
+  signals:
+    void onConnectionHealthChanged(ConnectionHealthStatus healthState);
+    void onProcessSpawned(kSyncthingProcessState procState);
+    void onNetworkActivityChanged(bool act);
+    
   private slots:
     void onSslError(QNetworkReply* reply);
     void netRequestfinished(QNetworkReply *reply);
@@ -118,9 +117,6 @@ namespace connector
     std::string trafficToString(T traffic);
 
     ConnectionStateCallback mConnectionStateCallback = nullptr;
-    ConnectionHealthCallback mConnectionHealthCallback = nullptr;
-    ProcessSpawnedCallback mProcessSpawnedCallback = nullptr;
-    NetworkActivityCallback mNetworkActivityCallback = nullptr;
     std::thread mIoThread;
     QUrl mCurrentUrl;
 

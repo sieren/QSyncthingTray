@@ -77,6 +77,7 @@ private slots:
   void pathEnterPressed();
   void showFileBrowser();
   void showINotifyFileBrowser();
+  void processSpawnedChanged(kSyncthingProcessState state);
   
 private:
   void loadSettings();
