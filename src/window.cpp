@@ -536,7 +536,6 @@ void Window::createActions()
 
 void Window::quit()
 {
-  mpSyncConnector->shutdownSyncthingProcess();
   qApp->quit();
 }
 
@@ -706,6 +705,7 @@ void Window::createDefaultSettings()
   mSettings.setValue("url", tr("http://127.0.0.1:8384"));
   mSettings.setValue("monochromeIcon", false);
   mSettings.setValue("WebZoomFactor", 1.0);
+  mSettings.setValue("ShutdownOnExit", true);
   mSettings.setValue("notificationsEnabled", true);
   mSettings.setValue("doSettingsExist", true);
   mSettings.setValue("launchSyncthingAtStartup", false);
