@@ -536,7 +536,6 @@ void Window::createActions()
 
 void Window::quit()
 {
-  mpSyncConnector->shutdownSyncthingProcess();
   qApp->quit();
 }
 
