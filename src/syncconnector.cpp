@@ -483,8 +483,9 @@ int SyncConnector::getCurrentVersion(std::string reply)
 
 void SyncConnector::killProcesses()
 {
+  QSettings shutdownSettings("sieren", "QSyncthingTray");
   if (mpSyncProcess != nullptr
-      && mpSyncProcess->state() == QProcess::Running)
+      && shutdownSettings.value("ShutdownOnExit").toBool())
   {
     shutdownSyncthingProcess();
     bool hasFinished = mpSyncProcess->waitForFinished(10000);

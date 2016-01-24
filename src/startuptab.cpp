@@ -65,11 +65,16 @@ void StartupTab::initGUI()
   
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
   
+  mpShutdownOnExitBox = new QCheckBox(tr("Shutdown on Exit"));
+  Qt::CheckState shutdownState = mShouldShutdownOnExit ? Qt::Checked : Qt::Unchecked;
+  mpShutdownOnExitBox->setCheckState(shutdownState);
+  
   filePathLayout->addWidget(mpFilePathLine,2, 0, 1, 4);
   filePathLayout->addWidget(mpFilePathBrowse,3, 0, 1, 1);
   filePathLayout->addWidget(mpAppSpawnedLabel, 3, 1, 1, 1);
   
   filePathLayout->addWidget(mpShouldLaunchSyncthingBox, 0, 0);
+  filePathLayout->addWidget(mpShutdownOnExitBox, 4, 0, 1, 2);
   mpFilePathGroupBox->setLayout(filePathLayout);
   mpFilePathGroupBox->setMinimumWidth(400);
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -105,7 +110,9 @@ void StartupTab::initGUI()
   connect(mpINotifyBrowse, SIGNAL(clicked()), this, SLOT(showINotifyFileBrowser()));
   connect(mpINotifyFilePath, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
   connect(mpShouldLaunchINotify, SIGNAL(stateChanged(int)), this,
-          SLOT(launchINotifyBoxChanged(int)));
+    SLOT(launchINotifyBoxChanged(int)));
+  connect(mpShutdownOnExitBox, SIGNAL(stateChanged(int)), this,
+    SLOT(shutdownOnExitBoxChanged(int)));
   
 
   launcherLayout->addWidget(mpFilePathGroupBox);
@@ -180,6 +187,14 @@ void StartupTab::launchSyncthingBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
+void StartupTab::shutdownOnExitBoxChanged(int state)
+{
+  mShouldShutdownOnExit = state == Qt::Checked ? true : false;
+  saveSettings();
+}
+
+//------------------------------------------------------------------------------------//
+
 
 void StartupTab::launchINotifyBoxChanged(int state)
 {
@@ -216,6 +231,7 @@ void StartupTab::saveSettings()
     mpSyncConnector->spawnINotifyProcess(mCurrentINotifyPath, mShouldLaunchINotify);
   }
   mSettings.setValue("launchINotifyAtStartup", mShouldLaunchINotify);
+  mSettings.setValue("ShutdownOnExit", mShouldShutdownOnExit);
 }
 
 
@@ -227,6 +243,7 @@ void StartupTab::loadSettings()
   mShouldLaunchSyncthing = mSettings.value("launchSyncthingAtStartup").toBool();
   mCurrentINotifyPath = mSettings.value("inotifypath").toString().toStdString();
   mShouldLaunchINotify = mSettings.value("launchINotifyAtStartup").toBool();
+  mShouldShutdownOnExit = mSettings.value("ShutdownOnExit").toBool();
 }
 
 

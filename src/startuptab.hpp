@@ -74,6 +74,7 @@ public:
 private slots:
   void launchSyncthingBoxChanged(int state);
   void launchINotifyBoxChanged(int state);
+  void shutdownOnExitBoxChanged(int state);
   void pathEnterPressed();
   void showFileBrowser();
   void showINotifyFileBrowser();
@@ -99,9 +100,11 @@ private:
   QPushButton *mpINotifyBrowse;
   QLabel *mpINotifySpawnedLabel;
   QCheckBox *mpShouldLaunchINotify;
+  QCheckBox *mpShutdownOnExitBox;
   
   bool mShouldLaunchSyncthing;
   bool mShouldLaunchINotify;
+  bool mShouldShutdownOnExit;
   std::string mCurrentSyncthingPath;
   std::string mCurrentINotifyPath;
 
