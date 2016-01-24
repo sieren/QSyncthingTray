@@ -20,6 +20,7 @@ Written in C++ with Qt.
 + Shows number of connections at a glance.
 + Traffic statistics about incoming, outgoing and total throughput.
 + Launches Syncthing and Syncthing-iNotifier if specified.
++ Quickly pause Syncthing with one click.
 + Last Synced Files - Quickly see the recently synchronised files and open their folder.
 + Quick Access to all shared folders.
 + Presents Syncthing UI in a separate view instead of using the browser.
@@ -30,15 +31,22 @@ Written in C++ with Qt.
 Is there a feature missing? Open an issue, send me an [email](mailto:info@s-r-n.de) or fork this project and add it yourself.
 
 
+
+## Download
+
+Precompiled binaries for Windows and Mac are downloadable in the [Releases](https://github.com/sieren/QSyncthingTray/releases) section.
+
+## Screenshots
+
 ![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtray.png "Mac OSX ")
 ![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingubuntu.png "Ubuntu")
 ![alt text](https://raw.githubusercontent.com/sieren/QSyncthingTray/master/media/qsyncthingtraywin.png "Windows")
 
+
+
 ## How To Use It
 QSyncthingTray does not come with Syncthing bundled. Therefore it needs to be downloaded from [Syncthing](http://syncthing.net/).
 Once you specifiy the path to the 'syncthing' binary it will automatically spawn syncthing when you run QSyncthingTray.
-
-QSyncthingTray is downloadable in the [Releases](https://github.com/sieren/QSyncthingTray/releases) section here on GitHub.
 
 To start Syncthing at boot (OS X):
 
@@ -60,7 +68,14 @@ cmake ../ -G Xcode
 
 ### Linux
 + Get the most recent [Qt Version](http://www.qt.io/download/)
-+ I advise to use `qmake` for now, as there have been a few minor problems with the cmake script.  
++ Using `cmake`: 
+```
+export QTDIR = ~/Qt/5.5/gcc_64/
+mkdir build && cd build
+cmake ../ && make
+```
+
++ Using `qmake`: 
 ```
 cd ./src  
 ./build_linux.sh  
