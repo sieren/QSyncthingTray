@@ -108,12 +108,9 @@ void ProcessMonitor::checkProcessList()
 {
   if (systemUtil.isBinaryRunning(std::string("syncthing")))
   {
-    for (auto process : mProcessList)
+    if (isPausingProcessRunning())
     {
-      if (systemUtil.isBinaryRunning(process.toStdString()))
-      {
-        mpSyncConnector->shutdownSyncthingProcess();
-      }
+      mpSyncConnector->shutdownSyncthingProcess();
     }
   }
 }
