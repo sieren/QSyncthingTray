@@ -269,7 +269,6 @@ void SyncConnector::pauseSyncthing(bool paused)
   mSyncthingPaused = paused;
   if (paused)
   {
- //   mpConnectionHealthTimer->stop();
     shutdownSyncthingProcess();
     killProcesses();
   }
@@ -277,7 +276,6 @@ void SyncConnector::pauseSyncthing(bool paused)
   {
     spawnSyncthingProcess(mSyncthingFilePath, true);
     spawnINotifyProcess(mINotifyFilePath, true);
-   // mpConnectionHealthTimer->start(1000);
     setURL(mCurrentUrl, mCurrentUrl.userName().toStdString(),
      mCurrentUrl.password().toStdString(), mConnectionStateCallback);
   }
@@ -298,7 +296,6 @@ void SyncConnector::shutdownSyncthingProcess()
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
-
   if (!mSyncthingPaused)
   {
     QEventLoop loop;

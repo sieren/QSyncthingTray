@@ -114,7 +114,7 @@ namespace connector
     int getCurrentVersion(std::string reply);
 
     bool didShowSSLWarning;
-    bool mSyncthingPaused;
+    bool mSyncthingPaused = false;
 
     template <typename T>
     std::string trafficToString(T traffic);

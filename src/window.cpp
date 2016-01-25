@@ -103,7 +103,6 @@ Window::Window()
     setLayout(mainLayout);
     testURL();
 
-    mpStartupTab->spawnSyncthingApp();
     setIcon(0);
     mpTrayIcon->show();
     #ifdef Q_OS_MAC
