@@ -488,11 +488,7 @@ void SyncConnector::killProcesses()
       && shutdownSettings.value("ShutdownOnExit").toBool())
   {
     shutdownSyncthingProcess();
-    bool hasFinished = mpSyncProcess->waitForFinished(10000);
-    if (!hasFinished)
-    {
-        mpSyncProcess->kill();
-    }
+    mpSyncProcess->waitForFinished();
   }
   if (mpSyncthingNotifierProcess != nullptr
       && mpSyncthingNotifierProcess->state() == QProcess::Running)
