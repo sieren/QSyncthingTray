@@ -484,7 +484,6 @@ void SyncConnector::killProcesses()
   if (mpSyncProcess != nullptr
       && shutdownSettings.value("ShutdownOnExit").toBool())
   {
-    shutdownSyncthingProcess();
     mpSyncProcess->waitForFinished();
   }
   if (mpSyncthingNotifierProcess != nullptr
@@ -508,6 +507,11 @@ SyncWebView *SyncConnector::getWebView()
 
 SyncConnector::~SyncConnector()
 {
+  QSettings shutdownSettings("sieren", "QSyncthingTray");
+  if (shutdownSettings.value("ShutdownOnExit").toBool())
+  {
+    shutdownSyncthingProcess();
+  }
   killProcesses();
 }
 
