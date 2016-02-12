@@ -308,9 +308,10 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
   {
   case QSystemTrayIcon::Trigger:
   case QSystemTrayIcon::DoubleClick:
-      break;
+    showWebView();
+    break;
   case QSystemTrayIcon::MiddleClick:
-      break;
+    break;
   default:
       ;
   }
