@@ -158,6 +158,12 @@ private:
     bool mShouldStopAnimation;
     int mLastConnectionState;
 
+    template <typename U, typename T>
+    void setElements(U &&func, T uiElement);
+
+    template <typename U, typename T, typename ... TArgs>
+    void setElements(U &&func, T uiElement, TArgs...   Elements);
+ 
   };
 //! [0]
 

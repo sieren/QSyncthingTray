@@ -658,17 +658,13 @@ void Window::showAuthentication(bool show)
 {
   if (show)
   {
-    mpUserNameLineEdit->show();
-    userPassword->show();
-    userNameLabel->show();
-    userPasswordLabel->show();
+    setElements(&QWidget::show, mpUserNameLineEdit, userPassword,userNameLabel,
+      userPasswordLabel);
   }
   else
   {
-    mpUserNameLineEdit->hide();
-    userPassword->hide();
-    userNameLabel->hide();
-    userPasswordLabel->hide();
+    setElements(&QWidget::hide, mpUserNameLineEdit, userPassword, userNameLabel,
+      userPasswordLabel);
   }
 }
 
@@ -772,7 +768,32 @@ void Window::showAboutPage()
   msgBox.exec();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template <typename U, typename T, typename ... TArgs>
+void Window::setElements(U &&func, T uiElement, TArgs...   Elements)
+{
+  std::function<void()> functionCall = std::bind(func, uiElement);
+  functionCall();
+  setElements(func, std::forward<TArgs>(Elements)...);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+template <typename U, typename T>
+void Window::setElements(U &&func, T uiElement)
+{
+  std::function<void()> functionCall = std::bind(func, uiElement);
+  functionCall();
+}
+
+
+//------------------------------------------------------------------------------------//
+
 #endif
+
 //------------------------------------------------------------------------------------//
 // EOF
 //------------------------------------------------------------------------------------//
