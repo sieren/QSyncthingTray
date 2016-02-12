@@ -59,9 +59,10 @@ inline std::vector<std::string> splitFilePathByDelimiter(std::string filePath)
   return substrings;
 }
 
-inline std::string getCleanFileName(std::string fileName)
+inline QString getCleanFileName(QString fileName)
 {
-  std::vector<std::string> substrings = splitFilePathByDelimiter(fileName);
+  std::string fileNameStd = fileName.toStdString();
+  std::vector<std::string> substrings = splitFilePathByDelimiter(fileNameStd);
   
   std::string file = substrings.size() > 0 ? substrings.back() : "";
   std::string shortFile;
@@ -81,13 +82,13 @@ inline std::string getCleanFileName(std::string fileName)
   {
     shortFile = file;
   }
-  return shortFile;
+  return QString(shortFile.c_str());
 }
   
-inline std::string getFullCleanFileName(std::string fileName)
+inline QString getFullCleanFileName(QString fileName)
 {
-  std::vector<std::string> substrings = splitFilePathByDelimiter(fileName);
-  return substrings.back();
+  std::vector<std::string> substrings = splitFilePathByDelimiter(fileName.toStdString());
+  return QString(substrings.back().c_str());
 }
 
 inline std::string getPathToFileName(std::string fileName)

@@ -23,6 +23,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QString>
 #include <map>
 #include <chrono>
 #include <algorithm>
@@ -34,11 +35,11 @@
 
 namespace
 {
-  using DateFolderFile = std::tuple<std::string, std::string, std::string, bool>;
+  using DateFolderFile = std::tuple<QString, QString, QString, bool>;
   using LastSyncedFileList = std::vector<DateFolderFile>;
-  using ConnectionHealthStatus = std::map<std::string, std::string>;
-  using FolderNameFullPath = std::pair<std::string, std::string>;
-  using ConnectionState = std::pair<std::string, bool>;
+  using ConnectionHealthStatus = std::map<QString, QString>;
+  using FolderNameFullPath = std::pair<QString, QString>;
+  using ConnectionState = std::pair<QString, bool>;
 } // anon
 
 namespace qst
@@ -49,21 +50,21 @@ namespace api
 
   struct APIHandlerBase
   {
-    std::pair<std::string, bool> getConnectionInfo(QNetworkReply *reply)
+    std::pair<QString, bool> getConnectionInfo(QNetworkReply *reply)
     {
-      std::string result;
+      QString result;
       bool success = false;
       
       if (reply->error() != QNetworkReply::NoError)
       {
-        result = reply->errorString().toStdString();
+        result = reply->errorString();
       }
       else
       {
         QString m_DownloadedData = static_cast<QString>(reply->readAll());
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
-        result = replyData.value("version").toString().toStdString();
+        result = replyData.value("version").toString();
         success = true;
       }
       return {result, success};
@@ -77,7 +78,7 @@ namespace api
     
     std::list<FolderNameFullPath> getCurrentFolderList(QByteArray reply)
     {
-      std::list<std::pair<std::string, std::string>> result;
+      std::list<std::pair<QString, QString>> result;
 
       if (reply.size() > 0)
       {
@@ -90,8 +91,8 @@ namespace api
         {
           FolderNameFullPath aResult;
           QJsonObject singleEntry = value.toObject();
-          aResult.first = singleEntry.find("id").value().toString().toStdString();
-          aResult.second = singleEntry.find("path").value().toString().toStdString();
+          aResult.first = singleEntry.find("id").value().toString();
+          aResult.second = singleEntry.find("path").value().toString();
           result.emplace_back(aResult);
         }
       }
@@ -126,16 +127,16 @@ namespace api
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }
     
-    std::string getCurrentAPIKey(QByteArray reply)
+    QString getCurrentAPIKey(QByteArray reply)
     {
-      std::string apiKey;
+      QString apiKey;
       if (reply.size() > 0)
       {
         QString m_DownloadedData = static_cast<QString>(reply);
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject guiData = replyData["gui"].toObject();
-        apiKey =  guiData["apiKey"].toString().toStdString();
+        apiKey =  guiData["apiKey"].toString();
       }
       return apiKey;
     }
@@ -152,9 +153,9 @@ namespace api
         QJsonObject mainPathInfo = replyData[folderName].toObject();
         QJsonObject fileInfo = mainPathInfo["lastFile"].toObject();
 
-        std::string folderNameStr = folderName.toStdString();
-        std::string lastDate = fileInfo.find("at").value().toString().toStdString();
-        std::string fileName = fileInfo.find("filename").value().toString().toStdString();
+        QString folderNameStr = folderName;
+        QString lastDate = fileInfo.find("at").value().toString();
+        QString fileName = fileInfo.find("filename").value().toString();
         bool isDeleted = fileInfo.find("deleted").value().toBool();
         
         fileList.erase(std::remove_if(fileList.begin(), fileList.end(),
@@ -202,8 +203,8 @@ namespace api
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", std::to_string(0));
-        result.emplace("totalConnections", std::to_string(0));
+        result.emplace("activeConnections", QString("0"));
+        result.emplace("totalConnections", QString("0"));
       }
       else
       {
@@ -220,8 +221,8 @@ namespace api
           QJsonObject jObj = it->toObject();
           active += jObj.find("connected").value().toBool() ? 1 : 0;
         }
-        result.emplace("activeConnections", std::to_string(active));
-        result.emplace("totalConnections", std::to_string(connectionArray.size()));
+        result.emplace("activeConnections", QString(active));
+        result.emplace("totalConnections", QString(connectionArray.size()));
       }
       return result;
     }
@@ -236,8 +237,8 @@ namespace api
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", std::to_string(0));
-        result.emplace("totalConnections", std::to_string(0));
+        result.emplace("activeConnections", QString("0"));
+        result.emplace("totalConnections", QString("0"));
       }
       else
       {
@@ -247,8 +248,8 @@ namespace api
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject connectionArray = replyData["connections"].toObject();
-        result.emplace("activeConnections", std::to_string(connectionArray.size()));
-        result.emplace("totalConnections", std::to_string(connectionArray.size()));
+        result.emplace("activeConnections", QString(connectionArray.size()));
+        result.emplace("totalConnections", QString(connectionArray.size()));
       }
       return result;
     }
