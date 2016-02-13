@@ -192,7 +192,7 @@ void Window::testURL()
     }
     else
     {
-      mpUrlTestResultLabel->setText(tr("Status: ") + result.first.c_str());
+      mpUrlTestResultLabel->setText(tr("Status: ") + result.first);
       setIcon(1);
     }
   });
@@ -218,21 +218,21 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
   }
   else if (status.at("state") == "1")
   {
-    std::string activeConnections = status.at("activeConnections");
-    std::string totalConnections = status.at("totalConnections");
+    auto activeConnections = status.at("activeConnections");
+    auto totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
-      + activeConnections.c_str()
-      + "/" + totalConnections.c_str());
+      + activeConnections
+      + "/" + totalConnections);
     mpConnectedState->setVisible(true);
     mpConnectedState->setText(tr("Connected"));
     mpCurrentTrafficAction->setVisible(true);
     mpCurrentTrafficAction->setText(tr("Total: ")
-      + status.at("globalTraffic").c_str());
+      + status.at("globalTraffic"));
     mpTrafficInAction->setVisible(true);
-    mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic").c_str());
+    mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic"));
     mpTrafficOutAction->setVisible(true);
-    mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic").c_str());
+    mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic"));
     
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
     {
@@ -256,7 +256,7 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
   }
   try
   {
-    mLastConnectionState = std::stoi(status.at("state"));
+    mLastConnectionState = std::stoi(status.at("state").toStdString());
   }
   catch (std::exception &e)
   {
@@ -379,13 +379,13 @@ void Window::folderClicked()
 {
   QObject *obj = sender();
   QAction * senderObject = static_cast<QAction*>(obj);
-  std::string findFolder = senderObject->text().toStdString();
+  QString findFolder = senderObject->text();
   std::list<FolderNameFullPath>::iterator folder =
     std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
       [&findFolder](FolderNameFullPath const& elem) {
         return elem.first == findFolder;
       });
-  QDesktopServices::openUrl(QUrl::fromLocalFile(tr(folder->second.c_str())));
+  QDesktopServices::openUrl(QUrl::fromLocalFile(folder->second));
 }
 
 
@@ -398,7 +398,7 @@ void Window::syncedFileClicked()
 
   QObject *obj = sender();
   QAction * senderObject = static_cast<QAction*>(obj);
-  std::string findFile = senderObject->text().toStdString();
+  QString findFile = senderObject->text();
   LastSyncedFileList::iterator fileIterator =
   std::find_if(mLastSyncedFiles.begin(), mLastSyncedFiles.end(),
                [&findFile](DateFolderFile const& elem) {
@@ -411,10 +411,9 @@ void Window::syncedFileClicked()
                [&fileIterator](FolderNameFullPath const& elem) {
                  return getFullCleanFileName(elem.first) == std::get<1>(*fileIterator);
                });
-  std::string fullPath = folder->second + getPathToFileName(std::get<2>(*fileIterator))
+  std::string fullPath = folder->second.toStdString() + getPathToFileName(std::get<2>(*fileIterator).toStdString())
     + SystemUtility().getPlatformDelimiter();
-  std::cout << "FineFile " << findFile << "Opening " << fullPath << std::endl;
-  QDesktopServices::openUrl(QUrl::fromLocalFile(tr(fullPath.c_str())));
+  QDesktopServices::openUrl(QUrl::fromLocalFile(fullPath.c_str()));
 }
 
 
@@ -547,12 +546,11 @@ void Window::createFoldersMenu()
   if (mCurrentFoldersLocations != mpSyncConnector->getFolders())
   {
     mCurrentFoldersLocations = mpSyncConnector->getFolders();
-    for (std::list<std::pair<std::string,
-      std::string>>::iterator it=mCurrentFoldersLocations.begin();
+    for (std::list<FolderNameFullPath>::iterator it=mCurrentFoldersLocations.begin();
       it != mCurrentFoldersLocations.end(); ++it)
     {
       QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
-        new QAction(tr(it->first.c_str()), this));
+        new QAction(it->first, this));
       connect(aAction.data(), SIGNAL(triggered()), this, SLOT(folderClicked()));
       foldersActions.emplace_back(aAction);
     }
@@ -575,7 +573,7 @@ void Window::createLastSyncedMenu()
          it != mLastSyncedFiles.end(); ++it)
     {
       QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
-        new QAction(tr(getCleanFileName(std::get<2>(*it)).c_str()), this));
+        new QAction(getCleanFileName(std::get<2>(*it)), this));
 
       // 4th item of tuple is file-erased-bool
       aAction->setDisabled(std::get<3>(*it));
@@ -660,17 +658,13 @@ void Window::showAuthentication(bool show)
 {
   if (show)
   {
-    mpUserNameLineEdit->show();
-    userPassword->show();
-    userNameLabel->show();
-    userPasswordLabel->show();
+    setElements(&QWidget::show, mpUserNameLineEdit, userPassword,userNameLabel,
+      userPasswordLabel);
   }
   else
   {
-    mpUserNameLineEdit->hide();
-    userPassword->hide();
-    userNameLabel->hide();
-    userPasswordLabel->hide();
+    setElements(&QWidget::hide, mpUserNameLineEdit, userPassword, userNameLabel,
+      userPasswordLabel);
   }
 }
 
@@ -774,7 +768,32 @@ void Window::showAboutPage()
   msgBox.exec();
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template <typename U, typename T, typename ... TArgs>
+void Window::setElements(U &&func, T uiElement, TArgs...   Elements)
+{
+  std::function<void()> functionCall = std::bind(func, uiElement);
+  functionCall();
+  setElements(func, std::forward<TArgs>(Elements)...);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+template <typename U, typename T>
+void Window::setElements(U &&func, T uiElement)
+{
+  std::function<void()> functionCall = std::bind(func, uiElement);
+  functionCall();
+}
+
+
+//------------------------------------------------------------------------------------//
+
 #endif
+
 //------------------------------------------------------------------------------------//
 // EOF
 //------------------------------------------------------------------------------------//

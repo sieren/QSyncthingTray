@@ -106,7 +106,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 {
   ignoreSslErrors(reply);
 
-  std::pair<std::string, bool> connectionInfo =
+  ConnectionState connectionInfo =
     api::V12API().getConnectionInfo(reply);
   
   int versionNumber = getCurrentVersion(connectionInfo.first);
@@ -292,7 +292,7 @@ void SyncConnector::shutdownSyncthingProcess()
   QByteArray postData;
   // Call the webservice
   QNetworkRequest networkRequest(requestUrl);
-  QByteArray headerByte(mAPIKey.c_str(), mAPIKey.length());
+  QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
@@ -456,12 +456,13 @@ bool SyncConnector::checkIfFileExists(QString path)
   
 //------------------------------------------------------------------------------------//
 
-int SyncConnector::getCurrentVersion(std::string reply)
+int SyncConnector::getCurrentVersion(QString reply)
 {
+  std::string replyStd = reply.toStdString();
   std::string separator(".");
-  std::size_t pos1 = reply.find(separator);
-  std::size_t pos2 = reply.find(separator, pos1+1);
-  std::string result = reply.substr (pos1+1, pos2-pos1-1);
+  std::size_t pos1 = replyStd.find(separator);
+  std::size_t pos2 = replyStd.find(separator, pos1+1);
+  std::string result = replyStd.substr (pos1+1, pos2-pos1-1);
   int version = 0;
   try
   {
@@ -518,13 +519,13 @@ SyncConnector::~SyncConnector()
 //------------------------------------------------------------------------------------//
 
 template <typename T>
-std::string SyncConnector::trafficToString(T traffic)
+QString SyncConnector::trafficToString(T traffic)
 {
   using namespace utilities;
   std::string strTraffic = traffic > kBytesToKilobytes ?
     to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
     to_string_with_precision(traffic, 2) + " KB/s";
-  return strTraffic;
+  return QString(strTraffic.c_str());
 }
 
   

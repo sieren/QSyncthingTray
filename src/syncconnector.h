@@ -111,13 +111,13 @@ namespace connector
     void currentConfigReceived(QNetworkReply* reply);
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
-    int getCurrentVersion(std::string reply);
+    int getCurrentVersion(QString reply);
 
     bool didShowSSLWarning;
     bool mSyncthingPaused = false;
 
     template <typename T>
-    std::string trafficToString(T traffic);
+    QString trafficToString(T traffic);
 
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     std::thread mIoThread;
@@ -146,7 +146,7 @@ namespace connector
     
     std::string mSyncthingFilePath;
     std::string mINotifyFilePath;
-    std::string mAPIKey;
+    QString mAPIKey;
     
     qst::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
