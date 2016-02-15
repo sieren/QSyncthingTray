@@ -1,0 +1,43 @@
+version: build{build}
+
+branches:
+  except:
+    - project/travis
+
+environment:
+  matrix:
+  - example: qml-player
+    name: win64
+    platform: amd64
+    qt: msvc2013_64
+
+clone_folder: c:\dev
+clone_depth: 5
+
+init:
+  - set PATH=C:\Qt\5.5\%qt%\bin;%PATH%
+  - set ORIGPATH=%PATH%
+  - set QTDIR=C:\Qt\5.5\%qt%\
+  - if not %platform%==mingw call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %platform%
+
+install:
+  - cd c:\dev
+
+before_build:
+  - cd c:\dev
+  - md build
+
+build_script:
+  - cd build
+  - cmake ..\ -G "Visual Studio 12 2013 Win64"
+  - msbuild QSyncthingTray.sln 
+
+after_build:
+
+test: off
+
+matrix:
+  fast_finish: true
+
+artifacts:
+  - path: '*.7z'

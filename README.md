@@ -3,7 +3,8 @@ QSyncthingTray
 #### A Traybar Application for Syncthing written in C++ 
 
 ![Travis CI](https://travis-ci.org/sieren/QSyncthingTray.svg?branch=master "Travis CI
-Status")
+Status") [![Build
+status](https://ci.appveyor.com/api/projects/status/6a88vmt8vxpdhcml/branch/master?svg=true)](https://ci.appveyor.com/project/sieren/qsyncthingtray/branch/master)
 [![Downloads](https://img.shields.io/github/downloads/sieren/QSyncthingTray/total.svg "Downloads")](https://github.com/sieren/QSyncthingTray/releases)
 [![Issues](https://img.shields.io/github/issues/sieren/QSyncthingTray.svg
 "Issues")](https://github.com/sieren/QSyncthingTray/issues)
