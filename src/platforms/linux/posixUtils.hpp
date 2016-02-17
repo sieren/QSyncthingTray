@@ -53,7 +53,7 @@ namespace linux
       const char* someapp = binary.c_str();
       std::stringstream cmd;
       
-      cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";
+      cmd << "pgrep -x " << someapp;
       
       FILE* app = popen(cmd.str().c_str(), "r");
       char instances = '0';
@@ -68,6 +68,12 @@ namespace linux
       return result;
     }
 
+    template<typename U&&, typename T>
+    void doubleClicked(T&& func, T ref)
+    {
+      std::function<void()> function = std::bind(func, ref);
+      function();
+    }
   };
 } // posix
 } // sysutils

@@ -73,7 +73,7 @@ namespace darwin
       const char* someapp = binary.c_str();
       std::stringstream cmd;
       
-      cmd << "ps -ef | grep " << someapp << " | grep -v grep -c";
+      cmd << "pgrep -x " << someapp;
       
       FILE* app = popen(cmd.str().c_str(), "r");
       char instances = '0';
@@ -85,6 +85,12 @@ namespace darwin
       }
       bool result = instances == '0' ? false : true;
       return result;
+    }
+
+    template<typename U, typename T>
+    void doubleClicked(U&& func, T ref)
+    {
+      // stubbed out, no action on Mac
     }
 
   };

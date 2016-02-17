@@ -75,6 +75,13 @@ namespace windows
       return result;
 
     }
+
+    template<typename U, typename T>
+    void doubleClicked(U&& func, T ref)
+    {
+      std::function<void()> function = std::bind(func, ref);
+      function();
+    }
   };
 } // windows
 } // platforms
