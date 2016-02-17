@@ -87,6 +87,12 @@ namespace darwin
       return result;
     }
 
+    template<typename U, typename T>
+    void doubleClicked(U&& func, T ref)
+    {
+      // stubbed out, no action on Mac
+    }
+
   };
 } // posix
 } // sysutils
