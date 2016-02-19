@@ -68,8 +68,8 @@ namespace linux
       return result;
     }
 
-    template<typename U&&, typename T>
-    void doubleClicked(T&& func, T ref)
+    template<typename U, typename T>
+    void doubleClicked(U&& func, T ref)
     {
       std::function<void()> function = std::bind(func, ref);
       function();
