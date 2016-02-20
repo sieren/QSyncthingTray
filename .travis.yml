@@ -1,14 +1,70 @@
 language: cpp
-os:
-  - osx
-env:
-  - CONFIG=Release
-  - CONFIG=Debug
+
+matrix:
+  include:
+    - os: osx
+      env: CONFIG=Release
+      compiler: clang
+      osx_image: xcode7.1
+
+    - os: linux
+      env: CONFIG=Release
+      compiler: clang
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
+          packages: ['clang-3.6', 'p7zip-full']
+      env: COMPILER=clang++-3.6 WORDSIZE=64 CONFIGURATION=Debug
+  
+before_install:
+  - CXX=$COMPILER
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz" &&
+      rm -rf cmake &&
+      mkdir cmake &&
+      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake &&
+      export PATH=${TRAVIS_BUILD_DIR}/cmake/bin:${PATH}
+    fi
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_essentials.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_essentials.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0icu-linux-g++-Rhel6.6-x64.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0icu-linux-g++-Rhel6.6-x64.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtquick1.gcc_64/5.5.1-0qt5_qtquick1.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtquick1.gcc_64/5.5.1-0qt5_qtquick1.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtwebengine.gcc_64/5.5.1-0qt5_qtwebengine.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_addons.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_addons.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtscript.gcc_64/5.5.1-0qt5_qtscript.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtscript.gcc_64/5.5.1-0qt5_qtscript.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtlocation.gcc_64/5.5.1-0qt5_qtlocation.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtlocation.gcc_64/5.5.1-0qt5_qtlocation.7z.sha1 &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_qtpositioning.7z &&
+      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_qtpositioning.7z.sha1 &&
+      7z x 5.5.1-0qt5_essentials.7z > /dev/null &&
+      7z x 5.5.1-0icu-linux-g++-Rhel6.6-x64.7z > /dev/null &&
+      7z x 5.5.1-0qt5_qtquick1.7z > /dev/null &&
+      7z x 5.5.1-0qt5_qtwebengine.7z > /dev/null &&
+      7z x 5.5.1-0qt5_addons.7z > /dev/null &&
+      7z x 5.5.1-0qt5_qtscript.7z > /dev/null &&
+      7z x 5.5.1-0qt5_qtlocation.7z > /dev/null &&
+      7z x 5.5.1-0qt5_qtpositioning.7z > /dev/null &&
+      export QTDIR=$PWD/5.5/gcc_64/
+    fi
+  - |
+    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        brew update &&
+        brew install qt5 cmake &&
+        chmod -R 755 /usr/local/opt/qt5/* &&
+        export QTDIR=$(brew --prefix qt5)
+    fi
+  
 install:
-      brew update
-  &&  brew install qt5
-  && chmod -R 755 /usr/local/opt/qt5/*
+
 script:
-      cd ./src
-  &&  /usr/local/opt/qt5/bin/qmake QSyncThingTray.pro
+      mkdir build
+  &&  cd build
+  &&  cmake ../
   &&  make
