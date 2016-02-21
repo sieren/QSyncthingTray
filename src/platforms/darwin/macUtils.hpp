@@ -90,6 +90,8 @@ namespace darwin
     template<typename U, typename T>
     void doubleClicked(U&& func, T ref)
     {
+    UNUSED(func);
+    UNUSED(ref);
       // stubbed out, no action on Mac
     }
 
