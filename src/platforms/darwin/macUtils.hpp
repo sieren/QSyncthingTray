@@ -73,7 +73,7 @@ namespace darwin
       const char* someapp = binary.c_str();
       std::stringstream cmd;
       
-      cmd << "pgrep -x " << someapp;
+      cmd << "pgrep -x \"" << someapp << "\"";
       
       FILE* app = popen(cmd.str().c_str(), "r");
       char instances = '0';
