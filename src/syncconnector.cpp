@@ -375,6 +375,7 @@ void SyncConnector::spawnINotifyProcess(
       mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
       QString processPath = filePath.c_str();
       mpSyncthingNotifierProcess->start(processPath);
+      mpSyncthingNotifierProcess->execute(processPath, QStringList());
     }
   }
   else
