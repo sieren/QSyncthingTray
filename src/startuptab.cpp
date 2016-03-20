@@ -169,8 +169,11 @@ void StartupTab::showINotifyFileBrowser()
 {
   QString filename = QFileDialog::getOpenFileName(this,
     tr("Open iNotify"), "", tr(""));
-  mCurrentINotifyPath = filename.toStdString();
-  mpINotifyFilePath->setText(filename);
+  if (filename.toStdString() != "")
+  {
+    mCurrentINotifyPath = filename.toStdString();
+    mpINotifyFilePath->setText(filename);
+  }
   saveSettings();
   spawnSyncthingApp();
 }
