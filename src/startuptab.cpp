@@ -203,6 +203,8 @@ void StartupTab::launchINotifyBoxChanged(int state)
 {
   hideShowElements(state == Qt::Checked, mpINotifyFilePath, mpINotifyBrowse);
   mShouldLaunchINotify = state == Qt::Checked ? true : false;
+  saveSettings();
+  pathEnterPressed();
 }
 
 
