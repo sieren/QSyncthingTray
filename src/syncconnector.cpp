@@ -335,7 +335,7 @@ void SyncConnector::spawnSyncthingProcess(
       mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
       connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-      QString processPath = filePath.c_str();
+      QString processPath = QDir::toNativeSeparators(filePath.c_str());
       QStringList launchArgs;
       launchArgs << "-no-browser";
       mpSyncProcess->start(processPath, launchArgs);
@@ -373,8 +373,8 @@ void SyncConnector::spawnINotifyProcess(
     if (!systemUtil.isBinaryRunning(std::string("syncthing-inotify")))
     {
       mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
-      QString processPath = filePath.c_str();
-      mpSyncthingNotifierProcess->start(processPath);
+      QString processPath = QDir::toNativeSeparators(filePath.c_str());
+      mpSyncthingNotifierProcess->execute(processPath, QStringList());
     }
   }
   else
