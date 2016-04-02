@@ -30,11 +30,10 @@ namespace qst
 {
 namespace sysutils
 {
-  
 #ifdef _WIN32
 using SystemUtility = platforms::windows::WinUtils;
 #elif defined(__linux__)
-using SystemUtility = platforms::linux::PosixUtils;
+using SystemUtility = platforms::gnu_linux::PosixUtils;
 #elif (defined(__APPLE__) && defined(__MACH__))
 using SystemUtility = platforms::darwin::MacUtils;
 #endif

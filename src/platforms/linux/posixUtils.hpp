@@ -27,7 +27,7 @@ namespace qst
 {
 namespace platforms
 {
-namespace linux
+namespace gnu_linux
 {
   struct PosixUtils
   {
