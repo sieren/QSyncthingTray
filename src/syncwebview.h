@@ -49,6 +49,7 @@ signals:
 private:
   void initWebView();
   void setupMenu();
+  void pageHasLoaded(bool hasLoaded);
   
   std::unique_ptr<SyncWebPage> mpPageView;
   QUrl mSyncThingUrl;

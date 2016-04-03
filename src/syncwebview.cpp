@@ -46,12 +46,23 @@ void SyncWebView::initWebView()
   profile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
   mpPageView = std::unique_ptr<SyncWebPage>(new SyncWebPage(profile));
 
+  connect(mpPageView.get(), &QWebEnginePage::loadFinished,
+    this, &SyncWebView::pageHasLoaded);
   QWebEngineSettings* settings = mpPageView->settings();
   settings->setAttribute(QWebEngineSettings::WebAttribute::JavascriptEnabled, true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::AutoLoadImages,true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::LocalContentCanAccessRemoteUrls, true);
   mpPageView->load(mSyncThingUrl);
   setPage(mpPageView.get());
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncWebView::pageHasLoaded(bool hasLoaded)
+{
+  QSettings appSettings("sieren", "QSyncthingTray");
+  setZoomFactor(appSettings.value("WebZoomFactor").toDouble());
 }
 
 
@@ -83,8 +94,6 @@ void SyncWebView::show()
   setFocusPolicy(Qt::ClickFocus);
   setEnabled(true);
   setFocus();
-  QSettings settings("sieren", "QSyncthingTray");
-  setZoomFactor(settings.value("WebZoomFactor").toDouble());
   qst::sysutils::SystemUtility().showDockIcon(true);
 }
 
