@@ -374,7 +374,7 @@ void SyncConnector::spawnINotifyProcess(
     {
       mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
       QString processPath = QDir::toNativeSeparators(filePath.c_str());
-      mpSyncthingNotifierProcess->start(processPath, QStringList());
+      mpSyncthingNotifierProcess->start(processPath, QStringList(), QIODevice::Unbuffered);
     }
   }
   else
@@ -490,7 +490,7 @@ void SyncConnector::killProcesses()
   if (mpSyncthingNotifierProcess != nullptr
       && mpSyncthingNotifierProcess->state() == QProcess::Running)
   {
-    mpSyncthingNotifierProcess->kill();
+    mpSyncthingNotifierProcess->terminate();
     mpSyncthingNotifierProcess->waitForFinished();
   }
 }
