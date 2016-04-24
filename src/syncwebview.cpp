@@ -61,6 +61,7 @@ void SyncWebView::initWebView()
 
 void SyncWebView::pageHasLoaded(bool hasLoaded)
 {
+  UNUSED(hasLoaded);
   QSettings appSettings("sieren", "QSyncthingTray");
   setZoomFactor(appSettings.value("WebZoomFactor").toDouble());
 }
