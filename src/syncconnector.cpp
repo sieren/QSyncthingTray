@@ -30,7 +30,7 @@ namespace qst
 namespace connector
 {
 
-  
+
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 SyncConnector::SyncConnector(QUrl url)
@@ -50,7 +50,7 @@ SyncConnector::SyncConnector(QUrl url)
           SLOT(checkConnectionHealth()));
 }
 
-  
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::setURL(QUrl url, std::string username, std::string password,
@@ -108,7 +108,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
   ConnectionState connectionInfo =
     api::V12API().getConnectionInfo(reply);
-  
+
   int versionNumber = getCurrentVersion(connectionInfo.first);
   mAPIHandler =
     std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
@@ -130,13 +130,13 @@ void SyncConnector::checkConnectionHealth()
   QNetworkRequest healthRequest(requestUrl);
   QNetworkReply *reply = network.get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
-  
+
   QUrl lastSyncedListURL = mCurrentUrl;
   lastSyncedListURL.setPath(tr("/rest/stats/folder"));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
   QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
-  
+
   getCurrentConfig();
 }
 
@@ -148,7 +148,7 @@ void SyncConnector::getCurrentConfig()
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/config"));
   QNetworkRequest request(requestUrl);
-  
+
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
@@ -402,7 +402,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   QList<QSslError> errorsThatCanBeIgnored;
   size_t foundHttp = mCurrentUrl.toString().toStdString().find("http:");
   QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-  
+
   if (statusCode.toInt() == 302) // we're getting redirected, find out if to HTTPS
   {
     QVariant url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
@@ -422,7 +422,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
       didShowSSLWarning = true;
     }
   }
-  
+
   errorsThatCanBeIgnored<<QSslError(QSslError::HostNameMismatch);
   errorsThatCanBeIgnored<<QSslError(QSslError::SelfSignedCertificate);
   reply->ignoreSslErrors();
@@ -453,7 +453,7 @@ bool SyncConnector::checkIfFileExists(QString path)
   }
 }
 
-  
+
 //------------------------------------------------------------------------------------//
 
 int SyncConnector::getCurrentVersion(QString reply)
@@ -528,6 +528,6 @@ QString SyncConnector::trafficToString(T traffic)
   return QString(strTraffic.c_str());
 }
 
-  
+
 } // connector
 } //qst
