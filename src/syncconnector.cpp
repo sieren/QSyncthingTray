@@ -512,6 +512,7 @@ SyncConnector::~SyncConnector()
   {
     shutdownSyncthingProcess();
   }
+  mpConnectionHealthTimer->stop();
   killProcesses();
 }
 
