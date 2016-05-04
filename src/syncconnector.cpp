@@ -33,9 +33,10 @@ namespace connector
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
-SyncConnector::SyncConnector(QUrl url)
+SyncConnector::SyncConnector(QUrl url) :
+    mCurrentUrl(url)
+  , mSettings("sieren", "QSyncthingTray")
 {
-  mCurrentUrl = url;
   connect(
           &network, SIGNAL (finished(QNetworkReply*)),
           this, SLOT (netRequestfinished(QNetworkReply*))
@@ -481,9 +482,8 @@ int SyncConnector::getCurrentVersion(QString reply)
 
 void SyncConnector::killProcesses()
 {
-  QSettings shutdownSettings("sieren", "QSyncthingTray");
   if (mpSyncProcess != nullptr
-      && shutdownSettings.value("ShutdownOnExit").toBool())
+      && mSettings.value("ShutdownOnExit").toBool())
   {
     mpSyncProcess->waitForFinished();
   }
@@ -508,8 +508,7 @@ SyncWebView *SyncConnector::getWebView()
 
 SyncConnector::~SyncConnector()
 {
-  QSettings shutdownSettings("sieren", "QSyncthingTray");
-  if (shutdownSettings.value("ShutdownOnExit").toBool())
+  if (mSettings.value("ShutdownOnExit").toBool())
   {
     shutdownSyncthingProcess();
   }
