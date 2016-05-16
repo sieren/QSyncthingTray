@@ -48,8 +48,11 @@ SyncConnector::SyncConnector(QUrl url) :
           );
 
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
+  mpConnectionAvailabilityTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
           SLOT(checkConnectionHealth()));
+  connect(mpConnectionAvailabilityTimer.get(), SIGNAL(timeout()), this,
+          SLOT(testUrlAvailability()));
   onSettingsChanged();
 }
 
@@ -62,16 +65,23 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   mAuthentication = std::make_pair(username, password);
   url.setUserName(mAuthentication.first.c_str());
   url.setPassword(mAuthentication.second.c_str());
-  mCurrentUrl = url;
   url.setPath(tr("/rest/system/version"));
+  mCurrentUrl = url;
   mConnectionStateCallback = setText;
-  QNetworkRequest request(url);
+  testUrlAvailability();
+}
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::testUrlAvailability()
+{
+  QNetworkRequest request(mCurrentUrl);
   network.clearAccessCache();
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::urlTested;
   if (mpSyncWebView != nullptr)
   {
-    mpSyncWebView->updateConnection(url, mAuthentication);
+    mpSyncWebView->updateConnection(mCurrentUrl, mAuthentication);
   }
   didShowSSLWarning = false;
 }
@@ -108,18 +118,29 @@ void SyncConnector::webViewClosed()
 void SyncConnector::urlTested(QNetworkReply* reply)
 {
   ignoreSslErrors(reply);
-
-  ConnectionState connectionInfo =
-    api::V12API().getConnectionInfo(reply);
-
-  int versionNumber = getCurrentVersion(connectionInfo.first);
-  mAPIHandler =
-    std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
-  if (mConnectionStateCallback != nullptr)
+  if (reply->error() == QNetworkReply::TimeoutError ||
+      reply->error() == QNetworkReply::ConnectionRefusedError)
   {
-    mConnectionStateCallback(connectionInfo);
+    mAPIHandler = nullptr;
+    mpConnectionAvailabilityTimer->start(1000);
   }
-  mpConnectionHealthTimer->start(mConnectionHealthTime);
+  else
+  {
+    ConnectionState connectionInfo =
+      api::V12API().getConnectionInfo(reply);
+
+    int versionNumber = getCurrentVersion(connectionInfo.first);
+    if (mAPIHandler == nullptr)
+    {
+      mAPIHandler =
+        std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
+    }
+    if (mConnectionStateCallback != nullptr)
+    {
+      mConnectionStateCallback(connectionInfo);
+    }
+    mpConnectionHealthTimer->start(mConnectionHealthTime);
+  }
   reply->deleteLater();
 }
 

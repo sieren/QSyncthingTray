@@ -144,6 +144,7 @@ private:
     QSystemTrayIcon *mpTrayIcon = nullptr;
     QMenu *mpTrayIconMenu = nullptr;
     QUrl mCurrentUrl;
+    int mLastIconIndex = -1;
 
     std::string mCurrentUserName;
     std::string mCurrentUserPassword;
