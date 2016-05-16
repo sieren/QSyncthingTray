@@ -143,28 +143,37 @@ void Window::closeEvent(QCloseEvent *event)
 
 void Window::setIcon(int index)
 {
-  QIcon icon;
-  std::pair<std::string, std::string> iconSet = mIconMonochrome ?
-    kIconSet.back() : kIconSet.front();
-  switch(index)
-  {
-    case 0:
-      icon = QIcon(iconSet.first.c_str());
-      break;
-    case 1:
-      icon = QIcon(iconSet.second.c_str());
-      break;
-    default:
-      icon = QIcon(iconSet.second.c_str());
-      break;
-  }
-  if (mpAnimatedIconMovie->state() != QMovie::Running)
-  {
-    mpTrayIcon->setIcon(icon);
-  }
-  setWindowIcon(icon);
+  // temporary workaround as setIcon seems to leak memory
+  // https://bugreports.qt.io/browse/QTBUG-23658?jql=text%20~%20%22setIcon%20memory%22
+  // https://bugreports.qt.io/browse/QTBUG-16113?jql=text%20~%20%22setIcon%20memory%22
 
-  mpTrayIcon->setToolTip("Syncthing");
+  if (index != mLastIconIndex)
+  {
+    QIcon icon;
+    std::pair<std::string, std::string> iconSet = mIconMonochrome ?
+      kIconSet.back() : kIconSet.front();
+    switch(index)
+    {
+      case 0:
+        icon = QIcon(iconSet.first.c_str());
+        break;
+      case 1:
+        icon = QIcon(iconSet.second.c_str());
+        break;
+      default:
+        icon = QIcon(iconSet.second.c_str());
+        break;
+    }
+
+    if (mpAnimatedIconMovie->state() != QMovie::Running)
+    {
+      mpTrayIcon->setIcon(icon);
+    }
+    setWindowIcon(icon);
+
+    mpTrayIcon->setToolTip("Syncthing");
+    mLastIconIndex = index;
+  }
 }
 
 
