@@ -30,6 +30,7 @@
 #include <QProcess>
 #include <QSettings>
 #include <memory>
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <thread>
@@ -87,13 +88,14 @@ namespace connector
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
+    void onSettingsChanged();
     SyncWebView *getWebView();
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
     void onProcessSpawned(kSyncthingProcessState procState);
     void onNetworkActivityChanged(bool act);
-    
+
   private slots:
     void onSslError(QNetworkReply* reply);
     void netRequestfinished(QNetworkReply *reply);
@@ -112,7 +114,7 @@ namespace connector
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
     int getCurrentVersion(QString reply);
-
+    std::uint16_t mConnectionHealthTime = 1000;
     bool didShowSSLWarning;
     bool mSyncthingPaused = false;
 
@@ -143,13 +145,15 @@ namespace connector
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::pair<std::string, std::string> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
-    
+
     std::string mSyncthingFilePath;
     std::string mINotifyFilePath;
     QString mAPIKey;
-    
+
     qst::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
+
+    QSettings mSettings;
   };
 
 } // connector

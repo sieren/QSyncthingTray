@@ -486,12 +486,21 @@ void Window::createSettingsGroupBox()
   mpWebViewZoomFactor->setMaximumWidth(80);
   mpWebViewZoomFactor->setValue(mSettings.value("WebZoomFactor").toDouble());
 
+  mpSyncPollIntervalLabel = new QLabel(tr("Polling Interval"));
+  mpSyncPollIntervalBox = new QDoubleSpinBox();
+  mpSyncPollIntervalBox->setRange(0.0, 10.0);
+  mpSyncPollIntervalBox->setSingleStep(0.5);
+  mpSyncPollIntervalBox->setMaximumWidth(80);
+  mpSyncPollIntervalBox->setValue(mSettings.value("pollingInterval").toDouble());
+
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
   appearanceLayout->addWidget(mpShouldAnimateIconBox, 2, 0);
   appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
   appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
+  appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
+  appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -650,6 +659,8 @@ void Window::saveSettings()
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
+  mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
+  mpSyncConnector->onSettingsChanged();
 }
 
 
@@ -704,6 +715,7 @@ void Window::createDefaultSettings()
   mSettings.setValue("doSettingsExist", true);
   mSettings.setValue("launchSyncthingAtStartup", false);
   mSettings.setValue("animationEnabled", false);
+  mSettings.setValue("pollingInterval", 1.0);
 }
 
 

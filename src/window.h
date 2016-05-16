@@ -121,6 +121,8 @@ private:
     QCheckBox *mpShouldAnimateIconBox;
     QLabel *mpWebViewZoomFactorLabel;
     QDoubleSpinBox *mpWebViewZoomFactor;
+    QLabel *mpSyncPollIntervalLabel;
+    QDoubleSpinBox *mpSyncPollIntervalBox;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;

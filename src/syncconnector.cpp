@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QMessageBox>
 #include <QStyleFactory>
+#include <cmath>
 #include <iostream>
 #include "platforms.hpp"
 #include "utilities.hpp"
@@ -30,12 +31,13 @@ namespace qst
 namespace connector
 {
 
-  
+
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
-SyncConnector::SyncConnector(QUrl url)
+SyncConnector::SyncConnector(QUrl url) :
+    mCurrentUrl(url)
+  , mSettings("sieren", "QSyncthingTray")
 {
-  mCurrentUrl = url;
   connect(
           &network, SIGNAL (finished(QNetworkReply*)),
           this, SLOT (netRequestfinished(QNetworkReply*))
@@ -48,9 +50,10 @@ SyncConnector::SyncConnector(QUrl url)
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,
           SLOT(checkConnectionHealth()));
+  onSettingsChanged();
 }
 
-  
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::setURL(QUrl url, std::string username, std::string password,
@@ -108,7 +111,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
   ConnectionState connectionInfo =
     api::V12API().getConnectionInfo(reply);
-  
+
   int versionNumber = getCurrentVersion(connectionInfo.first);
   mAPIHandler =
     std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
@@ -116,7 +119,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   {
     mConnectionStateCallback(connectionInfo);
   }
-  mpConnectionHealthTimer->start(1000);
+  mpConnectionHealthTimer->start(mConnectionHealthTime);
   reply->deleteLater();
 }
 
@@ -130,13 +133,13 @@ void SyncConnector::checkConnectionHealth()
   QNetworkRequest healthRequest(requestUrl);
   QNetworkReply *reply = network.get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
-  
+
   QUrl lastSyncedListURL = mCurrentUrl;
   lastSyncedListURL.setPath(tr("/rest/stats/folder"));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
   QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
-  
+
   getCurrentConfig();
 }
 
@@ -148,7 +151,7 @@ void SyncConnector::getCurrentConfig()
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/config"));
   QNetworkRequest request(requestUrl);
-  
+
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
@@ -304,6 +307,16 @@ void SyncConnector::shutdownSyncthingProcess()
   }
 }
 
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::onSettingsChanged()
+{
+  mConnectionHealthTime = std::round(
+    1000 * mSettings.value("pollingInterval").toDouble());
+}
+
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
@@ -402,7 +415,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   QList<QSslError> errorsThatCanBeIgnored;
   size_t foundHttp = mCurrentUrl.toString().toStdString().find("http:");
   QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-  
+
   if (statusCode.toInt() == 302) // we're getting redirected, find out if to HTTPS
   {
     QVariant url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
@@ -422,7 +435,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
       didShowSSLWarning = true;
     }
   }
-  
+
   errorsThatCanBeIgnored<<QSslError(QSslError::HostNameMismatch);
   errorsThatCanBeIgnored<<QSslError(QSslError::SelfSignedCertificate);
   reply->ignoreSslErrors();
@@ -453,7 +466,7 @@ bool SyncConnector::checkIfFileExists(QString path)
   }
 }
 
-  
+
 //------------------------------------------------------------------------------------//
 
 int SyncConnector::getCurrentVersion(QString reply)
@@ -481,9 +494,8 @@ int SyncConnector::getCurrentVersion(QString reply)
 
 void SyncConnector::killProcesses()
 {
-  QSettings shutdownSettings("sieren", "QSyncthingTray");
   if (mpSyncProcess != nullptr
-      && shutdownSettings.value("ShutdownOnExit").toBool())
+      && mSettings.value("ShutdownOnExit").toBool())
   {
     mpSyncProcess->waitForFinished();
   }
@@ -508,11 +520,11 @@ SyncWebView *SyncConnector::getWebView()
 
 SyncConnector::~SyncConnector()
 {
-  QSettings shutdownSettings("sieren", "QSyncthingTray");
-  if (shutdownSettings.value("ShutdownOnExit").toBool())
+  if (mSettings.value("ShutdownOnExit").toBool())
   {
     shutdownSyncthingProcess();
   }
+  mpConnectionHealthTimer->stop();
   killProcesses();
 }
 
@@ -528,6 +540,6 @@ QString SyncConnector::trafficToString(T traffic)
   return QString(strTraffic.c_str());
 }
 
-  
+
 } // connector
 } //qst
