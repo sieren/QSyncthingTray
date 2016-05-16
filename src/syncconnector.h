@@ -102,6 +102,7 @@ namespace connector
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
+    void testUrlAvailability();
     void webViewClosed();
 
   private:
@@ -143,6 +144,7 @@ namespace connector
     std::list<FolderNameFullPath> mFolders;
     LastSyncedFileList mLastSyncedFiles;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
+    std::unique_ptr<QTimer> mpConnectionAvailabilityTimer;
     std::pair<std::string, std::string> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
 
