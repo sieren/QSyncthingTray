@@ -335,6 +335,7 @@ void SyncConnector::onSettingsChanged()
 {
   mConnectionHealthTime = std::round(
     1000 * mSettings.value("pollingInterval").toDouble());
+  mConnectionHealthTime = mConnectionHealthTime == 0 ? 1000 : mConnectionHealthTime;
 }
 
 
