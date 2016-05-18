@@ -66,7 +66,6 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
   url.setUserName(mAuthentication.first.c_str());
   url.setPassword(mAuthentication.second.c_str());
   mCurrentUrl = url;
-  url.setPath(tr("/rest/system/version"));
   mConnectionStateCallback = setText;
   testUrlAvailability();
 }
@@ -75,7 +74,9 @@ void SyncConnector::setURL(QUrl url, std::string username, std::string password,
 
 void SyncConnector::testUrlAvailability()
 {
-  QNetworkRequest request(mCurrentUrl);
+  QUrl url = mCurrentUrl;
+  url.setPath(tr("/rest/system/version"));
+  QNetworkRequest request(url);
   network.clearAccessCache();
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::urlTested;
@@ -139,6 +140,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
     {
       mConnectionStateCallback(connectionInfo);
     }
+    mpConnectionAvailabilityTimer->stop();
     mpConnectionHealthTimer->start(mConnectionHealthTime);
   }
   reply->deleteLater();
