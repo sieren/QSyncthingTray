@@ -58,6 +58,7 @@ Window::Window()
   , mSettings("sieren", "QSyncthingTray")
   , mpAnimatedIconMovie(new QMovie())
 {
+    createDefaultSettings();
     loadSettings();
     createSettingsGroupBox();
 
@@ -694,11 +695,6 @@ void Window::showAuthentication(bool show)
 
 void Window::loadSettings()
 {
-  if (!mSettings.value("doSettingsExist").toBool())
-  {
-    createDefaultSettings();
-  }
-
   mCurrentUrl.setUrl(mSettings.value("url").toString());
   if (mCurrentUrl.toString().length() == 0)
   {
@@ -716,17 +712,28 @@ void Window::loadSettings()
 
 void Window::createDefaultSettings()
 {
-  mSettings.setValue("url", tr("http://127.0.0.1:8384"));
-  mSettings.setValue("monochromeIcon", false);
-  mSettings.setValue("WebZoomFactor", 1.0);
-  mSettings.setValue("ShutdownOnExit", true);
-  mSettings.setValue("notificationsEnabled", true);
-  mSettings.setValue("doSettingsExist", true);
-  mSettings.setValue("launchSyncthingAtStartup", false);
-  mSettings.setValue("animationEnabled", false);
-  mSettings.setValue("pollingInterval", 1.0);
+  checkAndSetValue("url", tr("http://127.0.0.1:8384"));
+  checkAndSetValue("monochromeIcon", false);
+  checkAndSetValue("WebZoomFactor", 1.0);
+  checkAndSetValue("ShutdownOnExit", true);
+  checkAndSetValue("notificationsEnabled", true);
+  checkAndSetValue("doSettingsExist", true);
+  checkAndSetValue("launchSyncthingAtStartup", false);
+  checkAndSetValue("animationEnabled", false);
+  checkAndSetValue("pollingInterval", 1.0);
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template <typename T>
+void Window::checkAndSetValue(QString key, T value)
+{
+  if (mSettings.value(key) == QVariant())
+  {
+    mSettings.setValue(key, value);
+  }
+}
 
 //------------------------------------------------------------------------------------//
 
