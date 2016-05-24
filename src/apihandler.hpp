@@ -260,11 +260,22 @@ namespace api
       return result;
     }
   };
+
+  // Syncthing API V13 Specializations
+  struct V13API : public V12API
+  {
+    const int version = 13;
+    using V12API::getConnections;
+  };
+
   
   inline APIHandlerBase *APIHandlerBase::getAPIForVersion(int version)
   {
     switch (version)
     {
+      case 13:
+        return new V13API;
+        break;
       case 12:
         return new V12API;
         break;
@@ -272,7 +283,7 @@ namespace api
         return new V11API;
         break;
       default:
-        return new V12API;
+        return new V13API;
     }
   }
   
