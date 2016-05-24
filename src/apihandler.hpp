@@ -129,20 +129,6 @@ namespace api
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }
     
-    QString getCurrentAPIKey(QByteArray reply)
-    {
-      QString apiKey;
-      if (reply.size() > 0)
-      {
-        QString m_DownloadedData = static_cast<QString>(reply);
-        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-        QJsonObject replyData = replyDoc.object();
-        QJsonObject guiData = replyData["gui"].toObject();
-        apiKey =  guiData["apiKey"].toString();
-      }
-      return apiKey;
-    }
-    
     LastSyncedFileList getLastSyncedFiles(QByteArray reply)
     {
       QString m_DownloadedData = static_cast<QString>(reply);

@@ -108,8 +108,10 @@ private:
 
     QLabel *userNameLabel;
     QLabel *userPasswordLabel;
+    QLabel *mpAPIKeyLabel;
     QLineEdit *mpUserNameLineEdit;
     QLineEdit *userPassword;
+    QLineEdit *mpAPIKeyEdit;
     QCheckBox *mpAuthCheckBox;
 
     QLabel *mpUrlTestResultLabel;

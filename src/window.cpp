@@ -182,6 +182,7 @@ void Window::setIcon(int index)
 
 void Window::testURL()
 {
+  saveSettings();
   std::string validateUrl = mpSyncthingUrlLineEdit->text().toStdString();
   std::size_t foundSSL = validateUrl.find("https");
   if (foundSSL!=std::string::npos)
@@ -453,6 +454,9 @@ void Window::createSettingsGroupBox()
   userPassword = new QLineEdit(mCurrentUserPassword.c_str());
   userPassword->setEchoMode(QLineEdit::Password);
 
+  mpAPIKeyLabel = new QLabel("API Key");
+  mpAPIKeyEdit = new QLineEdit(mSettings.value("apiKey").toString());
+
   mpUrlTestResultLabel = new QLabel("Not Tested");
 
   mpAuthCheckBox->setCheckState(Qt::Checked);
@@ -470,8 +474,10 @@ void Window::createSettingsGroupBox()
   iconLayout->addWidget(userPasswordLabel, 3, 2, 1 ,2);
   iconLayout->addWidget(mpUserNameLineEdit, 4, 0, 1, 2);
   iconLayout->addWidget(userPassword, 4, 2, 1, 2 );
-  iconLayout->addWidget(mpTestConnectionButton,5, 0, 1, 1);
-  iconLayout->addWidget(mpUrlTestResultLabel, 5, 1, 1, 2);
+  iconLayout->addWidget(mpAPIKeyLabel, 5, 0, 1, 2);
+  iconLayout->addWidget(mpAPIKeyEdit, 6, 0, 1, 4);
+  iconLayout->addWidget(mpTestConnectionButton,7, 0, 1, 1);
+  iconLayout->addWidget(mpUrlTestResultLabel, 7, 1, 1, 2);
   mpSettingsGroupBox->setLayout(iconLayout);
   mpSettingsGroupBox->setMinimumWidth(400);
   mpSettingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -670,6 +676,7 @@ void Window::saveSettings()
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
   mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
+  mSettings.setValue("apiKey", mpAPIKeyEdit->text());
   mpSyncConnector->onSettingsChanged();
 }
 
@@ -721,6 +728,7 @@ void Window::createDefaultSettings()
   checkAndSetValue("launchSyncthingAtStartup", false);
   checkAndSetValue("animationEnabled", false);
   checkAndSetValue("pollingInterval", 1.0);
+  checkAndSetValue("apiKey", qst::utilities::readAPIKey());
 }
 
 

@@ -38,6 +38,7 @@ SyncConnector::SyncConnector(QUrl url) :
     mCurrentUrl(url)
   , mSettings("sieren", "QSyncthingTray")
 {
+  onSettingsChanged();
   connect(
           &network, SIGNAL (finished(QNetworkReply*)),
           this, SLOT (netRequestfinished(QNetworkReply*))
@@ -53,7 +54,6 @@ SyncConnector::SyncConnector(QUrl url) :
           SLOT(checkConnectionHealth()));
   connect(mpConnectionAvailabilityTimer.get(), SIGNAL(timeout()), this,
           SLOT(testUrlAvailability()));
-  onSettingsChanged();
 }
 
 
@@ -79,6 +79,8 @@ void SyncConnector::testUrlAvailability()
   QUrl url = mCurrentUrl;
   url.setPath(tr("/rest/system/version"));
   QNetworkRequest request(url);
+  QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
+  request.setRawHeader(QByteArray("X-API-Key"), headerByte);
   network.clearAccessCache();
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::urlTested;
@@ -155,6 +157,8 @@ void SyncConnector::checkConnectionHealth()
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
   QNetworkRequest healthRequest(requestUrl);
+  QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
+  healthRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
 
@@ -175,7 +179,8 @@ void SyncConnector::getCurrentConfig()
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/config"));
   QNetworkRequest request(requestUrl);
-
+  QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
+  request.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *reply = network.get(request);
   requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
@@ -261,7 +266,6 @@ void SyncConnector::currentConfigReceived(QNetworkReply *reply)
   {
     replyData = reply->readAll();
   }
-  mAPIKey = mAPIHandler->getCurrentAPIKey(replyData);
   mFolders = mAPIHandler->getCurrentFolderList(replyData);
   reply->deleteLater();
 }
@@ -339,6 +343,7 @@ void SyncConnector::onSettingsChanged()
   mConnectionHealthTime = std::round(
     1000 * mSettings.value("pollingInterval").toDouble());
   mConnectionHealthTime = mConnectionHealthTime == 0 ? 1000 : mConnectionHealthTime;
+  mAPIKey = mSettings.value("apiKey").toString();
 }
 
 
