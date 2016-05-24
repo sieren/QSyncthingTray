@@ -197,6 +197,35 @@ namespace api
   // API Specializations
   
   // Syncthing API V11 Specializations
+  struct V11API : public APIHandlerBase
+  {
+    const int version = 11;
+
+    ConnectionHealthStatus getConnections(QByteArray reply) override
+    {
+      ConnectionHealthStatus result;
+      result.emplace("state", "0");
+      if (reply.size() == 0)
+      {
+        result.emplace("activeConnections", QString("0"));
+        result.emplace("totalConnections", QString("0"));
+      }
+      else
+      {
+        result.clear();
+        result.emplace("state", "1");
+        QString m_DownloadedData = static_cast<QString>(reply);
+        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
+        QJsonObject replyData = replyDoc.object();
+        QJsonObject connectionArray = replyData["connections"].toObject();
+        result.emplace("activeConnections", QString::number(connectionArray.size()));
+        result.emplace("totalConnections", QString::number(connectionArray.size()));
+      }
+      return result;
+    }
+  };
+
+  // Syncthing API V12 Specializations
   struct V12API : public APIHandlerBase
   {
     const int version = 12;
@@ -225,37 +254,8 @@ namespace api
           QJsonObject jObj = it->toObject();
           active += jObj.find("connected").value().toBool() ? 1 : 0;
         }
-        result.emplace("activeConnections", QString(active));
-        result.emplace("totalConnections", QString(connectionArray.size()));
-      }
-      return result;
-    }
-  };
-  
-  // Syncthing API V11 Specializations
-  struct V11API : public APIHandlerBase
-  {
-    const int version = 11;
-
-    ConnectionHealthStatus getConnections(QByteArray reply) override
-    {
-      ConnectionHealthStatus result;
-      result.emplace("state", "0");
-      if (reply.size() == 0)
-      {
-        result.emplace("activeConnections", QString("0"));
-        result.emplace("totalConnections", QString("0"));
-      }
-      else
-      {
-        result.clear();
-        result.emplace("state", "1");
-        QString m_DownloadedData = static_cast<QString>(reply);
-        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-        QJsonObject replyData = replyDoc.object();
-        QJsonObject connectionArray = replyData["connections"].toObject();
-        result.emplace("activeConnections", QString(connectionArray.size()));
-        result.emplace("totalConnections", QString(connectionArray.size()));
+        result.emplace("activeConnections", QString::number(active));
+        result.emplace("totalConnections", QString::number(connectionArray.size()));
       }
       return result;
     }
