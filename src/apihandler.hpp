@@ -50,6 +50,8 @@ namespace api
 
   struct APIHandlerBase
   {
+    const int version = 0;
+
     std::pair<QString, bool> getConnectionInfo(QNetworkReply *reply)
     {
       QString result;
@@ -197,6 +199,8 @@ namespace api
   // Syncthing API V11 Specializations
   struct V12API : public APIHandlerBase
   {
+    const int version = 12;
+
     ConnectionHealthStatus getConnections(QByteArray reply) override
     {
       ConnectionHealthStatus result;
@@ -231,6 +235,8 @@ namespace api
   // Syncthing API V11 Specializations
   struct V11API : public APIHandlerBase
   {
+    const int version = 11;
+
     ConnectionHealthStatus getConnections(QByteArray reply) override
     {
       ConnectionHealthStatus result;

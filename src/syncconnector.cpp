@@ -124,7 +124,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   if (reply->error() == QNetworkReply::TimeoutError ||
       reply->error() == QNetworkReply::ConnectionRefusedError)
   {
-    mAPIHandler = nullptr;
     mpConnectionAvailabilityTimer->start(1000);
   }
   else
@@ -133,7 +132,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
       api::V12API().getConnectionInfo(reply);
 
     int versionNumber = getCurrentVersion(connectionInfo.first);
-    if (mAPIHandler == nullptr)
+    if (mAPIHandler == nullptr || mAPIHandler->version != versionNumber)
     {
       mAPIHandler =
         std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
