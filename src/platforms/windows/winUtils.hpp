@@ -22,9 +22,11 @@
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <QProcessEnvironment>
 #include <windows.h>
 #include <tlhelp32.h>
 #include <comdef.h>
+#include <QString>
 #define UNUSED(x) (void)(x)
 
 namespace qst
@@ -74,6 +76,13 @@ namespace windows
       CloseHandle(snapshot);
       return result;
 
+    }
+
+    static QString getDefaultSyncthingConfig()
+    {
+      QString path = QProcessEnvironment::systemEnvironment().value("localappdata", "localappdata");
+      path.append("\\Syncthing\\config.xml");
+      return{path};
     }
 
     template<typename U, typename T>

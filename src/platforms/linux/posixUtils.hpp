@@ -21,6 +21,8 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <QProcessEnvironment>
+#include <QString>
 #define UNUSED(x) (void)(x)
 
 namespace qst
@@ -66,6 +68,13 @@ namespace gnu_linux
       }
       bool result = instances == '0' ? false : true;
       return result;
+    }
+
+    static QString getDefaultSyncthingConfig()
+    {
+      QString path = QProcessEnvironment::systemEnvironment().value("HOME", "~");
+      path.append("/.config/syncthing/config.xml");
+      return{path};
     }
 
     template<typename U, typename T>
