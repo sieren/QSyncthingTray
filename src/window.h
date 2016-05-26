@@ -108,8 +108,10 @@ private:
 
     QLabel *userNameLabel;
     QLabel *userPasswordLabel;
+    QLabel *mpAPIKeyLabel;
     QLineEdit *mpUserNameLineEdit;
     QLineEdit *userPassword;
+    QLineEdit *mpAPIKeyEdit;
     QCheckBox *mpAuthCheckBox;
 
     QLabel *mpUrlTestResultLabel;
@@ -160,6 +162,9 @@ private:
     bool mShouldAnimateIcon;
     bool mShouldStopAnimation;
     int mLastConnectionState;
+
+    template <typename T>
+    void checkAndSetValue(QString key, T value);
 
     template <typename U, typename T>
     void setElements(U &&func, T uiElement);

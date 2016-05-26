@@ -23,6 +23,8 @@
 #include <string>
 #include <iomanip>
 #include <iostream>
+#include <QFile>
+#include <QXmlStreamReader>
 #include "platforms.hpp"
 
 static const int kBytesToKilobytes = 1024;
@@ -112,6 +114,28 @@ inline std::string getPathToFileName(std::string fileName)
   }
 }
 
+inline QString readAPIKey()
+{
+  QXmlStreamReader xmlReader;
+  QFile file(qst::sysutils::SystemUtility::getDefaultSyncthingConfig());
+  if (!file.open(QFile::ReadOnly | QFile::Text))
+  {
+    // For now return nothing as the user can input the
+    // apikey on the UI should the config file be somewhere else.
+    return "";
+  }
+  xmlReader.setDevice(&file);
+  xmlReader.readNext();
+  while(!xmlReader.atEnd())
+  {
+    if (xmlReader.name() == "apikey")
+    {
+      return xmlReader.readElementText();
+    }
+    xmlReader.readNext();
+  }
+  return "";
+}
 }
 }
 

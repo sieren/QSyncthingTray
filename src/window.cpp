@@ -40,7 +40,7 @@
 
 
 //! Layout
-#define currentVersion "v0.4.7"
+#define currentVersion "v0.5.0"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -58,6 +58,7 @@ Window::Window()
   , mSettings("sieren", "QSyncthingTray")
   , mpAnimatedIconMovie(new QMovie())
 {
+    createDefaultSettings();
     loadSettings();
     createSettingsGroupBox();
 
@@ -181,6 +182,7 @@ void Window::setIcon(int index)
 
 void Window::testURL()
 {
+  saveSettings();
   std::string validateUrl = mpSyncthingUrlLineEdit->text().toStdString();
   std::size_t foundSSL = validateUrl.find("https");
   if (foundSSL!=std::string::npos)
@@ -452,6 +454,9 @@ void Window::createSettingsGroupBox()
   userPassword = new QLineEdit(mCurrentUserPassword.c_str());
   userPassword->setEchoMode(QLineEdit::Password);
 
+  mpAPIKeyLabel = new QLabel("API Key");
+  mpAPIKeyEdit = new QLineEdit(mSettings.value("apiKey").toString());
+
   mpUrlTestResultLabel = new QLabel("Not Tested");
 
   mpAuthCheckBox->setCheckState(Qt::Checked);
@@ -469,8 +474,10 @@ void Window::createSettingsGroupBox()
   iconLayout->addWidget(userPasswordLabel, 3, 2, 1 ,2);
   iconLayout->addWidget(mpUserNameLineEdit, 4, 0, 1, 2);
   iconLayout->addWidget(userPassword, 4, 2, 1, 2 );
-  iconLayout->addWidget(mpTestConnectionButton,5, 0, 1, 1);
-  iconLayout->addWidget(mpUrlTestResultLabel, 5, 1, 1, 2);
+  iconLayout->addWidget(mpAPIKeyLabel, 5, 0, 1, 2);
+  iconLayout->addWidget(mpAPIKeyEdit, 6, 0, 1, 4);
+  iconLayout->addWidget(mpTestConnectionButton,7, 0, 1, 1);
+  iconLayout->addWidget(mpUrlTestResultLabel, 7, 1, 1, 2);
   mpSettingsGroupBox->setLayout(iconLayout);
   mpSettingsGroupBox->setMinimumWidth(400);
   mpSettingsGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -669,6 +676,7 @@ void Window::saveSettings()
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
   mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
+  mSettings.setValue("apiKey", mpAPIKeyEdit->text());
   mpSyncConnector->onSettingsChanged();
 }
 
@@ -694,11 +702,6 @@ void Window::showAuthentication(bool show)
 
 void Window::loadSettings()
 {
-  if (!mSettings.value("doSettingsExist").toBool())
-  {
-    createDefaultSettings();
-  }
-
   mCurrentUrl.setUrl(mSettings.value("url").toString());
   if (mCurrentUrl.toString().length() == 0)
   {
@@ -716,17 +719,29 @@ void Window::loadSettings()
 
 void Window::createDefaultSettings()
 {
-  mSettings.setValue("url", tr("http://127.0.0.1:8384"));
-  mSettings.setValue("monochromeIcon", false);
-  mSettings.setValue("WebZoomFactor", 1.0);
-  mSettings.setValue("ShutdownOnExit", true);
-  mSettings.setValue("notificationsEnabled", true);
-  mSettings.setValue("doSettingsExist", true);
-  mSettings.setValue("launchSyncthingAtStartup", false);
-  mSettings.setValue("animationEnabled", false);
-  mSettings.setValue("pollingInterval", 1.0);
+  checkAndSetValue("url", tr("http://127.0.0.1:8384"));
+  checkAndSetValue("monochromeIcon", false);
+  checkAndSetValue("WebZoomFactor", 1.0);
+  checkAndSetValue("ShutdownOnExit", true);
+  checkAndSetValue("notificationsEnabled", true);
+  checkAndSetValue("doSettingsExist", true);
+  checkAndSetValue("launchSyncthingAtStartup", false);
+  checkAndSetValue("animationEnabled", false);
+  checkAndSetValue("pollingInterval", 1.0);
+  checkAndSetValue("apiKey", qst::utilities::readAPIKey());
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template <typename T>
+void Window::checkAndSetValue(QString key, T value)
+{
+  if (mSettings.value(key) == QVariant())
+  {
+    mSettings.setValue(key, value);
+  }
+}
 
 //------------------------------------------------------------------------------------//
 

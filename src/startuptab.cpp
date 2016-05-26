@@ -37,7 +37,6 @@ StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConne
     &StartupTab::processSpawnedChanged);
   
   mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
-  mpSyncConnector->spawnINotifyProcess(mCurrentINotifyPath, mShouldLaunchINotify);
 }
 
 
@@ -205,6 +204,7 @@ void StartupTab::launchINotifyBoxChanged(int state)
   mShouldLaunchINotify = state == Qt::Checked ? true : false;
   saveSettings();
   pathEnterPressed();
+  mpSyncConnector->checkAndSpawnINotifyProcess(false);
 }
 
 
@@ -231,12 +231,9 @@ void StartupTab::saveSettings()
     pathEnterPressed();
   }
   mSettings.setValue("inotifypath", tr(mCurrentINotifyPath.c_str()));
-  if (mSettings.value("launchINotifyAtStartup").toBool() != mShouldLaunchINotify)
-  {
-    mpSyncConnector->spawnINotifyProcess(mCurrentINotifyPath, mShouldLaunchINotify);
-  }
   mSettings.setValue("launchINotifyAtStartup", mShouldLaunchINotify);
   mSettings.setValue("ShutdownOnExit", mShouldShutdownOnExit);
+  mpSyncConnector->onSettingsChanged();
 }
 
 
@@ -256,6 +253,7 @@ void StartupTab::loadSettings()
 
 void StartupTab::pathEnterPressed()
 {
+  saveSettings();
   mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
   mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
   if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
@@ -264,7 +262,7 @@ void StartupTab::pathEnterPressed()
   }
   if (mSettings.value("inotifypath").toString().toStdString() != mCurrentINotifyPath)
   {
-    mpSyncConnector->spawnINotifyProcess(mCurrentINotifyPath, true, true);
+    mpSyncConnector->checkAndSpawnINotifyProcess(true);
   }
 }
 
