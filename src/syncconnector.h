@@ -80,10 +80,7 @@ namespace connector
       std::string filePath,
       const bool shouldSpawn,
       const bool onSetPath = false);
-    void spawnINotifyProcess(
-     std::string filePath,
-     const bool shouldSpawn,
-     const bool onSetPath = false);
+    void checkAndSpawnINotifyProcess(bool isRequestedExternal);
     void shutdownSyncthingProcess();
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
@@ -114,10 +111,12 @@ namespace connector
     void currentConfigReceived(QNetworkReply* reply);
     void lastSyncedFilesReceived(QNetworkReply *reply);
     void killProcesses();
+    void shutdownINotifyProcess();
     int getCurrentVersion(QString reply);
     std::uint16_t mConnectionHealthTime = 1000;
     bool didShowSSLWarning;
     bool mSyncthingPaused = false;
+    bool mShouldLaunchINotify = false;
 
     template <typename T>
     QString trafficToString(T traffic);
@@ -149,7 +148,7 @@ namespace connector
     std::shared_ptr<SyncConnector> mpSyncConnector;
 
     std::string mSyncthingFilePath;
-    std::string mINotifyFilePath;
+    QString mINotifyFilePath;
     QString mAPIKey;
 
     qst::sysutils::SystemUtility systemUtil;

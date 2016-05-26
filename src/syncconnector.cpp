@@ -126,6 +126,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   if (reply->error() == QNetworkReply::TimeoutError ||
       reply->error() == QNetworkReply::ConnectionRefusedError)
   {
+    shutdownINotifyProcess();
     mpConnectionAvailabilityTimer->start(1000);
   }
   else
@@ -145,6 +146,7 @@ void SyncConnector::urlTested(QNetworkReply* reply)
     }
     mpConnectionAvailabilityTimer->stop();
     mpConnectionHealthTimer->start(mConnectionHealthTime);
+    checkAndSpawnINotifyProcess(false);
   }
   reply->deleteLater();
 }
@@ -306,7 +308,7 @@ void SyncConnector::pauseSyncthing(bool paused)
   else
   {
     spawnSyncthingProcess(mSyncthingFilePath, true);
-    spawnINotifyProcess(mINotifyFilePath, true);
+    checkAndSpawnINotifyProcess(false);
     setURL(mCurrentUrl, mCurrentUrl.userName().toStdString(),
      mCurrentUrl.password().toStdString(), mConnectionStateCallback);
   }
@@ -344,6 +346,8 @@ void SyncConnector::onSettingsChanged()
     1000 * mSettings.value("pollingInterval").toDouble());
   mConnectionHealthTime = mConnectionHealthTime == 0 ? 1000 : mConnectionHealthTime;
   mAPIKey = mSettings.value("apiKey").toString();
+  mINotifyFilePath = mSettings.value("inotifypath").toString();
+  mShouldLaunchINotify = mSettings.value("launchINotifyAtStartup").toBool();
 }
 
 
@@ -398,13 +402,15 @@ void SyncConnector::spawnSyncthingProcess(
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::spawnINotifyProcess(
-  std::string filePath, const bool shouldSpawn, const bool onSetPath)
+void SyncConnector::checkAndSpawnINotifyProcess(bool isRequestedExternal)
 {
-  mINotifyFilePath = filePath;
-  if (shouldSpawn)
+  if (isRequestedExternal)
   {
-    if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
+    onSettingsChanged();
+  }
+  if (mShouldLaunchINotify)
+  {
+    if (!checkIfFileExists(mINotifyFilePath) && isRequestedExternal)
     {
       QMessageBox msgBox;
       msgBox.setText("Could not find iNotify.");
@@ -416,17 +422,25 @@ void SyncConnector::spawnINotifyProcess(
     if (!systemUtil.isBinaryRunning(std::string("syncthing-inotify")))
     {
       mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
-      QString processPath = QDir::toNativeSeparators(filePath.c_str());
+      QString processPath = QDir::toNativeSeparators(mINotifyFilePath);
       mpSyncthingNotifierProcess->start(processPath, QStringList(), QIODevice::Unbuffered);
     }
   }
   else
   {
-    if (mpSyncthingNotifierProcess != nullptr
-        && mpSyncthingNotifierProcess->state() == QProcess::Running)
-    {
-      mpSyncthingNotifierProcess->kill();
-    }
+    shutdownINotifyProcess();
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::shutdownINotifyProcess()
+{
+  if (mpSyncthingNotifierProcess != nullptr &&
+      mpSyncthingNotifierProcess->state() == QProcess::Running)
+  {
+    mpSyncthingNotifierProcess->kill();
   }
 }
 
