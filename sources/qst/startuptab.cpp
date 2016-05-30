@@ -152,7 +152,7 @@ void StartupTab::showFileBrowser()
 {
   QString filename = QFileDialog::getOpenFileName(this,
     tr("Open Syncthing"), "", tr(""));
-  if (filename.toStdString() != "")
+  if (!filename.isEmpty())
   {
     mCurrentSyncthingPath = filename.toStdString();
     mpFilePathLine->setText(filename);
