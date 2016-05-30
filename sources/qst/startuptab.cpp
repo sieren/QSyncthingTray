@@ -253,7 +253,6 @@ void StartupTab::loadSettings()
 
 void StartupTab::pathEnterPressed()
 {
-  saveSettings();
   mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
   mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
   if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
