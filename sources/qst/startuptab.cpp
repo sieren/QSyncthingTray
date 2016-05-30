@@ -16,7 +16,7 @@
  // License along with this library.
  ******************************************************************************/
 
-#include "startuptab.hpp"
+#include <qst/startuptab.hpp>
 #include <QFileDialog>
 
 namespace qst

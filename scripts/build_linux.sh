@@ -5,6 +5,6 @@ if [ -z "$QTDIR" ];
   exit 1; 
 fi
 
-$QTDIR/qmake -config release .
+$QTDIR/qmake -config release ../
 make
 

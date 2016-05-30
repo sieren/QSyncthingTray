@@ -21,7 +21,7 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QMessageBox>
-#include "window.h"
+#include <qst/window.h>
 
 
 int main(int argc, char *argv[])

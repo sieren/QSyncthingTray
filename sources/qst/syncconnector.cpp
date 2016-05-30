@@ -16,15 +16,15 @@
 // License along with this library.
 ******************************************************************************/
 
-#include "syncconnector.h"
+#include <qst/syncconnector.h>
 #include <QtGui>
 #include <QObject>
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <cmath>
 #include <iostream>
-#include "platforms.hpp"
-#include "utilities.hpp"
+#include <qst/platforms.hpp>
+#include <qst/utilities.hpp>
 
 namespace qst
 {

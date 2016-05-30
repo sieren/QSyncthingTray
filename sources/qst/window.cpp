@@ -16,7 +16,7 @@
 // License along with this library.
 ******************************************************************************/
 
-#include "window.h"
+#include <qst/window.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 

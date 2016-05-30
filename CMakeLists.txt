@@ -44,16 +44,52 @@ include_directories(${Qt5Widgets_INCLUDES})
 # We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
+#  ____  _       _    __
+# |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___
+# | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \
+# |  __/| | (_| | |_|  _| (_) | |  | | | | | |
+# |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
+#
+
+set(qst_platform_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/includes/platforms)
+set(qst_platform_SOURCES)
+if(APPLE)
+  set(qst_platform_SOURCES
+    ${qst_platform_SOURCES}
+    ${qst_platform_ROOT}/darwin/macUtils.hpp
+)
+elseif(WIN32)
+  set(qst_platform_SOURCES
+    ${qst_platform_SOURCES}
+    ${qst_platform_ROOT}/windows/winUtils.hpp
+)
+elseif(UNIX)
+  set(qst_platform_SOURCES
+    ${qst_platform_SOURCES}
+    ${qst_platform_ROOT}/linux/posixUtils.hpp
+)
+endif()
+set(qst_platform_SOURCES
+  ${qst_platform_SOURCES}
+)
+
+source_group("Platforms" ${qst_platform_SOURCES})
+
+#  ____       _   _
+# |  _ \ __ _| |_| |__  ___
+# | |_) / _` | __| '_ \/ __|
+# |  __/ (_| | |_| | | \__ \
+# |_|   \__,_|\__|_| |_|___/
+#
+
 # qt5_wrap_ui(UI_HEADERS mainwindow.ui)
-qt5_add_resources(UI_RESOURCES src/qsyncthing.qrc)
+qt5_add_resources(UI_RESOURCES resources/qsyncthing.qrc)
 
-add_subdirectory(src src-binary)
-set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src)
-file(GLOB_RECURSE FILES_WP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SRC_ROOT}/*.cpp ${SRC_ROOT}/*.h ${SRC_ROOT}/*.hpp)
+include_directories(includes)
+add_subdirectory(includes)
+add_subdirectory(sources)
 
-
-
-set(MACOSX_BUNDLE_ICON_FILE Syncthing.icns)
+set(MACOSX_BUNDLE_ICON_FILE resources/Syncthing.icns)
 SET_SOURCE_FILES_PROPERTIES(
   Syncthing.icns
   PROPERTIES
@@ -62,11 +98,12 @@ SET_SOURCE_FILES_PROPERTIES(
 
   if(APPLE)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-    add_executable(QSyncthingTray MACOSX_BUNDLE src/Syncthing.icns ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
+    add_executable(QSyncthingTray MACOSX_BUNDLE resources/Syncthing.icns ${UI_HEADERS} ${UI_RESOURCES} 
+    ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
   elseif(WIN32)
-    add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
+    add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
   elseif(UNIX)
-    add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${FILES_WP})
+    add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
   endif()
   
 if (APPLE)

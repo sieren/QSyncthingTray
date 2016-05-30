@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 
-#include "processmonitor.hpp"
+#include <qst/processmonitor.hpp>
 #include <QApplication>
 #include <QHeaderView>
 
