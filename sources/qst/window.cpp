@@ -568,21 +568,24 @@ void Window::quit()
 
 void Window::createFoldersMenu()
 {
-  std::list<QSharedPointer<QAction>> foldersActions;
+
   if (mCurrentFoldersLocations != mpSyncConnector->getFolders())
   {
+    mpFolderMenu->clear();
+    for (auto action : mCurrentFoldersActions)
+    {
+      action->deleteLater();
+    }
+    mCurrentFoldersActions.clear();
     mCurrentFoldersLocations = mpSyncConnector->getFolders();
     for (std::list<FolderNameFullPath>::iterator it=mCurrentFoldersLocations.begin();
       it != mCurrentFoldersLocations.end(); ++it)
     {
-      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
-        new QAction(it->first, this));
-      connect(aAction.data(), SIGNAL(triggered()), this, SLOT(folderClicked()));
-      foldersActions.emplace_back(aAction);
+      QAction *aAction = new QAction(it->first, this);
+      connect(aAction, SIGNAL(triggered()), this, SLOT(folderClicked()));
+      mCurrentFoldersActions.push_back(aAction);
     }
-    mCurrentFoldersActions = foldersActions;
-    // Update Menu
-    createTrayIcon();
+    mpFolderMenu->addActions(mCurrentFoldersActions);
   }
 }
 
@@ -594,22 +597,24 @@ void Window::createLastSyncedMenu()
   using namespace qst::utilities;
   if (mLastSyncedFiles.size() > 0)
   {
-    std::list<QSharedPointer<QAction>> syncedFilesActions;
+    mpLastSyncedMenu->clear();
+    for (auto action : mCurrentSyncedFilesActions)
+    {
+      action->deleteLater();
+    }
+    mCurrentSyncedFilesActions.clear();
     for (LastSyncedFileList::iterator it=mLastSyncedFiles.begin();
          it != mLastSyncedFiles.end(); ++it)
     {
-      QSharedPointer<QAction> aAction = QSharedPointer<QAction>(
-        new QAction(getCleanFileName(std::get<2>(*it)), this));
+      QAction *aAction = new QAction(getCleanFileName(std::get<2>(*it)), this);
 
       // 4th item of tuple is file-erased-bool
       aAction->setDisabled(std::get<3>(*it));
-      connect(aAction.data(), SIGNAL(triggered()), this, SLOT(syncedFileClicked()));
-      syncedFilesActions.emplace_back(aAction);
+      connect(aAction, SIGNAL(triggered()), this, SLOT(syncedFileClicked()));
+      mCurrentSyncedFilesActions.push_back(aAction);
     }
-    mCurrentSyncedFilesActions = syncedFilesActions;
+    mpLastSyncedMenu->addActions(mCurrentSyncedFilesActions);
   }
-  // Update Menu
-  createTrayIcon();
 }
 
 
@@ -617,9 +622,13 @@ void Window::createLastSyncedMenu()
 
 void Window::createTrayIcon()
 {
-  if (mpTrayIconMenu == nullptr)
+  if (mpTrayIconMenu == nullptr && mpFolderMenu == nullptr &&
+      mpLastSyncedMenu == nullptr)
   {
     mpTrayIconMenu = new QMenu(this);
+    mpFolderMenu = new QMenu(tr("Folders"), this);
+    mpLastSyncedMenu = new QMenu(tr("Last Synced"), this);
+    mpLastSyncedMenu->addAction(tr("None"));
   }
   mpTrayIconMenu->clear();
   mpTrayIconMenu->addAction(mpConnectedState);
@@ -630,26 +639,8 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addAction(mpPauseSyncthingAction);
   mpTrayIconMenu->addSeparator();
 
-  for (std::list<QSharedPointer<QAction>>::iterator it = mCurrentFoldersActions.begin();
-      it != mCurrentFoldersActions.end(); ++it)
-  {
-    QAction *aAction = it->data();
-    mpTrayIconMenu->addAction(std::move(aAction));
-  }
-
-  if (mCurrentSyncedFilesActions.size() > 0)
-  {
-    mpTrayIconMenu->addSeparator();
-    mpTrayIconMenu->addAction(new QAction(tr("Last Synced Files"), this));
-
-    for (std::list<QSharedPointer<QAction>>::iterator it =
-        mCurrentSyncedFilesActions.begin();
-      it != mCurrentSyncedFilesActions.end(); ++it)
-    {
-      QAction *aAction = it->data();
-      mpTrayIconMenu->addAction(aAction);
-    }
-  }
+  mpTrayIconMenu->addMenu(mpFolderMenu);
+  mpTrayIconMenu->addMenu(mpLastSyncedMenu);
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpShowWebViewAction);
   mpTrayIconMenu->addAction(mpPreferencesAction);
