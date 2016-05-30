@@ -32,6 +32,7 @@ SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
    mSyncThingUrl(url)
   ,mAuthInfo(authInfo)
   ,mContextMenu(this)
+  ,mSettings("sieren", "QSyncthingTray")
 {
   initWebView();
   setupMenu();
@@ -53,6 +54,7 @@ void SyncWebView::initWebView()
   settings->setAttribute(QWebEngineSettings::WebAttribute::AutoLoadImages,true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::LocalContentCanAccessRemoteUrls, true);
   mpPageView->load(mSyncThingUrl);
+  resize(mSettings.value("WebWindowSize").toSize());
   setPage(mpPageView.get());
 }
 
@@ -83,6 +85,7 @@ void SyncWebView::closeEvent(QCloseEvent *event)
 {
 UNUSED(event);
   qst::sysutils::SystemUtility().showDockIcon(false);
+  mSettings.setValue("WebWindowSize", size());
   emit close();
 }
 

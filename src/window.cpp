@@ -729,6 +729,7 @@ void Window::createDefaultSettings()
   checkAndSetValue("animationEnabled", false);
   checkAndSetValue("pollingInterval", 1.0);
   checkAndSetValue("apiKey", qst::utilities::readAPIKey());
+  checkAndSetValue("WebWindowSize", QSize(1280, 800));
 }
 
 

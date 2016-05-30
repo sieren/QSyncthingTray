@@ -56,6 +56,7 @@ private:
   Authentication mAuthInfo;
   
   QMenu mContextMenu;
+  QSettings mSettings;
   
   std::unique_ptr<QAction> shrtCut;
   std::unique_ptr<QAction> shrtPaste;
