@@ -167,6 +167,7 @@ void SyncConnector::checkConnectionHealth()
   QUrl lastSyncedListURL = mCurrentUrl;
   lastSyncedListURL.setPath(tr("/rest/stats/folder"));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
+  lastSyncedRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
 
