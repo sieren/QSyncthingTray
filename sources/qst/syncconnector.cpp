@@ -165,8 +165,11 @@ void SyncConnector::checkConnectionHealth()
   requestMap[reply] = kRequestMethod::connectionHealth;
 
   QUrl lastSyncedListURL = mCurrentUrl;
-  lastSyncedListURL.setPath(tr("/rest/stats/folder"));
+  lastSyncedListURL.setPath(tr("/rest/events"));
+  QUrlQuery query;
+  query.addQueryItem("since", QString(mLastRequestId));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
+  lastSyncedRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
   QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
 
@@ -282,7 +285,7 @@ void SyncConnector::lastSyncedFilesReceived(QNetworkReply *reply)
   {
     replyData = reply->readAll();
   }
-  mLastSyncedFiles = mAPIHandler->getLastSyncedFiles(replyData);
+  mLastSyncedFiles = mAPIHandler->getLastSyncedFiles(replyData, mLastRequestId);
   reply->deleteLater();
 }
 

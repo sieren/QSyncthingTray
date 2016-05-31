@@ -129,22 +129,31 @@ namespace api
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }
     
-    LastSyncedFileList getLastSyncedFiles(QByteArray reply)
+    LastSyncedFileList getLastSyncedFiles(QByteArray reply, int &lastKey)
     {
       QString m_DownloadedData = static_cast<QString>(reply);
       QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-      QJsonObject replyData = replyDoc.object();
+      QJsonArray replyData = replyDoc.array();
 
-      QStringList folderNames = replyData.keys();
-      for (QString folderName : folderNames)
+    //  QStringList folderNames = replyData.keys();
+      for (QJsonValue folderName : replyData)
       {
-        QJsonObject mainPathInfo = replyData[folderName].toObject();
-        QJsonObject fileInfo = mainPathInfo["lastFile"].toObject();
+        QJsonObject obj = folderName.toObject();
+        qDebug() << obj.value("id").toInt() << obj.value("type").toString();
+        lastKey = obj.value("id").toInt();
+        if (obj.value("type").toString() == "ItemFinished")
+        {
+          qDebug() << "Changed";
+        }
 
-        QString folderNameStr = folderName;
-        QString lastDate = fileInfo.find("at").value().toString();
-        QString fileName = fileInfo.find("filename").value().toString();
-        bool isDeleted = fileInfo.find("deleted").value().toBool();
+        QJsonObject data = obj.value("data").toObject();
+        qDebug() << data.keys();
+        QJsonArray fileNames = data.value("filenames").toArray();
+        qDebug() << fileNames.at(0).toString();
+        QString fileName = data.value("item").toString();
+        QString folderNameStr = data.value("folder").toString();
+        QString lastDate = data.value("time").toString();
+        bool isDeleted = data.value("action").toString() == "deleted" ? true : false;
         
         fileList.erase(std::remove_if(fileList.begin(), fileList.end(),
           [&](const DateFolderFile &item)

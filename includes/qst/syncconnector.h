@@ -124,7 +124,7 @@ namespace connector
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     std::thread mIoThread;
     QUrl mCurrentUrl;
-
+    int mLastRequestId = 0;
     //! Network access, new methods should be added here
     //! so the called function can dispatch accordingly
     QNetworkAccessManager network;
