@@ -16,7 +16,7 @@
  // License along with this library.
  ******************************************************************************/
 
-#include "startuptab.hpp"
+#include <qst/startuptab.hpp>
 #include <QFileDialog>
 
 namespace qst
@@ -152,7 +152,7 @@ void StartupTab::showFileBrowser()
 {
   QString filename = QFileDialog::getOpenFileName(this,
     tr("Open Syncthing"), "", tr(""));
-  if (filename.toStdString() != "")
+  if (!filename.isEmpty())
   {
     mCurrentSyncthingPath = filename.toStdString();
     mpFilePathLine->setText(filename);
@@ -253,7 +253,6 @@ void StartupTab::loadSettings()
 
 void StartupTab::pathEnterPressed()
 {
-  saveSettings();
   mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
   mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
   if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)

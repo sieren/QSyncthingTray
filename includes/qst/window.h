@@ -137,8 +137,10 @@ private:
     QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
 
-    std::list<QSharedPointer<QAction>> mCurrentFoldersActions;
-    std::list<QSharedPointer<QAction>> mCurrentSyncedFilesActions;
+    QList<QAction*> mCurrentFoldersActions;
+    QMenu *mpFolderMenu = nullptr;
+    QList<QAction*> mCurrentSyncedFilesActions;
+    QMenu *mpLastSyncedMenu = nullptr;
 
     std::list<FolderNameFullPath> mCurrentFoldersLocations;
     LastSyncedFileList mLastSyncedFiles;

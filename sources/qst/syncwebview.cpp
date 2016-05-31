@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 
-#include "syncwebview.h"
+#include <qst/syncwebview.h>
 #include <QContextMenuEvent>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
