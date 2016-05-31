@@ -29,7 +29,7 @@ target.path = binary/
 INSTALLS += target
 CONFIG += c++11
 macx {
-QMAKE_INFO_PLIST = Info.plist
+QMAKE_INFO_PLIST = resources/Info.plist
 LIBS += -framework ApplicationServices
 }
 #QMAKE_CXXFLAGS += /wd4996
