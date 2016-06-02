@@ -393,11 +393,6 @@ void SyncConnector::spawnSyncthingProcess(
       emit(onProcessSpawned(kSyncthingProcessState::ALREADY_RUNNING));
     }
   }
-  else
-  {
-    shutdownSyncthingProcess();
-    killProcesses();
-  }
 }
 
 
