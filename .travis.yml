@@ -7,15 +7,15 @@ matrix:
       compiler: clang
       osx_image: xcode7.1
 
-    - os: linux
-      env: CONFIG=Release
-      compiler: clang
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
-          packages: ['clang-3.6', 'p7zip-full']
-      env: COMPILER=clang++-3.6 WORDSIZE=64 CONFIGURATION=Debug
-  
+#    - os: linux
+#      env: CONFIG=Release
+#      compiler: clang
+#      addons:
+#        apt:
+#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
+#          packages: ['clang-3.6', 'p7zip-full']
+#      env: COMPILER=clang++-3.6 WORDSIZE=64 CONFIGURATION=Debug
+
 before_install:
   - CXX=$COMPILER
   - |
