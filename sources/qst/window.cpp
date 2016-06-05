@@ -664,6 +664,8 @@ void Window::saveSettings()
   mSettings.setValue("username", mpUserNameLineEdit->text());
   mSettings.setValue("userpassword", userPassword->text());
   mSettings.setValue("monochromeIcon", mIconMonochrome);
+  mNotificationsEnabled = mpNotificationsIconBox->checkState() ==
+  Qt::CheckState::Checked ? true : false;
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
   mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
