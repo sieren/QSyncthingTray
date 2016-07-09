@@ -5,7 +5,21 @@
 	<key>CFBundleIconFile</key>
 	<string>Syncthing.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string>com.sieren.qsyncthingtray</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleExecutable</key>
+	<string>QSyncthingTray</string>
+	<key>CFBundleName</key>
+	<string>QSyncthingTray</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.5.2</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>LSUIElement</key>
