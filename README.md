@@ -71,7 +71,7 @@ cmake ../ -G Xcode
 + Get the most recent [Qt Version](http://www.qt.io/download/)
 + Using `cmake`: 
 ```
-export QTDIR = ~/Qt/5.5/gcc_64/
+export QTDIR=~/Qt/5.5/gcc_64/
 mkdir build && cd build
 cmake ../ && make
 ```
