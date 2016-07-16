@@ -61,7 +61,8 @@ UNUSED(requestUrl);
 
 //------------------------------------------------------------------------------------//
 
-bool SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
+auto SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
+-> bool
 {
 UNUSED(certificateError);
   return true; // TODO: Figure out whether there is a syncthing CA so we can use the

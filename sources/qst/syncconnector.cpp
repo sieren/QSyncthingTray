@@ -442,7 +442,7 @@ void SyncConnector::shutdownINotifyProcess()
 
 //------------------------------------------------------------------------------------//
 
-std::list<FolderNameFullPath> SyncConnector::getFolders()
+auto SyncConnector::getFolders() -> std::list<FolderNameFullPath>
 {
   return mFolders;
 }
@@ -492,7 +492,7 @@ void SyncConnector::onSslError(QNetworkReply* reply)
 
 //------------------------------------------------------------------------------------//
 
-bool SyncConnector::checkIfFileExists(QString path)
+auto SyncConnector::checkIfFileExists(QString path) -> bool
 {
   QFileInfo checkFile(path);
   // check if file exists and if yes: Is it really a file and not a directory?
@@ -509,7 +509,7 @@ bool SyncConnector::checkIfFileExists(QString path)
 
 //------------------------------------------------------------------------------------//
 
-int SyncConnector::getCurrentVersion(QString reply)
+auto SyncConnector::getCurrentVersion(QString reply) -> int
 {
   std::string replyStd = reply.toStdString();
   std::string separator(".");
@@ -550,7 +550,7 @@ void SyncConnector::killProcesses()
 
 //------------------------------------------------------------------------------------//
 
-SyncWebView *SyncConnector::getWebView()
+auto SyncConnector::getWebView() -> SyncWebView*
 {
   return mpSyncWebView.get();
 }

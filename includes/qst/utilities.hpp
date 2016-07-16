@@ -39,7 +39,7 @@ namespace utilities
 {
  
 template <typename T>
-std::string to_string_with_precision(const T a_value, const int n = 6)
+auto to_string_with_precision(const T a_value, const int n = 6) -> std::string
 {
   std::ostringstream out;
   out << std::fixed << std::setprecision(n) << a_value;
@@ -47,7 +47,7 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 }
 
 
-inline std::vector<std::string> splitFilePathByDelimiter(std::string filePath)
+inline auto splitFilePathByDelimiter(std::string filePath) -> std::vector<std::string>
 {
   std::vector<std::string> substrings;
   std::istringstream fileNameStream;
@@ -61,7 +61,7 @@ inline std::vector<std::string> splitFilePathByDelimiter(std::string filePath)
   return substrings;
 }
 
-inline QString getCleanFileName(QString fileName)
+inline auto getCleanFileName(QString fileName) -> QString
 {
   std::string fileNameStd = fileName.toStdString();
   std::vector<std::string> substrings = splitFilePathByDelimiter(fileNameStd);
@@ -87,13 +87,13 @@ inline QString getCleanFileName(QString fileName)
   return QString(shortFile.c_str());
 }
   
-inline QString getFullCleanFileName(QString fileName)
+inline auto getFullCleanFileName(QString fileName) -> QString
 {
   std::vector<std::string> substrings = splitFilePathByDelimiter(fileName.toStdString());
   return QString(substrings.back().c_str());
 }
 
-inline std::string getPathToFileName(std::string fileName)
+inline auto getPathToFileName(std::string fileName) -> std::string
 {
   std::vector<std::string> substrings = splitFilePathByDelimiter(fileName);
   if (substrings.size() > 1)
@@ -114,7 +114,7 @@ inline std::string getPathToFileName(std::string fileName)
   }
 }
 
-inline QString readAPIKey()
+inline auto readAPIKey() -> QString
 {
   QXmlStreamReader xmlReader;
   QFile file(qst::sysutils::SystemUtility::getDefaultSyncthingConfig());

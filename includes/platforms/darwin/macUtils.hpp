@@ -37,7 +37,7 @@ namespace darwin
 
   struct MacUtils
   {
-    char getPlatformDelimiter()
+    auto getPlatformDelimiter() -> char
     {
       return '/';
     }
@@ -64,13 +64,13 @@ namespace darwin
     #pragma clang diagnostic pop
     }
 
-    std::string getSSLLibraryText()
+    auto getSSLLibraryText() -> std::string
     {
       return std::string("HTTPS is not supported on this platform. "
         "This can happen when OpenSSL is missing.");
     }
 
-    static bool isBinaryRunning(std::string binary)
+    static auto isBinaryRunning(std::string binary) -> bool
     {
       const char* someapp = binary.c_str();
       std::stringstream cmd;

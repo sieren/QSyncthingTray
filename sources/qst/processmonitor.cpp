@@ -70,7 +70,7 @@ ProcessMonitor::ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pS
 
 //------------------------------------------------------------------------------------//
 
-bool ProcessMonitor::isPausingProcessRunning()
+auto ProcessMonitor::isPausingProcessRunning() -> bool
 {
   for (auto process : mProcessList)
   {

@@ -52,7 +52,7 @@ namespace api
   {
     const int version = 0;
 
-    std::pair<QString, bool> getConnectionInfo(QNetworkReply *reply)
+    auto getConnectionInfo(QNetworkReply *reply) -> std::pair<QString, bool>
     {
       QString result;
       bool success = false;
@@ -78,7 +78,7 @@ namespace api
     
     // Consistent across V11/V12
     
-    std::list<FolderNameFullPath> getCurrentFolderList(QByteArray reply)
+    auto getCurrentFolderList(QByteArray reply) -> std::list<FolderNameFullPath>
     {
       std::list<std::pair<QString, QString>> result;
 
@@ -102,7 +102,7 @@ namespace api
     }
     
     // return current traffic in byte/s
-    std::pair<double, double> getCurrentTraffic(QByteArray reply)
+    auto getCurrentTraffic(QByteArray reply) -> std::pair<double, double>
     {
       using namespace std::chrono;
       auto now = system_clock::now();
@@ -129,7 +129,7 @@ namespace api
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }
     
-    LastSyncedFileList getLastSyncedFiles(QByteArray reply)
+    auto getLastSyncedFiles(QByteArray reply) -> LastSyncedFileList
     {
       QString m_DownloadedData = static_cast<QString>(reply);
       QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
@@ -187,7 +187,7 @@ namespace api
   {
     const int version = 11;
 
-    ConnectionHealthStatus getConnections(QByteArray reply) override
+    auto getConnections(QByteArray reply) -> ConnectionHealthStatus override
     {
       ConnectionHealthStatus result;
       result.emplace("state", "0");
@@ -216,7 +216,7 @@ namespace api
   {
     const int version = 12;
 
-    ConnectionHealthStatus getConnections(QByteArray reply) override
+    auto getConnections(QByteArray reply) -> ConnectionHealthStatus override
     {
       ConnectionHealthStatus result;
       result.emplace("state", "0");
@@ -255,7 +255,7 @@ namespace api
   };
 
   
-  inline APIHandlerBase *APIHandlerBase::getAPIForVersion(int version)
+  inline auto APIHandlerBase::getAPIForVersion(int version) -> APIHandlerBase*
   {
     switch (version)
     {
