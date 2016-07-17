@@ -25,7 +25,7 @@ using namespace qst::monitor;
 
 ProcessMonitor::ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector)
   : mpSyncConnector(pSyncConnector)
-  , mSettings("sieren", "QSyncthingTray")
+  , mSettings("QSyncthingTray", "qst")
 {
   loadSettings();
   QLabel *descriptionLabel = new QLabel;

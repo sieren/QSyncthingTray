@@ -26,7 +26,7 @@ namespace settings
 
 StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector) :
     mpSyncConnector(pSyncConnector)
-  , mSettings("sieren", "QSyncthingTray")
+  , mSettings("QSyncthingTray", "qst")
 {
   
   loadSettings();

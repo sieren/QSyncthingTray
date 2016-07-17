@@ -32,7 +32,7 @@ SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
    mSyncThingUrl(url)
   ,mAuthInfo(authInfo)
   ,mContextMenu(this)
-  ,mSettings("sieren", "QSyncthingTray")
+  ,mSettings("QSyncthingTray", "qst")
 {
   initWebView();
   setupMenu();
@@ -64,8 +64,7 @@ void SyncWebView::initWebView()
 void SyncWebView::pageHasLoaded(bool hasLoaded)
 {
   UNUSED(hasLoaded);
-  QSettings appSettings("sieren", "QSyncthingTray");
-  setZoomFactor(appSettings.value("WebZoomFactor").toDouble());
+  setZoomFactor(mSettings.value("WebZoomFactor").toDouble());
 }
 
 

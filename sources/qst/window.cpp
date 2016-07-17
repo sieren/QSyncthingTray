@@ -55,10 +55,9 @@ Window::Window()
   : mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
   , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector))
   , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
-  , mSettings("sieren", "QSyncthingTray")
+  , mSettings("QSyncthingTray", "qst")
   , mpAnimatedIconMovie(new QMovie())
 {
-    createDefaultSettings();
     loadSettings();
     createSettingsGroupBox();
 
@@ -696,10 +695,6 @@ void Window::showAuthentication(bool show)
 void Window::loadSettings()
 {
   mCurrentUrl.setUrl(mSettings.value("url").toString());
-  if (mCurrentUrl.toString().length() == 0)
-  {
-    mCurrentUrl.setUrl(tr("http://127.0.0.1:8384"));
-  }
   mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
   mCurrentUserName = mSettings.value("username").toString().toStdString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
@@ -708,34 +703,7 @@ void Window::loadSettings()
 }
 
 
-//------------------------------------------------------------------------------------//
 
-void Window::createDefaultSettings()
-{
-  checkAndSetValue("url", tr("http://127.0.0.1:8384"));
-  checkAndSetValue("monochromeIcon", false);
-  checkAndSetValue("WebZoomFactor", 1.0);
-  checkAndSetValue("ShutdownOnExit", true);
-  checkAndSetValue("notificationsEnabled", true);
-  checkAndSetValue("doSettingsExist", true);
-  checkAndSetValue("launchSyncthingAtStartup", false);
-  checkAndSetValue("animationEnabled", false);
-  checkAndSetValue("pollingInterval", 1.0);
-  checkAndSetValue("apiKey", qst::utilities::readAPIKey());
-  checkAndSetValue("WebWindowSize", QSize(1280, 800));
-}
-
-
-//------------------------------------------------------------------------------------//
-
-template <typename T>
-void Window::checkAndSetValue(QString key, T value)
-{
-  if (mSettings.value(key) == QVariant())
-  {
-    mSettings.setValue(key, value);
-  }
-}
 
 //------------------------------------------------------------------------------------//
 
