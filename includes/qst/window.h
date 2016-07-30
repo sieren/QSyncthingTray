@@ -23,6 +23,7 @@
 #include "processmonitor.hpp"
 #include "startuptab.hpp"
 #include "platforms.hpp"
+#include <qst/settingsmigrator.hpp>
 #include <QDoubleSpinBox>
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
@@ -86,6 +87,7 @@ private slots:
     void quit();
 
 private:
+    qst::settings::SettingsMigrator mSettingsMigrator;
     void createSettingsGroupBox();
     void createActions();
     void createTrayIcon();

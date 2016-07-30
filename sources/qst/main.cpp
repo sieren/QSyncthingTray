@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
 
     label->show();
     qDebug() << text;
-    QCoreApplication::setOrganizationName("sieren");
-    QCoreApplication::setOrganizationDomain("sieren.com");
+    QCoreApplication::setOrganizationName("qst");
+    QCoreApplication::setOrganizationDomain("qst.com");
     QCoreApplication::setApplicationName("QSyncthingTray");
     app.exec();
 }

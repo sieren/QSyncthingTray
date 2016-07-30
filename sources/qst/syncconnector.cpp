@@ -36,7 +36,7 @@ namespace connector
 //------------------------------------------------------------------------------------//
 SyncConnector::SyncConnector(QUrl url) :
     mCurrentUrl(url)
-  , mSettings("sieren", "QSyncthingTray")
+  , mSettings("QSyncthingTray", "qst")
 {
   onSettingsChanged();
   connect(
