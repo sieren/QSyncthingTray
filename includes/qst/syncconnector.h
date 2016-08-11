@@ -73,7 +73,7 @@ namespace connector
   public:
     explicit SyncConnector(QUrl url);
     virtual ~SyncConnector();
-    void setURL(QUrl url, std::string userName, std::string password,
+    void setURL(QUrl url, const QString& userName, const QString& password,
       ConnectionStateCallback setText);
     void showWebView();
     void spawnSyncthingProcess(
@@ -144,7 +144,7 @@ namespace connector
     LastSyncedFileList mLastSyncedFiles;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::unique_ptr<QTimer> mpConnectionAvailabilityTimer;
-    std::pair<std::string, std::string> mAuthentication;
+    std::pair<QString, QString> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
 
     std::string mSyncthingFilePath;

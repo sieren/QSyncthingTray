@@ -152,8 +152,8 @@ private:
     QUrl mCurrentUrl;
     int mLastIconIndex = -1;
 
-    std::string mCurrentUserName;
-    std::string mCurrentUserPassword;
+    QString mCurrentUserName;
+    QString mCurrentUserPassword;
     std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
     std::unique_ptr<qst::monitor::ProcessMonitor> mpProcessMonitor;
     std::unique_ptr<qst::settings::StartupTab> mpStartupTab;

@@ -54,8 +54,8 @@ void SyncWebPage::requireAuthentication(
   const QUrl &requestUrl, QAuthenticator *authenticator)
 {
 UNUSED(requestUrl);
-  authenticator->setUser(tr(mAuthInfo.first.c_str()));
-  authenticator->setPassword(tr(mAuthInfo.first.c_str()));
+  authenticator->setUser(mAuthInfo.first);
+  authenticator->setPassword(mAuthInfo.first);
 }
 
 

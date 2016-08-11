@@ -189,8 +189,8 @@ void Window::testURL()
     validateSSLSupport();
   }
   mCurrentUrl = QUrl(mpSyncthingUrlLineEdit->text());
-  mCurrentUserName = mpUserNameLineEdit->text().toStdString();
-  mCurrentUserPassword = userPassword->text().toStdString();
+  mCurrentUserName = mpUserNameLineEdit->text();
+  mCurrentUserPassword = userPassword->text();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
      mCurrentUserPassword, [&](ConnectionState result)
   {
@@ -449,8 +449,8 @@ void Window::createSettingsGroupBox()
   userNameLabel = new QLabel("User");
   userPasswordLabel = new QLabel("Password");
 
-  mpUserNameLineEdit = new QLineEdit(mCurrentUserName.c_str());
-  userPassword = new QLineEdit(mCurrentUserPassword.c_str());
+  mpUserNameLineEdit = new QLineEdit(mCurrentUserName);
+  userPassword = new QLineEdit(mCurrentUserPassword);
   userPassword->setEchoMode(QLineEdit::Password);
 
   mpAPIKeyLabel = new QLabel("API Key");
@@ -695,8 +695,12 @@ void Window::showAuthentication(bool show)
 void Window::loadSettings()
 {
   mCurrentUrl.setUrl(mSettings.value("url").toString());
-  mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
-  mCurrentUserName = mSettings.value("username").toString().toStdString();
+  if (mCurrentUrl.toString().length() == 0)
+  {
+    mCurrentUrl.setUrl(tr("http://127.0.0.1:8384"));
+  }
+  mCurrentUserPassword = mSettings.value("userpassword").toString();
+  mCurrentUserName = mSettings.value("username").toString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
   mShouldAnimateIcon = mSettings.value("animationEnabled").toBool();
