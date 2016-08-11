@@ -38,9 +38,7 @@ public:
   SyncWebView(QUrl url, Authentication authInfo);
   ~SyncWebView() = default;
 
-  void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
   void show();
-  virtual void contextMenuEvent(QContextMenuEvent * event) override;
   void updateConnection(QUrl url, Authentication authInfo);
 
 signals:
@@ -50,7 +48,9 @@ private:
   void initWebView();
   void setupMenu();
   void pageHasLoaded(bool hasLoaded);
-  
+  void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+  virtual void contextMenuEvent(QContextMenuEvent * event) override;
+
   std::unique_ptr<SyncWebPage> mpPageView;
   QUrl mSyncThingUrl;
   Authentication mAuthInfo;
