@@ -73,6 +73,7 @@ void SyncConnector::setURL(QUrl url, const QString& username, const
   testUrlAvailability();
 }
 
+
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::testUrlAvailability()
@@ -101,9 +102,9 @@ void SyncConnector::showWebView()
   {
     mpSyncWebView->close();
   }
-  mpSyncWebView = std::unique_ptr<SyncWebView>(new SyncWebView(mCurrentUrl,
+  mpSyncWebView = std::unique_ptr<webview::SyncWebView>(new webview::SyncWebView(mCurrentUrl,
      mAuthentication));
-  connect(mpSyncWebView.get(), &SyncWebView::close, this, &SyncConnector::webViewClosed);
+  connect(mpSyncWebView.get(), &webview::SyncWebView::close, this, &SyncConnector::webViewClosed);
   mpSyncWebView->show();
 }
 
@@ -112,7 +113,7 @@ void SyncConnector::showWebView()
 
 void SyncConnector::webViewClosed()
 {
-  disconnect(mpSyncWebView.get(), &SyncWebView::close,
+  disconnect(mpSyncWebView.get(), &webview::SyncWebView::close,
     this, &SyncConnector::webViewClosed);
   mpSyncWebView->deleteLater();
   mpSyncWebView.release();
@@ -551,7 +552,7 @@ void SyncConnector::killProcesses()
 
 //------------------------------------------------------------------------------------//
 
-auto SyncConnector::getWebView() -> SyncWebView*
+auto SyncConnector::getWebView() -> webview::SyncWebView *
 {
   return mpSyncWebView.get();
 }

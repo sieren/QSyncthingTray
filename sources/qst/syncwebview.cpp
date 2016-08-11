@@ -28,6 +28,14 @@
 #define UNUSED(x) (void)(x)
 //------------------------------------------------------------------------------------//
 
+namespace qst
+{
+namespace webview
+{
+
+//------------------------------------------------------------------------------------//
+
+
 SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
    mSyncThingUrl(url)
   ,mAuthInfo(authInfo)
@@ -156,6 +164,9 @@ void SyncWebView::addActions(F &&funct, T action)
   funct(action);
 }
 
+
+} // qst namespace
+} // webview namespace
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//

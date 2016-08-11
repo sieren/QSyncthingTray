@@ -86,7 +86,7 @@ namespace connector
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
     void onSettingsChanged();
-    SyncWebView *getWebView();
+    webview::SyncWebView *getWebView();
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
@@ -137,7 +137,7 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<SyncWebView> mpSyncWebView;
+    std::unique_ptr<webview::SyncWebView> mpSyncWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
