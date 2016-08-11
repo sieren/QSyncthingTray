@@ -8,11 +8,26 @@ set(qst_SOURCES
   ${qst_src_ROOT}/processmonitor.cpp
   ${qst_src_ROOT}/startuptab.cpp
   ${qst_src_ROOT}/syncconnector.cpp
-  ${qst_src_ROOT}/syncwebpage.cpp
-  ${qst_src_ROOT}/syncwebview.cpp
   ${qst_src_ROOT}/window.cpp
-  PARENT_SCOPE
 )
+
+if (${QST_BUILD_WEBKIT})
+  set(qst_SOURCES
+    ${qst_SOURCES}
+    ${qst_src_ROOT}/syncwebkitview.cpp
+  )
+else()
+  set(qst_SOURCES
+    ${qst_SOURCES}
+    ${qst_src_ROOT}/syncwebpage.cpp
+    ${qst_src_ROOT}/syncwebview.cpp
+  )
+endif()
+
+set(qst_SOURCES
+  ${qst_SOURCES}
+  PARENT_SCOPE
+  )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 source_group("Headers" FILES ${qst_HEADERS})

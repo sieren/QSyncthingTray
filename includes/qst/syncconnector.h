@@ -36,8 +36,8 @@
 #include <thread>
 #include <utility>
 #include "platforms.hpp"
-#include "syncwebview.h"
 #include "apihandler.hpp"
+#include <qst/webview.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -86,7 +86,7 @@ namespace connector
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
     void onSettingsChanged();
-    webview::SyncWebView *getWebView();
+    webview::WebView *getWebView();
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
@@ -137,7 +137,7 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<webview::SyncWebView> mpSyncWebView;
+    std::unique_ptr<webview::WebView> mpSyncWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;

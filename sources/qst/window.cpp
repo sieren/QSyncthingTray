@@ -16,6 +16,7 @@
 // License along with this library.
 ******************************************************************************/
 
+#include <qst/webview.h>
 #include <qst/window.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON

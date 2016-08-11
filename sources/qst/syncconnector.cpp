@@ -102,9 +102,9 @@ void SyncConnector::showWebView()
   {
     mpSyncWebView->close();
   }
-  mpSyncWebView = std::unique_ptr<webview::SyncWebView>(new webview::SyncWebView(mCurrentUrl,
+  mpSyncWebView = std::unique_ptr<webview::WebView>(new webview::WebView(mCurrentUrl,
      mAuthentication));
-  connect(mpSyncWebView.get(), &webview::SyncWebView::close, this, &SyncConnector::webViewClosed);
+  connect(mpSyncWebView.get(), &webview::WebView::close, this, &SyncConnector::webViewClosed);
   mpSyncWebView->show();
 }
 
@@ -113,7 +113,7 @@ void SyncConnector::showWebView()
 
 void SyncConnector::webViewClosed()
 {
-  disconnect(mpSyncWebView.get(), &webview::SyncWebView::close,
+  disconnect(mpSyncWebView.get(), &webview::WebView::close,
     this, &SyncConnector::webViewClosed);
   mpSyncWebView->deleteLater();
   mpSyncWebView.release();
@@ -552,7 +552,7 @@ void SyncConnector::killProcesses()
 
 //------------------------------------------------------------------------------------//
 
-auto SyncConnector::getWebView() -> webview::SyncWebView *
+auto SyncConnector::getWebView() -> webview::WebView *
 {
   return mpSyncWebView.get();
 }

@@ -16,17 +16,20 @@
  // License along with this library.
  ******************************************************************************/
 
-#ifndef SYNCWEBVIEW_H
-#define SYNCWEBVIEW_H
 
-#include <QDialog>
-#include <QMenu>
-#include <QObject>
-#include <QSettings>
-#include <QtWebEngineWidgets/QWebEngineView>
+#ifndef SYNCWEBKITVIEW_H
+#define SYNCWEBKITVIEW_H
+
+//------------------------------------------------------------------------------------//
+
+#include <QNetworkReply>
+#include <QWebView>
+
 #include <memory>
-#include "utilities.hpp"
-#include "syncwebpage.h"
+
+//------------------------------------------------------------------------------------//
+
+using Authentication = std::pair<QString, QString>;
 
 //------------------------------------------------------------------------------------//
 
@@ -37,56 +40,50 @@ namespace webview
 
 //------------------------------------------------------------------------------------//
 
-static const bool kWebViewSupportsZoom = true;
+class QWebViewClose;
 
 //------------------------------------------------------------------------------------//
 
-class SyncWebView : public QWebEngineView
+static const bool kWebViewSupportsZoom = false;
+
+//------------------------------------------------------------------------------------//
+
+class SyncWebKitView : public QWidget
 {
-  Q_OBJECT;
+  Q_OBJECT
+
 public:
-  SyncWebView() = default;
-  SyncWebView(QUrl url, Authentication authInfo);
-  ~SyncWebView() = default;
+  SyncWebKitView() = default;
+  SyncWebKitView(const QUrl &url, const Authentication &authInfo);
+  ~SyncWebKitView() = default;
 
   void show();
-  void updateConnection(QUrl url, Authentication authInfo);
-
+  void updateConnection(const QUrl& url, const Authentication& authInfo);
+  void setZoomFactor(const qreal factor) { }
+  
 signals:
   void close();
 
-private:
-  void initWebView();
-  void setupMenu();
-  void pageHasLoaded(bool hasLoaded);
-  void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
-  virtual void contextMenuEvent(QContextMenuEvent * event) override;
+private slots:
+  void onSslError(QNetworkReply* reply);
 
-  std::unique_ptr<SyncWebPage> mpPageView;
+private:
+  std::unique_ptr<QWebViewClose> mpWebView;
   QUrl mSyncThingUrl;
   Authentication mAuthInfo;
-  
-  QMenu mContextMenu;
-  QSettings mSettings;
-  
-  std::unique_ptr<QAction> shrtCut;
-  std::unique_ptr<QAction> shrtPaste;
-  std::unique_ptr<QAction> shrtCopy;
-  std::unique_ptr<QAction> slctAll;
-
-
-  template<typename F, typename T, typename... TArgs>
-  void addActions(F &&funct, T action, TArgs... Actions);
-  
-  template<typename F, typename T>
-  void addActions(F &&funct, T action);
 };
 
+class QWebViewClose : public QWebView
+{
+  Q_OBJECT;
+  public slots:
+  void closeEvent(QCloseEvent *event) override;
+};
 
-} // qst namespace
 } // webview namespace
+} // qst namespace
 
-#endif // SYNCWEBVIEW_H
+#endif
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
