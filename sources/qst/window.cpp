@@ -513,10 +513,18 @@ void Window::createSettingsGroupBox()
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
   appearanceLayout->addWidget(mpShouldAnimateIconBox, 2, 0);
-  appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
-  appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
-  appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
-  appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+  if (qst::webview::kWebViewSupportsZoom)
+  {
+    appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
+    appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
+    appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
+    appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+  }
+  else
+  {
+    appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 0);
+    appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 0, 1, 2);
+  }
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
