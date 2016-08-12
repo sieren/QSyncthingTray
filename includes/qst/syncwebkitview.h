@@ -16,58 +16,74 @@
  // License along with this library.
  ******************************************************************************/
 
-#include <iostream>
-#include <qst/syncwebpage.h>
+
+#ifndef SYNCWEBKITVIEW_H
+#define SYNCWEBKITVIEW_H
 
 //------------------------------------------------------------------------------------//
-#define UNUSED(x) (void)(x)
+
+#include <QNetworkReply>
+#include <QWebView>
+
+#include <memory>
+
 //------------------------------------------------------------------------------------//
 
-SyncWebPage::SyncWebPage()
+using Authentication = std::pair<QString, QString>;
+
+//------------------------------------------------------------------------------------//
+
+namespace qst
 {
-  connect(this, &QWebEnginePage::authenticationRequired,
-    this, &SyncWebPage::requireAuthentication);
-}
-
+namespace webview
+{
 
 //------------------------------------------------------------------------------------//
 
-SyncWebPage::~SyncWebPage()
-{
-  disconnect(this, &QWebEnginePage::authenticationRequired,
-          this, &SyncWebPage::requireAuthentication);
-}
-
+class QWebViewClose;
 
 //------------------------------------------------------------------------------------//
 
-void SyncWebPage::updateConnInfo(QUrl url, Authentication authInfo)
-{
-  mAuthInfo = authInfo;
-  setUrl(url);
-}
-
+static const bool kWebViewSupportsZoom = false;
 
 //------------------------------------------------------------------------------------//
 
-void SyncWebPage::requireAuthentication(
-  const QUrl &requestUrl, QAuthenticator *authenticator)
+class SyncWebKitView : public QWidget
 {
-UNUSED(requestUrl);
-  authenticator->setUser(mAuthInfo.first);
-  authenticator->setPassword(mAuthInfo.first);
-}
+  Q_OBJECT
 
+public:
+  SyncWebKitView() = default;
+  SyncWebKitView(const QUrl &url, const Authentication &authInfo);
+  ~SyncWebKitView() = default;
 
-//------------------------------------------------------------------------------------//
+  void show();
+  void updateConnection(const QUrl& url, const Authentication& authInfo);
+  void setZoomFactor(const qreal factor) { }
+  
+signals:
+  void close();
 
-auto SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
--> bool
+private slots:
+  void onSslError(QNetworkReply* reply);
+
+private:
+  std::unique_ptr<QWebViewClose> mpWebView;
+  QUrl mSyncThingUrl;
+  Authentication mAuthInfo;
+};
+
+class QWebViewClose : public QWebView
 {
-UNUSED(certificateError);
-  return true; // TODO: Figure out whether there is a syncthing CA so we can use the
-               // real certificate
-}
+  Q_OBJECT;
+  public slots:
+  void closeEvent(QCloseEvent *event) override;
+};
+
+} // webview namespace
+} // qst namespace
+
+#endif
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//

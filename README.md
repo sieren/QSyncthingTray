@@ -59,6 +59,7 @@ If you want to use HTTPS to connect to Syncthing on Windows, please download and
 
 ## Build & Run
 + Get a recent version of Qt (5.5+)  
++ QSyncthingTray can be either built with QWebEngine or QtWebView. By default it is built with QWebEngine. To enable QWebView pass `-DQST_BUILD_WEBKIT=1` as an argument to `cmake`.  
 
 ### Mac & Windows
 + Use either QtCreator or create an XCode or Visual Studio Project with CMake or QMake.  

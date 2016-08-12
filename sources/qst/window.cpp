@@ -16,6 +16,7 @@
 // License along with this library.
 ******************************************************************************/
 
+#include <qst/webview.h>
 #include <qst/window.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -189,8 +190,8 @@ void Window::testURL()
     validateSSLSupport();
   }
   mCurrentUrl = QUrl(mpSyncthingUrlLineEdit->text());
-  mCurrentUserName = mpUserNameLineEdit->text().toStdString();
-  mCurrentUserPassword = userPassword->text().toStdString();
+  mCurrentUserName = mpUserNameLineEdit->text();
+  mCurrentUserPassword = userPassword->text();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
      mCurrentUserPassword, [&](ConnectionState result)
   {
@@ -449,8 +450,8 @@ void Window::createSettingsGroupBox()
   userNameLabel = new QLabel("User");
   userPasswordLabel = new QLabel("Password");
 
-  mpUserNameLineEdit = new QLineEdit(mCurrentUserName.c_str());
-  userPassword = new QLineEdit(mCurrentUserPassword.c_str());
+  mpUserNameLineEdit = new QLineEdit(mCurrentUserName);
+  userPassword = new QLineEdit(mCurrentUserPassword);
   userPassword->setEchoMode(QLineEdit::Password);
 
   mpAPIKeyLabel = new QLabel("API Key");
@@ -512,10 +513,18 @@ void Window::createSettingsGroupBox()
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
   appearanceLayout->addWidget(mpShouldAnimateIconBox, 2, 0);
-  appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
-  appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
-  appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
-  appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+  if (qst::webview::kWebViewSupportsZoom)
+  {
+    appearanceLayout->addWidget(mpWebViewZoomFactorLabel, 3, 0);
+    appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
+    appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
+    appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+  }
+  else
+  {
+    appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 0);
+    appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 0, 1, 2);
+  }
   mpAppearanceGroupBox->setLayout(appearanceLayout);
   mpAppearanceGroupBox->setMinimumWidth(400);
   mpAppearanceGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -695,8 +704,12 @@ void Window::showAuthentication(bool show)
 void Window::loadSettings()
 {
   mCurrentUrl.setUrl(mSettings.value("url").toString());
-  mCurrentUserPassword = mSettings.value("userpassword").toString().toStdString();
-  mCurrentUserName = mSettings.value("username").toString().toStdString();
+  if (mCurrentUrl.toString().length() == 0)
+  {
+    mCurrentUrl.setUrl(tr("http://127.0.0.1:8384"));
+  }
+  mCurrentUserPassword = mSettings.value("userpassword").toString();
+  mCurrentUserName = mSettings.value("username").toString();
   mIconMonochrome = mSettings.value("monochromeIcon").toBool();
   mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
   mShouldAnimateIcon = mSettings.value("animationEnabled").toBool();

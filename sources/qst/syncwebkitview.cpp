@@ -17,59 +17,75 @@
  ******************************************************************************/
 
 #include <iostream>
-#include <qst/syncwebpage.h>
+#include <QStyleFactory>
+#include <qst/platforms.hpp>
+#include <qst/syncwebkitview.h>
 
 //------------------------------------------------------------------------------------//
 #define UNUSED(x) (void)(x)
 //------------------------------------------------------------------------------------//
 
-SyncWebPage::SyncWebPage()
+namespace qst
 {
-  connect(this, &QWebEnginePage::authenticationRequired,
-    this, &SyncWebPage::requireAuthentication);
+namespace webview
+{
+
+//------------------------------------------------------------------------------------//
+
+SyncWebKitView::SyncWebKitView(const QUrl& url, const Authentication &authInfo)
+  : mSyncThingUrl(url)
+  , mAuthInfo(authInfo)
+{
+  
 }
 
 
 //------------------------------------------------------------------------------------//
 
-SyncWebPage::~SyncWebPage()
+void SyncWebKitView::show()
 {
-  disconnect(this, &QWebEnginePage::authenticationRequired,
-          this, &SyncWebPage::requireAuthentication);
+  if (mpWebView != nullptr)
+  {
+    mpWebView->close();
+  }
+  std::unique_ptr<QWebViewClose> pWeb(new QWebViewClose());
+  mpWebView = std::move(pWeb);
+  mpWebView->show();
+  connect(mpWebView->page()->networkAccessManager(),
+          SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
+          this,
+          SLOT(onSslError(QNetworkReply*)));
+  mpWebView->load(mSyncThingUrl);
+  mpWebView->setStyle(QStyleFactory::create("Fusion"));
+  qst::sysutils::SystemUtility().showDockIcon(true);
+  mpWebView->raise();
 }
 
 
 //------------------------------------------------------------------------------------//
 
-void SyncWebPage::updateConnInfo(QUrl url, Authentication authInfo)
+void SyncWebKitView::onSslError(QNetworkReply* reply)
 {
+  reply->ignoreSslErrors();
+}
+
+//------------------------------------------------------------------------------------//
+
+void SyncWebKitView::updateConnection(const QUrl &url, const Authentication &authInfo)
+{
+  mSyncThingUrl = url;
   mAuthInfo = authInfo;
-  setUrl(url);
 }
-
 
 //------------------------------------------------------------------------------------//
 
-void SyncWebPage::requireAuthentication(
-  const QUrl &requestUrl, QAuthenticator *authenticator)
+void QWebViewClose::closeEvent(QCloseEvent *event)
 {
-UNUSED(requestUrl);
-  authenticator->setUser(mAuthInfo.first);
-  authenticator->setPassword(mAuthInfo.first);
+  UNUSED(event);
+  qst::sysutils::SystemUtility().showDockIcon(false);
+  close();
 }
 
 
-//------------------------------------------------------------------------------------//
-
-auto SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
--> bool
-{
-UNUSED(certificateError);
-  return true; // TODO: Figure out whether there is a syncthing CA so we can use the
-               // real certificate
-}
-
-//------------------------------------------------------------------------------------//
-//------------------------------------------------------------------------------------//
-// EOF
-//------------------------------------------------------------------------------------//
+} // webview namespace
+} // qst namespace

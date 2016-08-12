@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project (QSyncthingTray)
 
 if ("$ENV{QTDIR}" STREQUAL "")
-  MESSAGE(FATAL_ERROR "QTDIR not specified. Please export QTDIR 
+  MESSAGE(WARNING "QTDIR not specified. Please export QTDIR
   e.g. export QTDIR = ~/Qt/5.5/gcc_64/")
 endif ("$ENV{QTDIR}" STREQUAL "")
 
@@ -34,7 +34,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network)
-find_package(Qt5Declarative)
 
 add_definitions(-DGLEW_STATIC)
 # The Qt5Widgets_INCLUDES also includes the include directories for
@@ -105,7 +104,7 @@ SET_SOURCE_FILES_PROPERTIES(
   elseif(UNIX)
     add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
   endif()
-  
+
 if (APPLE)
   target_link_libraries(
       QSyncthingTray
@@ -124,5 +123,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     get_target_property(QtCore_location Qt5::Core LOCATION)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
+if (${QST_BUILD_WEBKIT})
+  qt5_use_modules(QSyncthingTray Widgets Network WebKitWidgets)
+  target_compile_definitions(QSyncthingTray PRIVATE BUILD_WEBKIT=1)
+else()
+  qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
+endif()
 

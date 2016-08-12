@@ -36,8 +36,8 @@
 #include <thread>
 #include <utility>
 #include "platforms.hpp"
-#include "syncwebview.h"
 #include "apihandler.hpp"
+#include <qst/webview.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -73,7 +73,7 @@ namespace connector
   public:
     explicit SyncConnector(QUrl url);
     virtual ~SyncConnector();
-    void setURL(QUrl url, std::string userName, std::string password,
+    void setURL(QUrl url, const QString& userName, const QString& password,
       ConnectionStateCallback setText);
     void showWebView();
     void spawnSyncthingProcess(
@@ -86,7 +86,7 @@ namespace connector
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
     void onSettingsChanged();
-    SyncWebView *getWebView();
+    webview::WebView *getWebView();
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
@@ -137,14 +137,14 @@ namespace connector
     };
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
-    std::unique_ptr<SyncWebView> mpSyncWebView;
+    std::unique_ptr<webview::WebView> mpSyncWebView;
     std::unique_ptr<QProcess> mpSyncProcess;
     std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
     LastSyncedFileList mLastSyncedFiles;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::unique_ptr<QTimer> mpConnectionAvailabilityTimer;
-    std::pair<std::string, std::string> mAuthentication;
+    std::pair<QString, QString> mAuthentication;
     std::shared_ptr<SyncConnector> mpSyncConnector;
 
     std::string mSyncthingFilePath;

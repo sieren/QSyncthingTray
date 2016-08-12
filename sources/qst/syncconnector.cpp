@@ -59,18 +59,20 @@ SyncConnector::SyncConnector(QUrl url) :
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::setURL(QUrl url, std::string username, std::string password,
-  ConnectionStateCallback setText)
+void SyncConnector::setURL(QUrl url, const QString& username, const
+  QString& password, ConnectionStateCallback setText)
 {
-  if (username.empty() == false && password.empty() == false) {
+  if (username.isEmpty() == false && password.isEmpty() == false)
+  {
     mAuthentication = std::make_pair(username, password);
-    url.setUserName(mAuthentication.first.c_str());
-    url.setPassword(mAuthentication.second.c_str());
+    url.setUserName(mAuthentication.first);
+    url.setPassword(mAuthentication.second);
   }
   mCurrentUrl = url;
   mConnectionStateCallback = setText;
   testUrlAvailability();
 }
+
 
 //------------------------------------------------------------------------------------//
 
@@ -100,9 +102,9 @@ void SyncConnector::showWebView()
   {
     mpSyncWebView->close();
   }
-  mpSyncWebView = std::unique_ptr<SyncWebView>(new SyncWebView(mCurrentUrl,
+  mpSyncWebView = std::unique_ptr<webview::WebView>(new webview::WebView(mCurrentUrl,
      mAuthentication));
-  connect(mpSyncWebView.get(), &SyncWebView::close, this, &SyncConnector::webViewClosed);
+  connect(mpSyncWebView.get(), &webview::WebView::close, this, &SyncConnector::webViewClosed);
   mpSyncWebView->show();
 }
 
@@ -111,7 +113,7 @@ void SyncConnector::showWebView()
 
 void SyncConnector::webViewClosed()
 {
-  disconnect(mpSyncWebView.get(), &SyncWebView::close,
+  disconnect(mpSyncWebView.get(), &webview::WebView::close,
     this, &SyncConnector::webViewClosed);
   mpSyncWebView->deleteLater();
   mpSyncWebView.release();
@@ -310,8 +312,8 @@ void SyncConnector::pauseSyncthing(bool paused)
   {
     spawnSyncthingProcess(mSyncthingFilePath, true);
     checkAndSpawnINotifyProcess(false);
-    setURL(mCurrentUrl, mCurrentUrl.userName().toStdString(),
-     mCurrentUrl.password().toStdString(), mConnectionStateCallback);
+    setURL(mCurrentUrl, mCurrentUrl.userName(),
+     mCurrentUrl.password(), mConnectionStateCallback);
   }
 }
 
@@ -550,7 +552,7 @@ void SyncConnector::killProcesses()
 
 //------------------------------------------------------------------------------------//
 
-auto SyncConnector::getWebView() -> SyncWebView*
+auto SyncConnector::getWebView() -> webview::WebView *
 {
   return mpSyncWebView.get();
 }

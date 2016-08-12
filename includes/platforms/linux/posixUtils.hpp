@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <memory>
 #include <QProcessEnvironment>
 #include <QString>
 #define UNUSED(x) (void)(x)
