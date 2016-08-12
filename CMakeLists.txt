@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project (QSyncthingTray)
 
 if ("$ENV{QTDIR}" STREQUAL "")
-  MESSAGE(FATAL_ERROR "QTDIR not specified. Please export QTDIR 
+  MESSAGE(WARNING "QTDIR not specified. Please export QTDIR
   e.g. export QTDIR = ~/Qt/5.5/gcc_64/")
 endif ("$ENV{QTDIR}" STREQUAL "")
 
