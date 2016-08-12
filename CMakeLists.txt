@@ -34,7 +34,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network)
-find_package(Qt5Declarative)
 
 add_definitions(-DGLEW_STATIC)
 # The Qt5Widgets_INCLUDES also includes the include directories for
