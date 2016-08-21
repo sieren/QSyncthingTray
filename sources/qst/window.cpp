@@ -41,7 +41,7 @@
 
 
 //! Layout
-#define currentVersion "v0.5.1"
+#define currentVersion "v0.5.2"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
