@@ -98,10 +98,12 @@ void SyncConnector::testUrlAvailability()
 
 void SyncConnector::showWebView()
 {
-  if (mpSyncWebView != nullptr)
+  if (mpSyncWebView != nullptr && mpSyncWebView->isVisible())
   {
-    mpSyncWebView->close();
+    mpSyncWebView->raise();
+    return;
   }
+
   mpSyncWebView = std::unique_ptr<webview::WebView>(new webview::WebView(mCurrentUrl,
      mAuthentication));
   connect(mpSyncWebView.get(), &webview::WebView::close, this, &SyncConnector::webViewClosed);
