@@ -32,7 +32,7 @@ namespace sysutils
 {
 #ifdef _WIN32
 using SystemUtility = platforms::windows::WinUtils;
-#elif defined(__linux__)
+#elif defined(__linux__) || defined (__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__)
 using SystemUtility = platforms::gnu_linux::PosixUtils;
 #elif (defined(__APPLE__) && defined(__MACH__))
 using SystemUtility = platforms::darwin::MacUtils;
