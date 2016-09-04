@@ -23,6 +23,8 @@
 #include <QString>
 #include <QWindow>
 
+#include <qst/platforms.hpp>
+
 namespace qst
 {
 namespace settings
@@ -82,6 +84,10 @@ void createDefaultSettings()
   checkAndSetValue("pollingInterval", 1.0);
   checkAndSetValue("apiKey", qst::utilities::readAPIKey());
   checkAndSetValue("WebWindowSize", QSize(1280, 800));
+  checkAndSetValue("syncthingpath",
+    sysutils::SystemUtility().getDefaultSyncthingLocation());
+  checkAndSetValue("inotifypath",
+    sysutils::SystemUtility().getDefaultSyncthingINotifyLocation());
 }
 
 

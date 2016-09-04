@@ -85,6 +85,17 @@ namespace windows
       return{path};
     }
 
+    // No default path on Windows
+    static auto getDefaultSyncthingLocation() -> QString
+    {
+      return{""};
+    }
+    
+    static auto getDefaultSyncthingINotifyLocation() -> QString
+    {
+      return{""};
+    }
+
     template<typename U, typename T>
     void doubleClicked(U&& func, T ref)
     {
