@@ -96,6 +96,16 @@ namespace darwin
       return{path};
     }
 
+    static auto getDefaultSyncthingLocation() -> QString
+    {
+      return{"/usr/local/bin/syncthing"};
+    }
+
+    static auto getDefaultSyncthingINotifyLocation() -> QString
+    {
+      return{"/usr/local/bin/syncthing-inotify"};
+    }
+
     template<typename U, typename T>
     void doubleClicked(U&& func, T ref)
     {
