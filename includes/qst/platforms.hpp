@@ -20,7 +20,7 @@
 
 #ifdef _WIN32
 #include "platforms/windows/winUtils.hpp"
-#elif defined(__linux__)
+#elif defined(__linux__) || defined (__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__)
 #include "platforms/linux/posixUtils.hpp"
 #elif (defined(__APPLE__) && defined(__MACH__))
 #include "platforms/darwin/macUtils.hpp"

@@ -244,7 +244,8 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
     mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic"));
     mpTrafficOutAction->setVisible(true);
     mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic"));
-    
+    mpShowWebViewAction->setDisabled(false);
+
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
     {
       mLastSyncedFiles = mpSyncConnector->getLastSyncedFiles();
@@ -263,6 +264,7 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
     mpTrafficOutAction->setVisible(false);
     mpCurrentTrafficAction->setVisible(false);
     mpNumberOfConnectionsAction->setVisible(false);
+    mpShowWebViewAction->setDisabled(true);
     setIcon(1);
   }
   try
