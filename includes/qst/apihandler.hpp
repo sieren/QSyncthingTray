@@ -46,31 +46,12 @@ namespace qst
 {
 namespace api
 {
-  struct V12API;
 
   struct APIHandlerBase
   {
     const int version = 0;
 
-    auto getConnectionInfo(QNetworkReply *reply) -> std::pair<QString, bool>
-    {
-      QString result;
-      bool success = false;
-
-      if (reply->error() != QNetworkReply::NoError)
-      {
-        result = reply->errorString();
-      }
-      else
-      {
-        QString m_DownloadedData = static_cast<QString>(reply->readAll());
-        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-        QJsonObject replyData = replyDoc.object();
-        result = replyData.value("version").toString();
-        success = true;
-      }
-      return {result, success};
-    }
+    APIHandlerBase() = default;
 
     virtual ConnectionHealthStatus getConnections(QByteArray reply) = 0;
 
@@ -255,23 +236,48 @@ namespace api
   };
 
 
-  inline auto APIHandlerBase::getAPIForVersion(int version) -> APIHandlerBase*
+  template<typename NetReply>
+  struct APIHandlerFactory
   {
-    switch (version)
+    inline auto getAPIForVersion(int version) -> APIHandlerBase*
     {
-      case 13:
-        return new V13API;
-        break;
-      case 12:
-        return new V12API;
-        break;
-      case 11:
-        return new V11API;
-        break;
-      default:
-        return new V13API;
+      switch (version)
+      {
+        case 13:
+          return new V13API;
+          break;
+        case 12:
+          return new V12API;
+          break;
+        case 11:
+          return new V11API;
+          break;
+        default:
+          return new V13API;
+      }
     }
-  }
+
+
+    auto getConnectionVersionInfo(NetReply *reply) -> std::pair<QString, bool>
+    {
+      QString result;
+      bool success = false;
+      
+      if (reply->error() != NetReply::NoError)
+      {
+        result = reply->errorString();
+      }
+      else
+      {
+        QString m_DownloadedData = static_cast<QString>(reply->readAll());
+        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
+        QJsonObject replyData = replyDoc.object();
+        result = replyData.value("version").toString();
+        success = true;
+      }
+      return {result, success};
+    }
+  };
 
 } // api
 } // qst
