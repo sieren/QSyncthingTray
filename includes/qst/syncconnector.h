@@ -145,7 +145,6 @@ namespace connector
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
     std::unique_ptr<QTimer> mpConnectionAvailabilityTimer;
     std::pair<QString, QString> mAuthentication;
-    std::shared_ptr<SyncConnector> mpSyncConnector;
 
     std::string mSyncthingFilePath;
     QString mINotifyFilePath;
