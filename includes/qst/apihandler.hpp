@@ -46,38 +46,19 @@ namespace qst
 {
 namespace api
 {
-  struct V12API;
 
   struct APIHandlerBase
   {
     const int version = 0;
 
-    auto getConnectionInfo(QNetworkReply *reply) -> std::pair<QString, bool>
-    {
-      QString result;
-      bool success = false;
-      
-      if (reply->error() != QNetworkReply::NoError)
-      {
-        result = reply->errorString();
-      }
-      else
-      {
-        QString m_DownloadedData = static_cast<QString>(reply->readAll());
-        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
-        QJsonObject replyData = replyDoc.object();
-        result = replyData.value("version").toString();
-        success = true;
-      }
-      return {result, success};
-    }
-    
+    APIHandlerBase() = default;
+
     virtual ConnectionHealthStatus getConnections(QByteArray reply) = 0;
 
     APIHandlerBase *getAPIForVersion(int version);
-    
+
     // Consistent across V11/V12
-    
+
     auto getCurrentFolderList(QByteArray reply) -> std::list<FolderNameFullPath>
     {
       std::list<std::pair<QString, QString>> result;
@@ -100,7 +81,7 @@ namespace api
       }
       return result;
     }
-    
+
     // return current traffic in byte/s
     auto getCurrentTraffic(QByteArray reply) -> std::pair<double, double>
     {
@@ -128,7 +109,7 @@ namespace api
       }
       return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
     }
-    
+
     auto getLastSyncedFiles(QByteArray reply) -> LastSyncedFileList
     {
       QString m_DownloadedData = static_cast<QString>(reply);
@@ -145,7 +126,7 @@ namespace api
         QString lastDate = fileInfo.find("at").value().toString();
         QString fileName = fileInfo.find("filename").value().toString();
         bool isDeleted = fileInfo.find("deleted").value().toBool();
-        
+
         fileList.erase(std::remove_if(fileList.begin(), fileList.end(),
           [&](const DateFolderFile &item)
           {
@@ -158,13 +139,13 @@ namespace api
           fileList.emplace_back(item);
         }
       }
-      
+
       std::sort(fileList.begin(), fileList.end(), [](
         const DateFolderFile &rhs, const DateFolderFile &lhs)
         {
           return std::get<0>(rhs) > std::get<0>(lhs);
         });
-      
+
       if (fileList.size() < kInternalChangedFilesCache)
       {
         fileList.shrink_to_fit();
@@ -179,9 +160,9 @@ namespace api
     std::tuple<float, float, std::chrono::time_point<std::chrono::system_clock>> oldTraffic;
     LastSyncedFileList fileList;
   };
-  
+
   // API Specializations
-  
+
   // Syncthing API V11 Specializations
   struct V11API : public APIHandlerBase
   {
@@ -254,25 +235,51 @@ namespace api
     using V12API::getConnections;
   };
 
-  
-  inline auto APIHandlerBase::getAPIForVersion(int version) -> APIHandlerBase*
+
+  template<typename NetReply>
+  struct APIHandlerFactory
   {
-    switch (version)
+    inline auto getAPIForVersion(int version) -> APIHandlerBase*
     {
-      case 13:
-        return new V13API;
-        break;
-      case 12:
-        return new V12API;
-        break;
-      case 11:
-        return new V11API;
-        break;
-      default:
-        return new V13API;
+      switch (version)
+      {
+        case 13:
+          return new V13API;
+          break;
+        case 12:
+          return new V12API;
+          break;
+        case 11:
+          return new V11API;
+          break;
+        default:
+          return new V13API;
+      }
     }
-  }
-  
+
+
+    auto getConnectionVersionInfo(NetReply *reply) -> std::pair<QString, bool>
+    {
+      QString result;
+      bool success = false;
+      
+      if (reply->error() != NetReply::NoError)
+      {
+        result = reply->errorString();
+      }
+      else
+      {
+        QString m_DownloadedData = static_cast<QString>(reply->readAll());
+        QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
+        QJsonObject replyData = replyDoc.object();
+        result = replyData.value("version").toString();
+        success = true;
+      }
+      return {result, success};
+    }
+  };
+
 } // api
 } // qst
 #endif /* apihandler_h */
+

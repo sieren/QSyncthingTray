@@ -136,13 +136,14 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   else
   {
     ConnectionState connectionInfo =
-      api::V12API().getConnectionInfo(reply);
+      api::APIHandlerFactory<QNetworkReply>().getConnectionVersionInfo(reply);
 
     int versionNumber = getCurrentVersion(connectionInfo.first);
     if (mAPIHandler == nullptr || mAPIHandler->version != versionNumber)
     {
       mAPIHandler =
-        std::unique_ptr<api::APIHandlerBase>(api::V12API().getAPIForVersion(versionNumber));
+        std::unique_ptr<api::APIHandlerBase>(
+          api::APIHandlerFactory<QNetworkReply>().getAPIForVersion(versionNumber));
     }
     if (mConnectionStateCallback != nullptr)
     {
