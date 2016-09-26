@@ -461,7 +461,8 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
   size_t foundHttp = mCurrentUrl.toString().toStdString().find("http:");
   QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-  if (statusCode.toInt() == 302) // we're getting redirected, find out if to HTTPS
+  // we're getting redirected, find out if to HTTPS
+  if (statusCode.toInt() == 302 || statusCode.toInt() == 307)
   {
     QVariant url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     size_t found = url.toString().toStdString().find("https:");
@@ -477,6 +478,7 @@ void SyncConnector::ignoreSslErrors(QNetworkReply *reply)
       msgBox->setAttribute(Qt::WA_DeleteOnClose);
       msgBox->show();
       msgBox->setFocus();
+      mCurrentUrl = QUrl(mCurrentUrl.toString().replace(tr("http"), tr("https")));
       didShowSSLWarning = true;
     }
   }

@@ -51,9 +51,8 @@ void SyncWebPage::updateConnInfo(QUrl url, Authentication authInfo)
 //------------------------------------------------------------------------------------//
 
 void SyncWebPage::requireAuthentication(
-  const QUrl &requestUrl, QAuthenticator *authenticator)
+  const QUrl &, QAuthenticator *authenticator)
 {
-UNUSED(requestUrl);
   authenticator->setUser(mAuthInfo.first);
   authenticator->setPassword(mAuthInfo.first);
 }
@@ -61,10 +60,9 @@ UNUSED(requestUrl);
 
 //------------------------------------------------------------------------------------//
 
-auto SyncWebPage::certificateError(const QWebEngineCertificateError &certificateError)
--> bool
+auto SyncWebPage::certificateError(
+  const QWebEngineCertificateError &/*certificateError*/) -> bool
 {
-UNUSED(certificateError);
   return true; // TODO: Figure out whether there is a syncthing CA so we can use the
                // real certificate
 }
