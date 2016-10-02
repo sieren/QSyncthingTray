@@ -85,7 +85,7 @@ private slots:
     void onUpdateIcon();
     void pauseSyncthingClicked(int state);
     void quit();
-
+    void onUpdateConnState(const ConnectionState& result);
 private:
     qst::settings::SettingsMigrator mSettingsMigrator;
     void createSettingsGroupBox();

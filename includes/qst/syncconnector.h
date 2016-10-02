@@ -60,7 +60,7 @@ typedef enum processState
   PAUSED
 } kSyncthingProcessState;
 
-using ConnectionStateCallback = std::function<void(ConnectionState)>;
+using ConnectionStateCallback = std::function<void(ConnectionState&)>;
 
 namespace qst
 {
@@ -71,10 +71,9 @@ namespace connector
   {
     Q_OBJECT
   public:
-    explicit SyncConnector(QUrl url);
+    explicit SyncConnector(QUrl url, ConnectionStateCallback textCallback);
     virtual ~SyncConnector();
-    void setURL(QUrl url, const QString& userName, const QString& password,
-      ConnectionStateCallback setText);
+    void setURL(QUrl url, const QString& userName, const QString& password);
     void showWebView();
     void spawnSyncthingProcess(
       std::string filePath,

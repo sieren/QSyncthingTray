@@ -36,6 +36,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <functional>
 #include <iostream>
 #include <map>
 
@@ -53,7 +54,9 @@ static const std::list<std::string> kAnimatedIconSet(
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 Window::Window()
-  : mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
+  :
+    mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384")),
+      std::bind(&Window::onUpdateConnState, this, std::placeholders::_1)))
   , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector))
   , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
   , mSettings("QSyncthingTray", "qst")
@@ -142,6 +145,24 @@ void Window::closeEvent(QCloseEvent *event)
 
 //------------------------------------------------------------------------------------//
 
+void Window::onUpdateConnState(const ConnectionState& result)
+{
+  if (result.second)
+  {
+    mpUrlTestResultLabel->setText(tr("Status: Connected"));
+    mpConnectedState->setText(tr("Connected"));
+    setIcon(0);
+  }
+  else
+  {
+    mpUrlTestResultLabel->setText(tr("Status: ") + result.first);
+    setIcon(1);
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void Window::setIcon(int index)
 {
   // temporary workaround as setIcon seems to leak memory
@@ -193,20 +214,7 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text();
   mCurrentUserPassword = userPassword->text();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-     mCurrentUserPassword, [&](ConnectionState result)
-  {
-    if (result.second)
-    {
-      mpUrlTestResultLabel->setText(tr("Status: Connected"));
-      mpConnectedState->setText(tr("Connected"));
-      setIcon(0);
-    }
-    else
-    {
-      mpUrlTestResultLabel->setText(tr("Status: ") + result.first);
-      setIcon(1);
-    }
-  });
+     mCurrentUserPassword);
   saveSettings();
 }
 
