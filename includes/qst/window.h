@@ -100,7 +100,6 @@ private:
     void createLastSyncedMenu();
     void createDefaultSettings();
     void validateSSLSupport();
-    int getCurrentVersion(std::string reply);
     void onStartAnimation(bool animate);
 
     QTabWidget *mpSettingsTabsWidget;
