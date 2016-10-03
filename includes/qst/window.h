@@ -68,7 +68,7 @@ protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
-    void updateConnectionHealth(ConnectionHealthStatus status);
+    void updateConnectionHealth(const ConnectionHealthStatus& status);
     void onNetworkActivity(bool activity);
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -85,7 +85,7 @@ private slots:
     void onUpdateIcon();
     void pauseSyncthingClicked(int state);
     void quit();
-
+    void onUpdateConnState(const ConnectionState& result);
 private:
     qst::settings::SettingsMigrator mSettingsMigrator;
     void createSettingsGroupBox();
@@ -94,13 +94,12 @@ private:
     void saveSettings();
     void loadSettings();
     void showAuthentication(bool show);
-    void showMessage(std::string title, std::string body,
+    void showMessage(const std::string& title, const std::string& body,
       QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information);
     void createFoldersMenu();
     void createLastSyncedMenu();
     void createDefaultSettings();
     void validateSSLSupport();
-    int getCurrentVersion(std::string reply);
     void onStartAnimation(bool animate);
 
     QTabWidget *mpSettingsTabsWidget;

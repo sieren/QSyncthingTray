@@ -34,8 +34,9 @@ namespace connector
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
-SyncConnector::SyncConnector(QUrl url) :
-    mCurrentUrl(url)
+SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback) :
+    mConnectionStateCallback(textCallback)
+  , mCurrentUrl(url)
   , mSettings("QSyncthingTray", "qst")
 {
   onSettingsChanged();
@@ -60,7 +61,7 @@ SyncConnector::SyncConnector(QUrl url) :
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::setURL(QUrl url, const QString& username, const
-  QString& password, ConnectionStateCallback setText)
+  QString& password)
 {
   if (username.isEmpty() == false && password.isEmpty() == false)
   {
@@ -69,7 +70,6 @@ void SyncConnector::setURL(QUrl url, const QString& username, const
     url.setPassword(mAuthentication.second);
   }
   mCurrentUrl = url;
-  mConnectionStateCallback = setText;
   testUrlAvailability();
 }
 
@@ -145,10 +145,8 @@ void SyncConnector::urlTested(QNetworkReply* reply)
         std::unique_ptr<api::APIHandlerBase>(
           api::APIHandlerFactory<QNetworkReply>().getAPIForVersion(versionNumber));
     }
-    if (mConnectionStateCallback != nullptr)
-    {
-      mConnectionStateCallback(connectionInfo);
-    }
+
+    mConnectionStateCallback(connectionInfo);
     mpConnectionAvailabilityTimer->stop();
     mpConnectionHealthTimer->start(mConnectionHealthTime);
     checkAndSpawnINotifyProcess(false);
@@ -316,7 +314,7 @@ void SyncConnector::pauseSyncthing(bool paused)
     spawnSyncthingProcess(mSyncthingFilePath, true);
     checkAndSpawnINotifyProcess(false);
     setURL(mCurrentUrl, mCurrentUrl.userName(),
-     mCurrentUrl.password(), mConnectionStateCallback);
+     mCurrentUrl.password());
   }
 }
 

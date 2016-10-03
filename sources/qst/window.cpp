@@ -36,6 +36,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <functional>
 #include <iostream>
 #include <map>
 
@@ -53,7 +54,9 @@ static const std::list<std::string> kAnimatedIconSet(
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 Window::Window()
-  : mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384"))))
+  :
+    mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384")),
+      std::bind(&Window::onUpdateConnState, this, std::placeholders::_1)))
   , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector))
   , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
   , mSettings("QSyncthingTray", "qst")
@@ -117,7 +120,7 @@ Window::Window()
 
 //------------------------------------------------------------------------------------//
 
-void Window::setVisible(bool visible)
+void Window::setVisible(const bool visible)
 {
   QDialog::setVisible(visible);
   qst::sysutils::SystemUtility().showDockIcon(visible);
@@ -142,7 +145,25 @@ void Window::closeEvent(QCloseEvent *event)
 
 //------------------------------------------------------------------------------------//
 
-void Window::setIcon(int index)
+void Window::onUpdateConnState(const ConnectionState& result)
+{
+  if (result.second)
+  {
+    mpUrlTestResultLabel->setText(tr("Status: Connected"));
+    mpConnectedState->setText(tr("Connected"));
+    setIcon(0);
+  }
+  else
+  {
+    mpUrlTestResultLabel->setText(tr("Status: ") + result.first);
+    setIcon(1);
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::setIcon(const int index)
 {
   // temporary workaround as setIcon seems to leak memory
   // https://bugreports.qt.io/browse/QTBUG-23658?jql=text%20~%20%22setIcon%20memory%22
@@ -193,27 +214,14 @@ void Window::testURL()
   mCurrentUserName = mpUserNameLineEdit->text();
   mCurrentUserPassword = userPassword->text();
   mpSyncConnector->setURL(QUrl(mpSyncthingUrlLineEdit->text()), mCurrentUserName,
-     mCurrentUserPassword, [&](ConnectionState result)
-  {
-    if (result.second)
-    {
-      mpUrlTestResultLabel->setText(tr("Status: Connected"));
-      mpConnectedState->setText(tr("Connected"));
-      setIcon(0);
-    }
-    else
-    {
-      mpUrlTestResultLabel->setText(tr("Status: ") + result.first);
-      setIcon(1);
-    }
-  });
+     mCurrentUserPassword);
   saveSettings();
 }
 
 
 //------------------------------------------------------------------------------------//
 
-void Window::updateConnectionHealth(ConnectionHealthStatus status)
+void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
 {
   if (mpProcessMonitor->isPausingProcessRunning())
   {
@@ -281,7 +289,7 @@ void Window::updateConnectionHealth(ConnectionHealthStatus status)
 
 //------------------------------------------------------------------------------------//
 
-void Window::onNetworkActivity(bool activity)
+void Window::onNetworkActivity(const bool activity)
 {
   onStartAnimation(activity);
 }
@@ -289,7 +297,7 @@ void Window::onNetworkActivity(bool activity)
 
 //------------------------------------------------------------------------------------//
 
-void Window::monoChromeIconChanged(int state)
+void Window::monoChromeIconChanged(const int state)
 {
   mIconMonochrome = state == 2 ? true : false;
   mSettings.setValue("monochromeIcon", mIconMonochrome);
@@ -298,7 +306,7 @@ void Window::monoChromeIconChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::pauseSyncthingClicked(int state)
+void Window::pauseSyncthingClicked(const int state)
 {
   mpSyncConnector->pauseSyncthing(state == 1);
 }
@@ -306,7 +314,7 @@ void Window::pauseSyncthingClicked(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::animateIconBoxChanged(int state)
+void Window::animateIconBoxChanged(const int state)
 {
   mShouldAnimateIcon = state == Qt::CheckState::Checked ? true : false;
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
@@ -315,7 +323,7 @@ void Window::animateIconBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
+void Window::iconActivated(const QSystemTrayIcon::ActivationReason reason)
 {
   switch (reason)
   {
@@ -341,7 +349,7 @@ void Window::showWebView()
 
 //------------------------------------------------------------------------------------//
 
-void Window::authCheckBoxChanged(int state)
+void Window::authCheckBoxChanged(const int state)
 {
   if (state)
   {
@@ -356,7 +364,7 @@ void Window::authCheckBoxChanged(int state)
 
 //------------------------------------------------------------------------------------//
 
-void Window::webViewZoomFactorChanged(double value)
+void Window::webViewZoomFactorChanged(const double value)
 {
   if (mpSyncConnector->getWebView())
   {
@@ -368,8 +376,8 @@ void Window::webViewZoomFactorChanged(double value)
 
 //------------------------------------------------------------------------------------//
 
-void Window::showMessage(std::string title, std::string body,
-  QSystemTrayIcon::MessageIcon icon)
+void Window::showMessage(const std::string& title, const std::string& body,
+  const QSystemTrayIcon::MessageIcon icon)
 {
   if (mNotificationsEnabled)
   {
@@ -686,7 +694,7 @@ void Window::saveSettings()
 
 //------------------------------------------------------------------------------------//
 
-void Window::showAuthentication(bool show)
+void Window::showAuthentication(const bool show)
 {
   if (show)
   {
@@ -737,7 +745,7 @@ void Window::validateSSLSupport()
 
 //------------------------------------------------------------------------------------//
 
-void Window::onStartAnimation(bool animate)
+void Window::onStartAnimation(const bool animate)
 {
   QString iconToAnimate = mIconMonochrome ? tr(kAnimatedIconSet.back().c_str())
     : tr(kAnimatedIconSet.front().c_str());
