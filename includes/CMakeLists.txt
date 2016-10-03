@@ -16,6 +16,7 @@ set(qst_HEADERS
   ${qst_include_ROOT}/settingsmigrator.hpp
   ${qst_include_ROOT}/startuptab.hpp
   ${qst_include_ROOT}/syncconnector.h
+  ${qst_include_ROOT}/updatenotifier.h
   ${qst_include_ROOT}/utilities.hpp
   ${qst_include_ROOT}/webview.h
   ${qst_include_ROOT}/window.h

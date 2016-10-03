@@ -19,6 +19,7 @@
 #ifndef settingsmigrator_h
 #define settingsmigrator_h
 #pragma once
+#include <QDateTime>
 #include <QSettings>
 #include <QString>
 #include <QWindow>
@@ -88,6 +89,8 @@ void createDefaultSettings()
     sysutils::SystemUtility().getDefaultSyncthingLocation());
   checkAndSetValue("inotifypath",
     sysutils::SystemUtility().getDefaultSyncthingINotifyLocation());
+  checkAndSetValue("lastupdatecheck", QDateTime().currentDateTime());
+  checkAndSetValue("lastshownupdatenotification", QString("0"));
 }
 
 
