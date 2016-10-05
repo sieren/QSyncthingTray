@@ -24,6 +24,7 @@
 #include "startuptab.hpp"
 #include "platforms.hpp"
 #include <qst/settingsmigrator.hpp>
+#include <qst/updatenotifier.h>
 #include <QDoubleSpinBox>
 #include <QSystemTrayIcon>
 #include <QNetworkAccessManager>
@@ -86,6 +87,7 @@ private slots:
     void pauseSyncthingClicked(int state);
     void quit();
     void onUpdateConnState(const ConnectionState& result);
+    void checkForUpdate();
 private:
     qst::settings::SettingsMigrator mSettingsMigrator;
     void createSettingsGroupBox();
@@ -135,6 +137,7 @@ private:
     QAction *mpShowWebViewAction;
     QAction *mpPreferencesAction;
     QAction *mpShowGitHubAction;
+    QAction *mpCheckUpdateAction;
     QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
 
@@ -165,6 +168,9 @@ private:
     bool mShouldAnimateIcon;
     bool mShouldStopAnimation;
     int mLastConnectionState;
+
+    qst::update::UpdateNotifier mUpdateNotifier;
+    void onUpdateCheck(const bool isNewVersion);
 
     template <typename T>
     void checkAndSetValue(QString key, T value);

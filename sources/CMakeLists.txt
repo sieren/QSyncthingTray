@@ -8,6 +8,7 @@ set(qst_SOURCES
   ${qst_src_ROOT}/processmonitor.cpp
   ${qst_src_ROOT}/startuptab.cpp
   ${qst_src_ROOT}/syncconnector.cpp
+  ${qst_src_ROOT}/updatenotifier.cpp
   ${qst_src_ROOT}/window.cpp
 )
 

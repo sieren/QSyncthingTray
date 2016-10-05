@@ -42,7 +42,7 @@
 
 
 //! Layout
-#define currentVersion "v0.5.2"
+#define currentVersion "0.5.2"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -61,6 +61,8 @@ Window::Window()
   , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
   , mSettings("QSyncthingTray", "qst")
   , mpAnimatedIconMovie(new QMovie())
+  , mUpdateNotifier(std::bind(&Window::onUpdateCheck, this, std::placeholders::_1),
+      QString(tr(currentVersion)))
 {
     loadSettings();
     createSettingsGroupBox();
@@ -569,6 +571,9 @@ void Window::createActions()
   mpShowGitHubAction = new QAction(tr("About"), this);
   connect(mpShowGitHubAction, SIGNAL(triggered()), this, SLOT(showAboutPage()));
 
+  mpCheckUpdateAction = new QAction(tr("Check for Update"), this);
+  connect(mpCheckUpdateAction, SIGNAL(triggered()), this, SLOT(checkForUpdate()));
+
   mpQuitAction = new QAction(tr("&Quit"), this);
   connect(mpQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
@@ -664,6 +669,7 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addAction(mpPreferencesAction);
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpShowGitHubAction);
+  mpTrayIconMenu->addAction(mpCheckUpdateAction);
   mpTrayIconMenu->addSeparator();
   mpTrayIconMenu->addAction(mpQuitAction);
   if (mpTrayIcon == nullptr)
@@ -783,10 +789,44 @@ void Window::showAboutPage()
   QMessageBox msgBox(this);
   msgBox.setWindowTitle("About QSyncthingTray");
   msgBox.setTextFormat(Qt::RichText);
-  msgBox.setText("<p align='center'>" currentVersion " (c) 2015 The QSyncthingTray " \
+  msgBox.setText("<p align='center'> v" currentVersion " (c) 2015 The QSyncthingTray " \
     "Authors. <br/> This program comes with absolutely no warranty. <br/><br/>" \
     "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
     "QSyncthingTray on Github</a></p>");
+  msgBox.exec();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::checkForUpdate()
+{
+  mUpdateNotifier.checkUpdate(true);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void Window::onUpdateCheck(const bool isNewVersion)
+{
+  QMessageBox msgBox(this);
+  if (isNewVersion)
+  {
+    msgBox.setWindowTitle("QSyncthingTray Update");
+    msgBox.setTextFormat(Qt::RichText);
+    msgBox.setText("<p align='center'><b> Update Available</b> <br/><br/>" \
+                   "A new version of QSyncthingTray is available. <br/>" \
+                   "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
+                   "QSyncthingTray on Github</a></p>");
+  }
+  else
+  {
+    msgBox.setWindowTitle("QSyncthingTray Update");
+    msgBox.setTextFormat(Qt::RichText);
+    msgBox.setText("<p align='center'><b>No new update available</b> <br/><br/>" \
+                   "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
+                   "QSyncthingTray on Github</a></p>");
+  }
   msgBox.exec();
 }
 
