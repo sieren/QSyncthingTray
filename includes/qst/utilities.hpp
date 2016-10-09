@@ -38,6 +38,9 @@ namespace qst
 namespace utilities
 {
  
+
+//------------------------------------------------------------------------------------//
+
 template <typename T>
 auto to_string_with_precision(const T a_value, const int n = 6) -> std::string
 {
@@ -46,6 +49,8 @@ auto to_string_with_precision(const T a_value, const int n = 6) -> std::string
   return out.str();
 }
 
+
+//------------------------------------------------------------------------------------//
 
 inline auto splitFilePathByDelimiter(std::string filePath) -> std::vector<std::string>
 {
@@ -60,6 +65,9 @@ inline auto splitFilePathByDelimiter(std::string filePath) -> std::vector<std::s
   }
   return substrings;
 }
+
+
+//------------------------------------------------------------------------------------//
 
 inline auto getCleanFileName(QString fileName) -> QString
 {
@@ -86,12 +94,18 @@ inline auto getCleanFileName(QString fileName) -> QString
   }
   return QString(shortFile.c_str());
 }
-  
+
+
+//------------------------------------------------------------------------------------//
+
 inline auto getFullCleanFileName(QString fileName) -> QString
 {
   std::vector<std::string> substrings = splitFilePathByDelimiter(fileName.toStdString());
   return QString(substrings.back().c_str());
 }
+
+
+//------------------------------------------------------------------------------------//
 
 inline auto getPathToFileName(std::string fileName) -> std::string
 {
@@ -113,6 +127,9 @@ inline auto getPathToFileName(std::string fileName) -> std::string
     return "";
   }
 }
+
+
+//------------------------------------------------------------------------------------//
 
 inline auto readAPIKey() -> QString
 {
@@ -136,6 +153,20 @@ inline auto readAPIKey() -> QString
   }
   return "";
 }
+
+
+//------------------------------------------------------------------------------------//
+
+template <typename T>
+static QString trafficToString(T traffic)
+{
+  using namespace utilities;
+  std::string strTraffic = traffic > kBytesToKilobytes ?
+  to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
+  to_string_with_precision(traffic, 2) + " KB/s";
+  return QString(strTraffic.c_str());
+}
+
 }
 }
 

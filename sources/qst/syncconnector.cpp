@@ -269,9 +269,9 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   traffic.first = std::floor(traffic.first * 100) / 100;
   traffic.second = std::floor(traffic.second * 100) / 100;
 
-  result.emplace("outTraffic", trafficToString(traffic.second));
-  result.emplace("inTraffic", trafficToString(traffic.first));
-  result.emplace("globalTraffic", trafficToString(traffic.first + traffic.second));
+  result.emplace("outTraffic", traffic.second);
+  result.emplace("inTraffic",traffic.first);
+  result.emplace("globalTraffic", traffic.first + traffic.second);
 
   emit(onNetworkActivityChanged(traffic.first + traffic.second > kNetworkNoiseFloor));
   emit(onConnectionHealthChanged(result));
@@ -599,18 +599,6 @@ SyncConnector::~SyncConnector()
   }
   mpConnectionHealthTimer->stop();
   killProcesses();
-}
-
-//------------------------------------------------------------------------------------//
-
-template <typename T>
-QString SyncConnector::trafficToString(T traffic)
-{
-  using namespace utilities;
-  std::string strTraffic = traffic > kBytesToKilobytes ?
-    to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
-    to_string_with_precision(traffic, 2) + " KB/s";
-  return QString(strTraffic.c_str());
 }
 
 

@@ -237,23 +237,26 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
     }
     return;
   }
-  else if (status.at("state") == "1")
+  else if (status.at("state").toInt() == 1)
   {
+    using namespace qst::utilities;
     auto activeConnections = status.at("activeConnections");
     auto totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
-      + activeConnections
-      + "/" + totalConnections);
+      + QString::number(activeConnections.toInt())
+      + "/" + QString::number(totalConnections.toInt()));
+
     mpConnectedState->setVisible(true);
     mpConnectedState->setText(tr("Connected"));
     mpCurrentTrafficAction->setVisible(true);
     mpCurrentTrafficAction->setText(tr("Total: ")
-      + status.at("globalTraffic"));
+      + trafficToString(status.at("globalTraffic").toDouble()));
     mpTrafficInAction->setVisible(true);
-    mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic"));
+    mpTrafficInAction->setText(tr("In: ") + trafficToString(status.at("inTraffic").toDouble()));
+        std::cout << " Type is " <<status.at("inTraffic").typeName() << '\n';
     mpTrafficOutAction->setVisible(true);
-    mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic"));
+    mpTrafficOutAction->setText(tr("Out: ") + trafficToString(status.at("outTraffic").toDouble()));
     mpShowWebViewAction->setDisabled(false);
 
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
@@ -279,7 +282,7 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
   }
   try
   {
-    mLastConnectionState = std::stoi(status.at("state").toStdString());
+    mLastConnectionState = status.at("state").toInt();
   }
   catch (std::exception &e)
   {

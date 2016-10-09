@@ -122,9 +122,6 @@ namespace connector
     bool mSyncthingPaused = false;
     bool mShouldLaunchINotify = false;
 
-    template <typename T>
-    QString trafficToString(T traffic);
-
     ConnectionStateCallback mConnectionStateCallback = nullptr;
     std::thread mIoThread;
     QUrl mCurrentUrl;

@@ -37,7 +37,7 @@ namespace
 {
   using DateFolderFile = std::tuple<QString, QString, QString, bool>;
   using LastSyncedFileList = std::vector<DateFolderFile>;
-  using ConnectionHealthStatus = std::map<QString, QString>;
+  using ConnectionHealthStatus = std::map<QString, QVariant>;
   using FolderNameFullPath = std::pair<QString, QString>;
   using ConnectionState = std::pair<QString, bool>;
 } // anon
@@ -178,19 +178,19 @@ namespace api
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", QString("0"));
-        result.emplace("totalConnections", QString("0"));
+        result.emplace("activeConnections", 0);
+        result.emplace("totalConnections", 0);
       }
       else
       {
         result.clear();
-        result.emplace("state", "1");
+        result.emplace("state", 1);
         QString m_DownloadedData = static_cast<QString>(reply);
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject connectionArray = replyData["connections"].toObject();
-        result.emplace("activeConnections", QString::number(connectionArray.size()));
-        result.emplace("totalConnections", QString::number(connectionArray.size()));
+        result.emplace("activeConnections", connectionArray.size());
+        result.emplace("totalConnections", connectionArray.size());
       }
       return result;
     }
@@ -208,13 +208,13 @@ namespace api
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", QString("0"));
-        result.emplace("totalConnections", QString("0"));
+        result.emplace("activeConnections", 0);
+        result.emplace("totalConnections", 0);
       }
       else
       {
         result.clear();
-        result.emplace("state", "1");
+        result.emplace("state", 1);
         QString m_DownloadedData = static_cast<QString>(reply);
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
@@ -226,8 +226,8 @@ namespace api
           QJsonObject jObj = it->toObject();
           active += jObj.find("connected").value().toBool() ? 1 : 0;
         }
-        result.emplace("activeConnections", QString::number(active));
-        result.emplace("totalConnections", QString::number(connectionArray.size()));
+        result.emplace("activeConnections", active);
+        result.emplace("totalConnections", connectionArray.size());
       }
       return result;
     }
