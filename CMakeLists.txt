@@ -83,7 +83,10 @@ source_group("Platforms" ${qst_platform_SOURCES})
 #
 
 # qt5_wrap_ui(UI_HEADERS mainwindow.ui)
-qt5_add_resources(UI_RESOURCES resources/qsyncthing.qrc)
+qt5_add_resources(UI_RESOURCES
+  resources/qsyncthing.qrc
+  resources/qsyncthingblueanim.qrc
+  resources/qsyncthingdarkanim.qrc)
 
 include_directories(includes)
 add_subdirectory(includes)
