@@ -163,8 +163,12 @@ namespace api
 
   // API Specializations
 
+  template<const int Version>
+  struct API;
+
   // Syncthing API V11 Specializations
-  struct V11API : public APIHandlerBase
+  template<>
+  struct API<11> : public APIHandlerBase
   {
     const int version = 11;
 
@@ -193,7 +197,8 @@ namespace api
   };
 
   // Syncthing API V12 Specializations
-  struct V12API : public APIHandlerBase
+  template<>
+  struct API<12> : public APIHandlerBase
   {
     const int version = 12;
 
@@ -229,10 +234,11 @@ namespace api
   };
 
   // Syncthing API V13 Specializations
-  struct V13API : public V12API
+  template<>
+  struct API<13> : public API<12>
   {
     const int version = 13;
-    using V12API::getConnections;
+    using API<12>::getConnections;
   };
 
 
@@ -244,16 +250,16 @@ namespace api
       switch (version)
       {
         case 13:
-          return new V13API;
+          return new API<13>;
           break;
         case 12:
-          return new V12API;
+          return new API<12>;
           break;
         case 11:
-          return new V11API;
+          return new API<11>;
           break;
         default:
-          return new V13API;
+          return new API<13>;
       }
     }
 
