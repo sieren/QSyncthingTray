@@ -7,16 +7,18 @@ HEADERS       = includes/qst/window.h \
                 includes/qst/platforms.hpp \
                 includes/qst/apihandler.hpp \
                 includes/qst/startuptab.hpp \
-                includes/qst/utilities.hpp \
                 includes/qst/syncwebview.h \
-                includes/qst/syncwebpage.h
+                includes/qst/syncwebpage.h \
+                includes/qst/utilities.hpp \
+                includes/qst/updatenotifier.h \
 SOURCES       = sources/qst/main.cpp \
                 sources/qst/window.cpp \
                 sources/qst/syncconnector.cpp \
                 sources/qst/processmonitor.cpp \
                 sources/qst/startuptab.cpp \
                 sources/qst/syncwebview.cpp \
-                sources/qst/syncwebpage.cpp
+                sources/qst/syncwebpage.cpp \
+                sources/qst/updatenotifier.cpp \
 RESOURCES     = \
                 resources/qsyncthing.qrc
 
