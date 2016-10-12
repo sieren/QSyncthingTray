@@ -60,6 +60,7 @@ typedef enum processState
   PAUSED
 } ProcessState;
 
+using ConnectionStateData = std::pair<ConnectionHealthData, TrafficData>;
 using ConnectionStateCallback = std::function<void(ConnectionState&)>;
 using ProcessStateInfo = std::map<std::string, processState>;
 
@@ -92,7 +93,7 @@ namespace connector
     webview::WebView *getWebView();
 
   signals:
-    void onConnectionHealthChanged(ConnectionHealthStatus healthState);
+    void onConnectionHealthChanged(ConnectionStateData healthState);
     void onProcessSpawned(ProcessStateInfo procState);
     void onNetworkActivityChanged(bool act);
 

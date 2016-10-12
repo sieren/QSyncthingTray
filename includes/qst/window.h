@@ -69,7 +69,7 @@ protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
-    void updateConnectionHealth(const ConnectionHealthStatus& status);
+    void updateConnectionHealth(const ConnectionStateData& state);
     void onNetworkActivity(bool activity);
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);

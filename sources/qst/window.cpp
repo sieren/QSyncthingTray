@@ -223,8 +223,10 @@ void Window::testURL()
 
 //------------------------------------------------------------------------------------//
 
-void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
+void Window::updateConnectionHealth(const ConnectionStateData& state)
 {
+  const auto& status = state.first;
+  const auto& traffic = state.second;
   if (mpProcessMonitor->isPausingProcessRunning())
   {
     mpNumberOfConnectionsAction->setVisible(false);
@@ -249,14 +251,17 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
 
     mpConnectedState->setVisible(true);
     mpConnectedState->setText(tr("Connected"));
+
+    const auto inTraffic = std::get<0>(traffic);
+    const auto outTraffic = std::get<1>(traffic);
     mpCurrentTrafficAction->setVisible(true);
     mpCurrentTrafficAction->setText(tr("Total: ")
-      + trafficToString(status.at("globalTraffic").toDouble()));
+      + trafficToString(inTraffic + outTraffic));
     mpTrafficInAction->setVisible(true);
-    mpTrafficInAction->setText(tr("In: ") + trafficToString(status.at("inTraffic").toDouble()));
-        std::cout << " Type is " <<status.at("inTraffic").typeName() << '\n';
+    mpTrafficInAction->setText(tr("In: ") + trafficToString(inTraffic));
+
     mpTrafficOutAction->setVisible(true);
-    mpTrafficOutAction->setText(tr("Out: ") + trafficToString(status.at("outTraffic").toDouble()));
+    mpTrafficOutAction->setText(tr("Out: ") + trafficToString(outTraffic));
     mpShowWebViewAction->setDisabled(false);
 
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())

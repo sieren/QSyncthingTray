@@ -266,15 +266,9 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   }
   auto result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
-  traffic.first = std::floor(traffic.first * 100) / 100;
-  traffic.second = std::floor(traffic.second * 100) / 100;
 
-  result.emplace("outTraffic", traffic.second);
-  result.emplace("inTraffic",traffic.first);
-  result.emplace("globalTraffic", traffic.first + traffic.second);
-
-  emit(onNetworkActivityChanged(traffic.first + traffic.second > kNetworkNoiseFloor));
-  emit(onConnectionHealthChanged(result));
+  emit(onNetworkActivityChanged(std::get<1>(traffic) + std::get<1>(traffic) > kNetworkNoiseFloor));
+  emit(onConnectionHealthChanged({result, traffic}));
 
   reply->deleteLater();
 }
