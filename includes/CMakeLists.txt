@@ -9,17 +9,21 @@ project(QSyncthingTray)
 #
 
 set(qst_include_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/qst)
+set(contrib_include_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/contrib)
+
 set(qst_HEADERS
   ${qst_include_ROOT}/apihandler.hpp
   ${qst_include_ROOT}/platforms.hpp
   ${qst_include_ROOT}/processmonitor.hpp
   ${qst_include_ROOT}/settingsmigrator.hpp
   ${qst_include_ROOT}/startuptab.hpp
+  ${qst_include_ROOT}/statswidget.h
   ${qst_include_ROOT}/syncconnector.h
   ${qst_include_ROOT}/updatenotifier.h
   ${qst_include_ROOT}/utilities.hpp
   ${qst_include_ROOT}/webview.h
   ${qst_include_ROOT}/window.h
+  ${contrib_include_ROOT}/qcustomplot.h
 )
 
 if (${QST_BUILD_WEBKIT})

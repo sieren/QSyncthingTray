@@ -24,6 +24,7 @@
 #include "startuptab.hpp"
 #include "platforms.hpp"
 #include <qst/settingsmigrator.hpp>
+#include <qst/statswidget.h>
 #include <qst/updatenotifier.h>
 #include <QDoubleSpinBox>
 #include <QSystemTrayIcon>
@@ -140,6 +141,9 @@ private:
     QAction *mpCheckUpdateAction;
     QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
+    QAction *mpStatsWidgetAction;
+
+    qst::stats::StatsWidget *mpStatsWidget;
 
     QList<QAction*> mCurrentFoldersActions;
     QMenu *mpFolderMenu = nullptr;

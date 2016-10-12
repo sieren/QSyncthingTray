@@ -22,7 +22,7 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QtGui>
-
+#include <qst/statswidget.h>
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
@@ -66,7 +66,7 @@ Window::Window()
 {
     loadSettings();
     createSettingsGroupBox();
-
+    mpStatsWidget = new qst::stats::StatsWidget("Statistics");
     createActions();
     createTrayIcon();
 
@@ -274,6 +274,8 @@ void Window::updateConnectionHealth(const ConnectionStateData& state)
     {
       showMessage("Connected", "Syncthing is running.");
     }
+
+    mpStatsWidget->updateTrafficData(traffic);
   }
   else
   {
@@ -565,6 +567,10 @@ void Window::createActions()
   mpTrafficInAction = new QAction(tr("In: 0 KB/s"), this);
   mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
 
+  mpStatsWidgetAction = new QAction(tr("Statistics"), this);
+  connect(mpStatsWidgetAction, &QAction::triggered, mpStatsWidget,
+    &qst::stats::StatsWidget::show);
+
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
 
@@ -667,6 +673,7 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addAction(mpTrafficInAction);
   mpTrayIconMenu->addAction(mpTrafficOutAction);
   mpTrayIconMenu->addAction(mpCurrentTrafficAction);
+  mpTrayIconMenu->addAction(mpStatsWidgetAction);
   mpTrayIconMenu->addAction(mpPauseSyncthingAction);
   mpTrayIconMenu->addSeparator();
 
