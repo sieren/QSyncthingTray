@@ -69,18 +69,21 @@ public:
   ~StartupTab();
   bool isPausingProcessRunning();
   void spawnSyncthingApp();
+
+public slots:
   void saveSettings();
-  
+
 private slots:
   void launchSyncthingBoxChanged(int state);
   void launchINotifyBoxChanged(int state);
   void shutdownOnExitBoxChanged(int state);
-  void pathEnterPressed();
   void showFileBrowser();
   void showINotifyFileBrowser();
-  void processSpawnedChanged(kSyncthingProcessState state);
+  void processSpawnedChanged(const ProcessStateInfo& info);
   
 private:
+  void updateLabelWithState(QLabel* label, const ProcessState &state);
+  void startProcesses();
   void loadSettings();
   void initGUI();
   template <typename T, typename ... TArgs>

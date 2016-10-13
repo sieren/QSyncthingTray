@@ -199,13 +199,31 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
   switch (newState)
   {
     case QProcess::Running:
-      emit(onProcessSpawned(kSyncthingProcessState::SPAWNED));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::SPAWNED}}));
       break;
     case QProcess::NotRunning:
-       emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
       break;
     default:
-      emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::notifyProcessSpawned(QProcess::ProcessState newState)
+{
+  switch (newState)
+  {
+    case QProcess::Running:
+      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::SPAWNED}}));
+      break;
+    case QProcess::NotRunning:
+      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::NOT_RUNNING}}));
+      break;
+    default:
+      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::NOT_RUNNING}}));
   }
 }
 
@@ -359,7 +377,7 @@ void SyncConnector::onSettingsChanged()
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 {
-  emit(onProcessSpawned(kSyncthingProcessState::PAUSED));
+  emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::PAUSED}}));
   reply->deleteLater();
 }
 
@@ -393,7 +411,7 @@ void SyncConnector::spawnSyncthingProcess(
     }
     else
     {
-      emit(onProcessSpawned(kSyncthingProcessState::ALREADY_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::ALREADY_RUNNING}}));
     }
   }
 }
@@ -406,6 +424,10 @@ void SyncConnector::checkAndSpawnINotifyProcess(bool isRequestedExternal)
   if (isRequestedExternal)
   {
     onSettingsChanged();
+    if (mpSyncthingNotifierProcess)
+    {
+      mpSyncthingNotifierProcess->terminate();
+    }
   }
   if (mShouldLaunchINotify)
   {
@@ -422,7 +444,13 @@ void SyncConnector::checkAndSpawnINotifyProcess(bool isRequestedExternal)
     {
       mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
       QString processPath = QDir::toNativeSeparators(mINotifyFilePath);
+      connect(mpSyncthingNotifierProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
+        this, SLOT(notifyProcessSpawned(QProcess::ProcessState)));
       mpSyncthingNotifierProcess->start(processPath, QStringList(), QIODevice::Unbuffered);
+    }
+    else
+    {
+      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::ALREADY_RUNNING}}));
     }
   }
   else

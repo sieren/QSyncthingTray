@@ -58,9 +58,13 @@ typedef enum processState
   NOT_RUNNING,
   ALREADY_RUNNING,
   PAUSED
-} kSyncthingProcessState;
+} ProcessState;
 
 using ConnectionStateCallback = std::function<void(ConnectionState&)>;
+using ProcessStateInfo = std::map<std::string, processState>;
+
+static const std::string kSyncthingIdentifier{"syncthing"};
+static const std::string kNotifyIdentifier{"inotify"};
 
 namespace qst
 {
@@ -89,7 +93,7 @@ namespace connector
 
   signals:
     void onConnectionHealthChanged(ConnectionHealthStatus healthState);
-    void onProcessSpawned(kSyncthingProcessState procState);
+    void onProcessSpawned(ProcessStateInfo procState);
     void onNetworkActivityChanged(bool act);
 
   private slots:
@@ -97,6 +101,7 @@ namespace connector
     void netRequestfinished(QNetworkReply *reply);
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
+    void notifyProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
     void testUrlAvailability();
     void webViewClosed();
