@@ -62,7 +62,7 @@ void StartupTab::initGUI()
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
-  
+
   mpShutdownOnExitBox = new QCheckBox(tr("Shutdown on Exit"));
   Qt::CheckState shutdownState = mShouldShutdownOnExit ? Qt::Checked : Qt::Unchecked;
   mpShutdownOnExitBox->setCheckState(shutdownState);
@@ -78,7 +78,7 @@ void StartupTab::initGUI()
   mpFilePathGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   
   connect(mpFilePathBrowse, SIGNAL(clicked()), this, SLOT(showFileBrowser()));
-  connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
+  connect(mpFilePathLine, SIGNAL(returnPressed()), this, SLOT(saveSettings()));
   connect(mpShouldLaunchSyncthingBox, SIGNAL(stateChanged(int)), this,
           SLOT(launchSyncthingBoxChanged(int)));
   
@@ -87,7 +87,8 @@ void StartupTab::initGUI()
   //
   
   mpiNotifyGroupBox = new QGroupBox(tr("iNotify Application"));
-  
+
+  mpINotifySpawnedLabel = new QLabel(tr("Not started"));
   mpShouldLaunchINotify = new QCheckBox(tr("Launch iNotify"));
   Qt::CheckState iNotifylaunchState = mShouldLaunchINotify ? Qt::Checked : Qt::Unchecked;
   mpShouldLaunchINotify->setCheckState(iNotifylaunchState);
@@ -98,6 +99,7 @@ void StartupTab::initGUI()
 
   iNotifyLayout->addWidget(mpINotifyFilePath,2, 0, 1, 4);
   iNotifyLayout->addWidget(mpINotifyBrowse,3, 0, 1, 1);
+  iNotifyLayout->addWidget(mpINotifySpawnedLabel, 3, 1, 1, 1);
   iNotifyLayout->addWidget(mpShouldLaunchINotify, 0, 0);
 
   mpiNotifyGroupBox->setLayout(iNotifyLayout);
@@ -105,7 +107,7 @@ void StartupTab::initGUI()
   mpiNotifyGroupBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   
   connect(mpINotifyBrowse, SIGNAL(clicked()), this, SLOT(showINotifyFileBrowser()));
-  connect(mpINotifyFilePath, SIGNAL(returnPressed()), this, SLOT(pathEnterPressed()));
+  connect(mpINotifyFilePath, SIGNAL(returnPressed()), this, SLOT(saveSettings()));
   connect(mpShouldLaunchINotify, SIGNAL(stateChanged(int)), this,
     SLOT(launchINotifyBoxChanged(int)));
   connect(mpShutdownOnExitBox, SIGNAL(stateChanged(int)), this,
@@ -129,6 +131,11 @@ void StartupTab::processSpawnedChanged(const ProcessStateInfo& info)
   if (syncProcess != info.end())
   {
     updateLabelWithState(mpAppSpawnedLabel, syncProcess->second);
+  }
+  auto notifyprocess = info.find(kNotifyIdentifier);
+  if (notifyprocess != info.end())
+  {
+    updateLabelWithState(mpINotifySpawnedLabel, notifyprocess->second);
   }
 }
 
@@ -180,11 +187,9 @@ void StartupTab::showINotifyFileBrowser()
     tr("Open iNotify"), "", tr(""));
   if (filename.toStdString() != "")
   {
-    mCurrentINotifyPath = filename.toStdString();
     mpINotifyFilePath->setText(filename);
   }
   saveSettings();
-  spawnSyncthingApp();
 }
   
 //------------------------------------------------------------------------------------//
@@ -213,7 +218,6 @@ void StartupTab::launchINotifyBoxChanged(int state)
   hideShowElements(state == Qt::Checked, mpINotifyFilePath, mpINotifyBrowse);
   mShouldLaunchINotify = state == Qt::Checked ? true : false;
   saveSettings();
-  pathEnterPressed();
   mpSyncConnector->checkAndSpawnINotifyProcess(false);
 }
 
@@ -222,27 +226,33 @@ void StartupTab::launchINotifyBoxChanged(int state)
 
 void StartupTab::saveSettings()
 {
+  bool startServices = false;
   mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
   if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
   {
-    pathEnterPressed();
+    startServices = true;
   }
   mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
   if (mSettings.value("launchSyncthingAtStartup").toBool() != mShouldLaunchSyncthing)
   {
-    mpSyncConnector->spawnSyncthingProcess(
-      mCurrentSyncthingPath, mShouldLaunchSyncthing);
+    startServices = true;
   }
   mSettings.setValue("launchSyncthingAtStartup", mShouldLaunchSyncthing);
   
   mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
   if (mSettings.value("inotifypath").toString().toStdString() != mCurrentINotifyPath)
   {
-    pathEnterPressed();
+    startServices = true;
   }
+
   mSettings.setValue("inotifypath", tr(mCurrentINotifyPath.c_str()));
   mSettings.setValue("launchINotifyAtStartup", mShouldLaunchINotify);
   mSettings.setValue("ShutdownOnExit", mShouldShutdownOnExit);
+
+  if (startServices)
+  {
+    startProcesses();
+  }
   mpSyncConnector->onSettingsChanged();
 }
 
@@ -261,20 +271,12 @@ void StartupTab::loadSettings()
 
 //------------------------------------------------------------------------------------//
 
-void StartupTab::pathEnterPressed()
-{
-  mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-  mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
-  if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
-  {
-    mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true, true);
-  }
-  if (mSettings.value("inotifypath").toString().toStdString() != mCurrentINotifyPath)
-  {
-    mpSyncConnector->checkAndSpawnINotifyProcess(true);
-  }
-}
 
+void StartupTab::startProcesses()
+{
+  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true, true);
+  mpSyncConnector->checkAndSpawnINotifyProcess(true);
+}
 
 //------------------------------------------------------------------------------------//
 

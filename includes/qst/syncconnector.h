@@ -101,6 +101,7 @@ namespace connector
     void netRequestfinished(QNetworkReply *reply);
     void checkConnectionHealth();
     void syncThingProcessSpawned(QProcess::ProcessState newState);
+    void notifyProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
     void testUrlAvailability();
     void webViewClosed();
