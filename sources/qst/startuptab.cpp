@@ -59,7 +59,6 @@ void StartupTab::initGUI()
   QGridLayout *filePathLayout = new QGridLayout;
   
   mpFilePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
-  //  mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
@@ -95,7 +94,6 @@ void StartupTab::initGUI()
   QGridLayout *iNotifyLayout = new QGridLayout;
 
   mpINotifyFilePath = new QLineEdit(mCurrentINotifyPath.c_str());
-  //  mpFilePathLine->setFixedWidth(maximumWidth / devicePixelRatio());
   mpINotifyBrowse = new QPushButton(tr("Browse"));
 
   iNotifyLayout->addWidget(mpINotifyFilePath,2, 0, 1, 4);
