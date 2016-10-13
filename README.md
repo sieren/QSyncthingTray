@@ -19,7 +19,7 @@ Written in C++ with Qt.
 ## Features
 
 + Shows number of connections at a glance.
-+ Traffic statistics about incoming, outgoing and total throughput.
++ Traffic statistics and graphs about incoming, outgoing and total throughput.
 + Launches Syncthing and Syncthing-iNotifier if specified.
 + Quickly pause Syncthing with one click.
 + Last Synced Files - Quickly see the recently synchronised files and open their folder.
