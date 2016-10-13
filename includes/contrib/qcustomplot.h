@@ -4256,7 +4256,7 @@ double QCPAbstractPlottable1D<DataType>::selectTest(const QPointF &pos, bool onl
     return -1;
   
   QCPDataSelection selectionResult;
-  double minDistSqr = std::numeric_limits<double>::max();
+  double minDistSqr = (std::numeric_limits<double>::max)();
   int minDistIndex = mDataContainer->size();
   
   typename QCPDataContainer<DataType>::const_iterator begin = mDataContainer->constBegin();
