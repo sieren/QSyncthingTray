@@ -24,11 +24,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QString>
+#include <cmath>
 #include <map>
 #include <chrono>
 #include <algorithm>
 #include <vector>
 #include <limits>
+#include <tuple>
 #include "utilities.hpp"
 
 #define kInternalChangedFilesCache 5
@@ -37,9 +39,10 @@ namespace
 {
   using DateFolderFile = std::tuple<QString, QString, QString, bool>;
   using LastSyncedFileList = std::vector<DateFolderFile>;
-  using ConnectionHealthStatus = std::map<QString, QString>;
+  using ConnectionHealthData = std::map<QString, QVariant>;
   using FolderNameFullPath = std::pair<QString, QString>;
   using ConnectionState = std::pair<QString, bool>;
+  using TrafficData = std::tuple<double, double, std::chrono::time_point<std::chrono::system_clock>>;
 } // anon
 
 namespace qst
@@ -53,7 +56,7 @@ namespace api
 
     APIHandlerBase() = default;
 
-    virtual ConnectionHealthStatus getConnections(QByteArray reply) = 0;
+    virtual ConnectionHealthData getConnections(QByteArray reply) = 0;
 
     APIHandlerBase *getAPIForVersion(int version);
 
@@ -83,12 +86,12 @@ namespace api
     }
 
     // return current traffic in byte/s
-    auto getCurrentTraffic(QByteArray reply) -> std::pair<double, double>
+    auto getCurrentTraffic(QByteArray reply) -> TrafficData
     {
       using namespace std::chrono;
       auto now = system_clock::now();
       auto timeDelta = duration_cast<milliseconds>(now - std::get<2>(oldTraffic));
-      float curInBytes, curOutBytes;
+      double curInBytes, curOutBytes;
       if (reply.size() == 0)
       {
         curInBytes = curOutBytes = (std::numeric_limits<double>::min)();
@@ -99,15 +102,18 @@ namespace api
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject connectionArray = replyData["total"].toObject();
-        float inBytes = static_cast<float>(connectionArray.find("inBytesTotal").value().toDouble());
-        float outBytes = static_cast<float>(connectionArray.find("outBytesTotal").value().toDouble());
+        double inBytes = static_cast<double>(connectionArray.find("inBytesTotal").value().toDouble());
+        double outBytes = static_cast<double>(connectionArray.find("outBytesTotal").value().toDouble());
         curInBytes = (std::max)(0.0, ((inBytes - std::get<0>(oldTraffic)) / (timeDelta.count() * 1e-3)))
           + (std::numeric_limits<double>::min)();
         curOutBytes = (std::max)(0.0, ((outBytes - std::get<1>(oldTraffic)) / (timeDelta.count()* 1e-3)))
           + (std::numeric_limits<double>::min)();
+        curInBytes = std::floor(curInBytes * 100) / 100;
+        curOutBytes = std::floor(curOutBytes * 100) / 100;
         oldTraffic = std::make_tuple(inBytes, outBytes, now);
       }
-      return {curInBytes/kBytesToKilobytes, curOutBytes/kBytesToKilobytes};
+      return std::make_tuple(std::move(curInBytes/kBytesToKilobytes),
+        std::move(curOutBytes/kBytesToKilobytes), std::move(now));
     }
 
     auto getLastSyncedFiles(QByteArray reply) -> LastSyncedFileList
@@ -172,25 +178,25 @@ namespace api
   {
     const int version = 11;
 
-    auto getConnections(QByteArray reply) -> ConnectionHealthStatus override
+    auto getConnections(QByteArray reply) -> ConnectionHealthData override
     {
-      ConnectionHealthStatus result;
+      ConnectionHealthData result;
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", QString("0"));
-        result.emplace("totalConnections", QString("0"));
+        result.emplace("activeConnections", 0);
+        result.emplace("totalConnections", 0);
       }
       else
       {
         result.clear();
-        result.emplace("state", "1");
+        result.emplace("state", 1);
         QString m_DownloadedData = static_cast<QString>(reply);
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
         QJsonObject connectionArray = replyData["connections"].toObject();
-        result.emplace("activeConnections", QString::number(connectionArray.size()));
-        result.emplace("totalConnections", QString::number(connectionArray.size()));
+        result.emplace("activeConnections", connectionArray.size());
+        result.emplace("totalConnections", connectionArray.size());
       }
       return result;
     }
@@ -202,19 +208,19 @@ namespace api
   {
     const int version = 12;
 
-    auto getConnections(QByteArray reply) -> ConnectionHealthStatus override
+    auto getConnections(QByteArray reply) -> ConnectionHealthData override
     {
-      ConnectionHealthStatus result;
+      ConnectionHealthData result;
       result.emplace("state", "0");
       if (reply.size() == 0)
       {
-        result.emplace("activeConnections", QString("0"));
-        result.emplace("totalConnections", QString("0"));
+        result.emplace("activeConnections", 0);
+        result.emplace("totalConnections", 0);
       }
       else
       {
         result.clear();
-        result.emplace("state", "1");
+        result.emplace("state", 1);
         QString m_DownloadedData = static_cast<QString>(reply);
         QJsonDocument replyDoc = QJsonDocument::fromJson(m_DownloadedData.toUtf8());
         QJsonObject replyData = replyDoc.object();
@@ -226,8 +232,8 @@ namespace api
           QJsonObject jObj = it->toObject();
           active += jObj.find("connected").value().toBool() ? 1 : 0;
         }
-        result.emplace("activeConnections", QString::number(active));
-        result.emplace("totalConnections", QString::number(connectionArray.size()));
+        result.emplace("activeConnections", active);
+        result.emplace("totalConnections", connectionArray.size());
       }
       return result;
     }

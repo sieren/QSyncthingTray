@@ -24,6 +24,7 @@
 #include "startuptab.hpp"
 #include "platforms.hpp"
 #include <qst/settingsmigrator.hpp>
+#include <qst/statswidget.h>
 #include <qst/updatenotifier.h>
 #include <QDoubleSpinBox>
 #include <QSystemTrayIcon>
@@ -69,7 +70,7 @@ protected:
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
-    void updateConnectionHealth(const ConnectionHealthStatus& status);
+    void updateConnectionHealth(const ConnectionStateData& state);
     void onNetworkActivity(bool activity);
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -140,6 +141,9 @@ private:
     QAction *mpCheckUpdateAction;
     QAction *mpPauseSyncthingAction;
     QAction *mpQuitAction;
+    QAction *mpStatsWidgetAction;
+
+    qst::stats::StatsWidget *mpStatsWidget;
 
     QList<QAction*> mCurrentFoldersActions;
     QMenu *mpFolderMenu = nullptr;

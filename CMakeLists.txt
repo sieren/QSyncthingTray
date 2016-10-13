@@ -35,6 +35,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network)
+find_package(Qt5PrintSupport)
 
 add_definitions(-DGLEW_STATIC)
 # The Qt5Widgets_INCLUDES also includes the include directories for
@@ -113,11 +114,13 @@ if (APPLE)
   target_link_libraries(
       QSyncthingTray
       ${Qt5Core_QTMAIN_LIBRARIES}
-      ${COCOA_LIBRARY})
+      ${COCOA_LIBRARY}
+      Qt5::PrintSupport)
 else()
   target_link_libraries(
       QSyncthingTray
-      ${Qt5Core_QTMAIN_LIBRARIES})
+      ${Qt5Core_QTMAIN_LIBRARIES}
+      Qt5::PrintSupport)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")

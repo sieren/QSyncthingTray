@@ -22,7 +22,7 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QtGui>
-
+#include <qst/statswidget.h>
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
@@ -42,7 +42,7 @@
 
 
 //! Layout
-#define currentVersion "0.5.2"
+#define currentVersion "0.5.5rc1"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -66,7 +66,7 @@ Window::Window()
 {
     loadSettings();
     createSettingsGroupBox();
-
+    mpStatsWidget = new qst::stats::StatsWidget("Statistics");
     createActions();
     createTrayIcon();
 
@@ -223,8 +223,10 @@ void Window::testURL()
 
 //------------------------------------------------------------------------------------//
 
-void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
+void Window::updateConnectionHealth(const ConnectionStateData& state)
 {
+  const auto& status = state.first;
+  const auto& traffic = state.second;
   if (mpProcessMonitor->isPausingProcessRunning())
   {
     mpNumberOfConnectionsAction->setVisible(false);
@@ -237,23 +239,29 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
     }
     return;
   }
-  else if (status.at("state") == "1")
+  else if (status.at("state").toInt() == 1)
   {
+    using namespace qst::utilities;
     auto activeConnections = status.at("activeConnections");
     auto totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
-      + activeConnections
-      + "/" + totalConnections);
+      + QString::number(activeConnections.toInt())
+      + "/" + QString::number(totalConnections.toInt()));
+
     mpConnectedState->setVisible(true);
     mpConnectedState->setText(tr("Connected"));
+
+    const auto inTraffic = std::get<0>(traffic);
+    const auto outTraffic = std::get<1>(traffic);
     mpCurrentTrafficAction->setVisible(true);
     mpCurrentTrafficAction->setText(tr("Total: ")
-      + status.at("globalTraffic"));
+      + trafficToString(inTraffic + outTraffic));
     mpTrafficInAction->setVisible(true);
-    mpTrafficInAction->setText(tr("In: ") + status.at("inTraffic"));
+    mpTrafficInAction->setText(tr("In: ") + trafficToString(inTraffic));
+
     mpTrafficOutAction->setVisible(true);
-    mpTrafficOutAction->setText(tr("Out: ") + status.at("outTraffic"));
+    mpTrafficOutAction->setText(tr("Out: ") + trafficToString(outTraffic));
     mpShowWebViewAction->setDisabled(false);
 
     if (mLastSyncedFiles != mpSyncConnector->getLastSyncedFiles())
@@ -266,6 +274,8 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
     {
       showMessage("Connected", "Syncthing is running.");
     }
+
+    mpStatsWidget->updateTrafficData(traffic);
   }
   else
   {
@@ -279,7 +289,7 @@ void Window::updateConnectionHealth(const ConnectionHealthStatus& status)
   }
   try
   {
-    mLastConnectionState = std::stoi(status.at("state").toStdString());
+    mLastConnectionState = status.at("state").toInt();
   }
   catch (std::exception &e)
   {
@@ -557,6 +567,10 @@ void Window::createActions()
   mpTrafficInAction = new QAction(tr("In: 0 KB/s"), this);
   mpTrafficOutAction = new QAction(tr("Out: 0 KB/s"), this);
 
+  mpStatsWidgetAction = new QAction(tr("Statistics"), this);
+  connect(mpStatsWidgetAction, &QAction::triggered, mpStatsWidget,
+    &qst::stats::StatsWidget::show);
+
   mpShowWebViewAction = new QAction(tr("Open Syncthing"), this);
   connect(mpShowWebViewAction, SIGNAL(triggered()), this, SLOT(showWebView()));
 
@@ -659,6 +673,7 @@ void Window::createTrayIcon()
   mpTrayIconMenu->addAction(mpTrafficInAction);
   mpTrayIconMenu->addAction(mpTrafficOutAction);
   mpTrayIconMenu->addAction(mpCurrentTrafficAction);
+  mpTrayIconMenu->addAction(mpStatsWidgetAction);
   mpTrayIconMenu->addAction(mpPauseSyncthingAction);
   mpTrayIconMenu->addSeparator();
 

@@ -2,14 +2,17 @@ cmake_minimum_required(VERSION 3.0)
 project(QSyncthingTray)
 
 set(qst_src_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/qst)
+set(contrib_src_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/contrib)
 
 set(qst_SOURCES
   ${qst_src_ROOT}/main.cpp
   ${qst_src_ROOT}/processmonitor.cpp
   ${qst_src_ROOT}/startuptab.cpp
+  ${qst_src_ROOT}/statswidget.cpp
   ${qst_src_ROOT}/syncconnector.cpp
   ${qst_src_ROOT}/updatenotifier.cpp
   ${qst_src_ROOT}/window.cpp
+  ${contrib_src_ROOT}/qcustomplot.cpp
 )
 
 if (${QST_BUILD_WEBKIT})
