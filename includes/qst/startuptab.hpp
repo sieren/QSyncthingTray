@@ -78,9 +78,10 @@ private slots:
   void pathEnterPressed();
   void showFileBrowser();
   void showINotifyFileBrowser();
-  void processSpawnedChanged(kSyncthingProcessState state);
+  void processSpawnedChanged(const ProcessStateInfo& info);
   
 private:
+  void updateLabelWithState(QLabel* label, const ProcessState &state);
   void loadSettings();
   void initGUI();
   template <typename T, typename ... TArgs>

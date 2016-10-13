@@ -199,13 +199,13 @@ void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
   switch (newState)
   {
     case QProcess::Running:
-      emit(onProcessSpawned(kSyncthingProcessState::SPAWNED));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::SPAWNED}}));
       break;
     case QProcess::NotRunning:
-       emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
       break;
     default:
-      emit(onProcessSpawned(kSyncthingProcessState::NOT_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
   }
 }
 
@@ -359,7 +359,7 @@ void SyncConnector::onSettingsChanged()
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 {
-  emit(onProcessSpawned(kSyncthingProcessState::PAUSED));
+  emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::PAUSED}}));
   reply->deleteLater();
 }
 
@@ -393,7 +393,7 @@ void SyncConnector::spawnSyncthingProcess(
     }
     else
     {
-      emit(onProcessSpawned(kSyncthingProcessState::ALREADY_RUNNING));
+      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::ALREADY_RUNNING}}));
     }
   }
 }

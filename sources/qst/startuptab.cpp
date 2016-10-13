@@ -123,20 +123,32 @@ void StartupTab::initGUI()
 
 //------------------------------------------------------------------------------------//
 
-void StartupTab::processSpawnedChanged(kSyncthingProcessState state)
+void StartupTab::processSpawnedChanged(const ProcessStateInfo& info)
+{
+  auto syncProcess = info.find(kSyncthingIdentifier);
+  if (syncProcess != info.end())
+  {
+    updateLabelWithState(mpAppSpawnedLabel, syncProcess->second);
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void StartupTab::updateLabelWithState(QLabel* label, const ProcessState &state)
 {
   switch (state) {
-    case kSyncthingProcessState::SPAWNED:
-      mpAppSpawnedLabel->setText(tr("Status: Launched"));
+    case ProcessState::SPAWNED:
+      label->setText(tr("Status: Launched"));
       break;
-    case kSyncthingProcessState::NOT_RUNNING:
-      mpAppSpawnedLabel->setText(tr("Status: Not started"));
+    case ProcessState::NOT_RUNNING:
+      label->setText(tr("Status: Not started"));
       break;
-    case kSyncthingProcessState::ALREADY_RUNNING:
-      mpAppSpawnedLabel->setText(tr("Already Running"));
+    case ProcessState::ALREADY_RUNNING:
+      label->setText(tr("Already Running"));
       break;
-    case kSyncthingProcessState::PAUSED:
-      mpAppSpawnedLabel->setText(tr("Paused"));
+    case ProcessState::PAUSED:
+      label->setText(tr("Paused"));
       break;
     default:
       break;
