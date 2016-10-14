@@ -23,6 +23,7 @@
 #include <string>
 #include <iomanip>
 #include <iostream>
+#include <tuple>
 #include <QFile>
 #include <QXmlStreamReader>
 #include "platforms.hpp"
@@ -167,6 +168,24 @@ static QString trafficToString(T traffic)
   return QString(strTraffic.c_str());
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template<size_t N, typename Container>
+  auto find_max_tuple_value(Container& c) ->
+    typename std::tuple_element<N, typename Container::value_type>::type
+{
+  using ContainerValueType = typename Container::value_type;
+  const auto elem = std::max_element(c.begin(), c.end(),
+    [](const ContainerValueType& lhs, const ContainerValueType& rhs)
+    {
+      return(std::get<N>(lhs) < std::get<N>(rhs));
+    });
+  return std::move(std::get<N>(*elem));
+}
+
+
+//------------------------------------------------------------------------------------//
 }
 }
 

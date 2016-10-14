@@ -17,6 +17,7 @@
  ******************************************************************************/
 
 #include <qst/statswidget.h>
+#include <qst/utilities.hpp>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -175,18 +176,10 @@ void StatsWidget::updatePlot()
   mpCustomPlot->graph(0)->setData(time, outTraff);
   mpCustomPlot->graph(1)->setData(time, inTraff);
 
-  const auto& maxOutTraffic = std::max_element(mTrafficPoints.begin(), mTrafficPoints.end(),
-    [](const TrafficData& lhs, const TrafficData& rhs)
-    {
-      return(std::get<1>(lhs) < std::get<1>(rhs));
-    });
-  const auto& maxInTraffic = std::max_element(mTrafficPoints.begin(), mTrafficPoints.end(),
-    [](const TrafficData& lhs, const TrafficData& rhs)
-    {
-      return(std::get<0>(lhs) < std::get<0>(rhs));
-    });
+  const auto& maxOutTraffic = utilities::find_max_tuple_value<1>(mTrafficPoints);
+  const auto& maxInTraffic = utilities::find_max_tuple_value<0>(mTrafficPoints);
+  const auto maxTraffic = (std::max)(maxOutTraffic, maxInTraffic);
 
-  const auto maxTraffic = (std::max)(std::get<1>(*maxOutTraffic), std::get<0>(*maxInTraffic));
   mpCustomPlot->yAxis->setRange(0, maxTraffic);
   mpCustomPlot->xAxis->setRange(0, std::abs(maxTime));
 
