@@ -92,6 +92,7 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
 UNUSED(event);
+  QWebEngineView::closeEvent(event);
   qst::sysutils::SystemUtility().showDockIcon(false);
   mSettings.setValue("WebWindowSize", size());
   emit close();

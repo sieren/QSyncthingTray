@@ -112,6 +112,8 @@ void StatsWidget::show()
 {
   if (isVisible())
   {
+    QWidget::show();
+    QWidget::activateWindow();
     QWidget::raise();
     return;
   }
@@ -126,6 +128,7 @@ void StatsWidget::show()
 
 void StatsWidget::closeEvent(QCloseEvent* event)
 {
+  QWidget::closeEvent(event);
   disconnect(&mRedrawTimer, &QTimer::timeout, this,
     &StatsWidget::updatePlot);
   mRedrawTimer.stop();

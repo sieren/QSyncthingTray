@@ -53,28 +53,28 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 #
 
 set(qst_platform_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/includes/platforms)
-set(qst_platform_SOURCES)
+set(qst_platform_HEADERS)
 if(APPLE)
-  set(qst_platform_SOURCES
-    ${qst_platform_SOURCES}
+  set(qst_platform_HEADERS
+    ${qst_platform_HEADERS}
     ${qst_platform_ROOT}/darwin/macUtils.hpp
 )
 elseif(WIN32)
-  set(qst_platform_SOURCES
-    ${qst_platform_SOURCES}
+  set(qst_platform_HEADERS
+    ${qst_platform_HEADERS}
     ${qst_platform_ROOT}/windows/winUtils.hpp
 )
 elseif(UNIX)
-  set(qst_platform_SOURCES
-    ${qst_platform_SOURCES}
+  set(qst_platform_HEADERS
+    ${qst_platform_HEADERS}
     ${qst_platform_ROOT}/linux/posixUtils.hpp
 )
 endif()
-set(qst_platform_SOURCES
-  ${qst_platform_SOURCES}
+set(qst_platform_HEADERS
+  ${qst_platform_HEADERS}
 )
 
-source_group("Platforms" ${qst_platform_SOURCES})
+source_group("Platforms" ${qst_platform_HEADERS} ${qst_PLATFORMS_SOURCES})
 
 #  ____       _   _
 # |  _ \ __ _| |_| |__  ___
@@ -103,11 +103,11 @@ SET_SOURCE_FILES_PROPERTIES(
   if(APPLE)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
     add_executable(QSyncthingTray MACOSX_BUNDLE resources/Syncthing.icns ${UI_HEADERS} ${UI_RESOURCES} 
-    ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
+      ${qst_platform_HEADERS} ${qst_PLATFORMS_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
   elseif(WIN32)
-    add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
+    add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
   elseif(UNIX)
-    add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
+    add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
   endif()
 
 if (APPLE)

@@ -22,7 +22,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-#include <Carbon/Carbon.h>
+#include <QWidget>
 #include <QProcessEnvironment>
 #include <QString>
 #define UNUSED(x) (void)(x)
@@ -42,27 +42,7 @@ namespace darwin
       return '/';
     }
 
-    void showDockIcon(bool show)
-    {
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      ProcessSerialNumber psn;
-      windowCounter += show ? 1 : -1;
-      UInt32 transformState = show ? kProcessTransformToForegroundApplication :
-        kProcessTransformToUIElementApplication;
-      const bool shouldHideLastWindow =
-        (transformState == kProcessTransformToUIElementApplication &&
-         windowCounter == 0) ? true : false;
-      const bool shouldShowWindow =
-        (transformState == kProcessTransformToForegroundApplication &&
-         windowCounter > 0) ? true : false;
-      if (GetCurrentProcess(&psn) == noErr && (shouldShowWindow || shouldHideLastWindow))
-      {
-        TransformProcessType(&psn,
-          transformState);
-      }
-    #pragma clang diagnostic pop
-    }
+    void showDockIcon(bool show);
 
     auto getSSLLibraryText() -> std::string
     {
