@@ -162,11 +162,11 @@ void StatsWidget::updatePlot()
   const auto& maxTime = duration_cast<seconds>(
     std::get<2>(trafficPoints.front()) - currentTime).count();
   auto idx = 0;
-  for (auto it = trafficPoints.begin(); it != trafficPoints.end(); it++)
+  for (auto& traffPoint : trafficPoints)
   {
-    auto timeDelta = duration_cast<seconds>(currentTime - std::get<2>(*it)).count();
-    inTraff[idx] = std::get<0>(*it);
-    outTraff[idx] = std::get<1>(*it);
+    auto timeDelta = duration_cast<seconds>(currentTime - std::get<2>(traffPoint)).count();
+    inTraff[idx] = std::get<0>(traffPoint);
+    outTraff[idx] = std::get<1>(traffPoint);
     time[idx] = static_cast<double>(timeDelta);
     idx++;
   }
