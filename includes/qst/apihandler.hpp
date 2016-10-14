@@ -64,7 +64,7 @@ namespace api
 
     auto getCurrentFolderList(QByteArray reply) -> std::list<FolderNameFullPath>
     {
-      std::list<std::pair<QString, QString>> result;
+      std::list<FolderNameFullPath> result;
 
       if (reply.size() > 0)
       {

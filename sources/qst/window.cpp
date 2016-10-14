@@ -417,7 +417,7 @@ void Window::folderClicked()
   std::list<FolderNameFullPath>::iterator folder =
     std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
       [&findFolder](FolderNameFullPath const& elem) {
-        return elem.first == findFolder;
+        return qst::utilities::getFullCleanFileName(elem.second) == findFolder;
       });
   QDesktopServices::openUrl(QUrl::fromLocalFile(folder->second));
 }
@@ -618,7 +618,8 @@ void Window::createFoldersMenu()
     for (std::list<FolderNameFullPath>::iterator it=mCurrentFoldersLocations.begin();
       it != mCurrentFoldersLocations.end(); ++it)
     {
-      QAction *aAction = new QAction(it->first, this);
+      using namespace qst::utilities;
+      QAction *aAction = new QAction(getFullCleanFileName(it->second), this);
       connect(aAction, SIGNAL(triggered()), this, SLOT(folderClicked()));
       mCurrentFoldersActions.push_back(aAction);
     }
