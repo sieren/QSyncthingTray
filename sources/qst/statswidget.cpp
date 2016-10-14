@@ -175,12 +175,12 @@ void StatsWidget::updatePlot()
   mpCustomPlot->graph(1)->setData(time, inTraff);
 
   const auto& maxOutTraffic = std::max_element(trafficPoints.begin(), trafficPoints.end(),
-    [](const TrafficData& lhs, const TrafficData &rhs)
+    [](const TrafficData& lhs, const TrafficData& rhs)
     {
       return(std::get<1>(lhs) < std::get<1>(rhs));
     });
   const auto& maxInTraffic = std::max_element(trafficPoints.begin(), trafficPoints.end(),
-    [](const TrafficData& lhs, const TrafficData &rhs)
+    [](const TrafficData& lhs, const TrafficData& rhs)
     {
       return(std::get<0>(lhs) < std::get<0>(rhs));
     });
