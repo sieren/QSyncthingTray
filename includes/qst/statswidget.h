@@ -63,6 +63,8 @@ private slots:
 
 private:
   void configurePlot(QCustomPlot* plot);
+  template<typename Container, typename Duration>
+  void cleanupTimeData(Container& vec, const Duration& dur);
   QTimer mRedrawTimer;
   QLabel *mpLabel;
   QString mTitle;
@@ -72,6 +74,7 @@ private:
   QSharedPointer<QCPAxisTickerDateTime> mpDateTicker;
   std::list<TrafficData> mTrafficPoints;
   static const int kMaxTrafficDataPoints;
+  static const int kMaxTimeInPlotMins;
   static const QBrush kBackgroundColor;
   static const QColor kForegroundColor;
 };

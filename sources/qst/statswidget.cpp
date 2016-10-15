@@ -35,7 +35,7 @@ namespace stats
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 
-const int StatsWidget::kMaxTrafficDataPoints = 60*60;
+const int StatsWidget::kMaxTimeInPlotMins = 60;
 const QBrush StatsWidget::kBackgroundColor{QColor(0,0,0,255)};
 const QColor StatsWidget::kForegroundColor{255,255,255,255};
 
@@ -140,11 +140,8 @@ void StatsWidget::closeEvent(QCloseEvent* event)
 void StatsWidget::updateTrafficData(const TrafficData& traffData)
 {
   std::lock_guard<std::mutex> lock(mTraffGuard);
-  if (mTrafficPoints.size() > kMaxTrafficDataPoints)
-  {
-    mTrafficPoints.pop_front();
-  }
   mTrafficPoints.push_back(traffData);
+  cleanupTimeData(mTrafficPoints, std::chrono::minutes{kMaxTimeInPlotMins});
 }
 
 
@@ -187,6 +184,31 @@ void StatsWidget::updatePlot()
   mpCustomPlot->xAxis->setRange(0, std::abs(maxTime));
 
   mpCustomPlot->replot();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+template<typename Container, typename Duration>
+void StatsWidget::cleanupTimeData(Container& vec, const Duration& dur)
+{
+  using namespace std::chrono;
+  using TimeValueType = std::chrono::time_point<std::chrono::system_clock>;
+  using ContainerValueType = typename Container::value_type;
+  const auto TimeValueTypePosition =
+    utilities::Index<TimeValueType, ContainerValueType>::value;
+
+  const auto& maxTime = std::get<TimeValueTypePosition>(vec.back());
+  const auto minTime = maxTime - dur;
+  const auto timeCmp = [](const ContainerValueType& obj, const TimeValueType& time)
+    {
+      // MSVC2013 doesnt accept the capture
+      const auto pos = utilities::Index<TimeValueType, ContainerValueType>::value;
+      return std::get<pos>(obj) < time;
+    };
+  const auto endExpired = std::lower_bound(
+    std::begin(vec), std::end(vec), minTime, timeCmp);
+  vec.erase(std::begin(vec), endExpired);
 }
 
 
