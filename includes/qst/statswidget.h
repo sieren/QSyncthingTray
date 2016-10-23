@@ -70,7 +70,7 @@ private:
   std::mutex mTraffGuard;
   QCustomPlot *mpCustomPlot;
   QSharedPointer<QCPAxisTickerDateTime> mpDateTicker;
-  std::list<TrafficData> trafficPoints;
+  std::list<TrafficData> mTrafficPoints;
   static const int kMaxTrafficDataPoints;
   static const QBrush kBackgroundColor;
   static const QColor kForegroundColor;

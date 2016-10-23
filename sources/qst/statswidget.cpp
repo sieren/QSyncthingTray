@@ -136,11 +136,11 @@ void StatsWidget::closeEvent(QCloseEvent* event)
 void StatsWidget::updateTrafficData(const TrafficData& traffData)
 {
   std::lock_guard<std::mutex> lock(mTraffGuard);
-  if (trafficPoints.size() > kMaxTrafficDataPoints)
+  if (mTrafficPoints.size() > kMaxTrafficDataPoints)
   {
-    trafficPoints.pop_front();
+    mTrafficPoints.pop_front();
   }
-  trafficPoints.push_back(traffData);
+  mTrafficPoints.push_back(traffData);
 }
 
 
@@ -153,16 +153,17 @@ void StatsWidget::updatePlot()
   {
     return;
   }
-  const auto numPoints = static_cast<double>(trafficPoints.size());
+  const auto numPoints = static_cast<double>(mTrafficPoints.size());
   QVector<double> inTraff(numPoints);
   QVector<double> outTraff(numPoints), time(numPoints);
 
   using namespace std::chrono;
-  const auto& currentTime = std::get<2>(trafficPoints.back());
+
+  const auto& currentTime = std::get<2>(mTrafficPoints.back());
   const auto& maxTime = duration_cast<seconds>(
-    std::get<2>(trafficPoints.front()) - currentTime).count();
+    std::get<2>(mTrafficPoints.front()) - currentTime).count();
   auto idx = 0;
-  for (auto& traffPoint : trafficPoints)
+  for (auto& traffPoint : mTrafficPoints)
   {
     auto timeDelta = duration_cast<seconds>(currentTime - std::get<2>(traffPoint)).count();
     inTraff[idx] = std::get<0>(traffPoint);
@@ -174,12 +175,12 @@ void StatsWidget::updatePlot()
   mpCustomPlot->graph(0)->setData(time, outTraff);
   mpCustomPlot->graph(1)->setData(time, inTraff);
 
-  const auto& maxOutTraffic = std::max_element(trafficPoints.begin(), trafficPoints.end(),
+  const auto& maxOutTraffic = std::max_element(mTrafficPoints.begin(), mTrafficPoints.end(),
     [](const TrafficData& lhs, const TrafficData& rhs)
     {
       return(std::get<1>(lhs) < std::get<1>(rhs));
     });
-  const auto& maxInTraffic = std::max_element(trafficPoints.begin(), trafficPoints.end(),
+  const auto& maxInTraffic = std::max_element(mTrafficPoints.begin(), mTrafficPoints.end(),
     [](const TrafficData& lhs, const TrafficData& rhs)
     {
       return(std::get<0>(lhs) < std::get<0>(rhs));
