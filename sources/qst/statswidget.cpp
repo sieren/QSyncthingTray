@@ -49,7 +49,7 @@ StatsWidget::StatsWidget(const QString& title) :
   mpWidget = new QWidget();
   QVBoxLayout* pLayout = new QVBoxLayout();
   setStyleSheet("background-color:black;");
-  mpDateTicker->setDateTimeFormat("mm:ss");
+  mpDateTicker->setDateTimeFormat("hh:mm");
   mpLabel = new QLabel (title);
 
   mpCustomPlot = new QCustomPlot();
@@ -85,7 +85,6 @@ void StatsWidget::configurePlot(QCustomPlot* plot)
   plot->yAxis->setNumberFormat("f");
   plot->yAxis->setNumberPrecision(1);
   plot->xAxis->setTicker(mpDateTicker);
-  plot->xAxis->setRangeReversed(true);
   plot->xAxis->setLabelColor(kForegroundColor);
   plot->yAxis->setLabelColor(kForegroundColor);
   plot->xAxis->setTickLabelColor(kForegroundColor);
@@ -160,16 +159,19 @@ void StatsWidget::updatePlot()
 
   using namespace std::chrono;
 
-  const auto& currentTime = std::get<2>(mTrafficPoints.back());
-  const auto& maxTime = duration_cast<seconds>(
-    std::get<2>(mTrafficPoints.front()) - currentTime).count();
+  const auto& maxTime = duration_cast<seconds>(std::get<2>(
+    mTrafficPoints.back()).time_since_epoch()).count();
+  const auto& minTime = duration_cast<seconds>(std::get<2>(
+    mTrafficPoints.front()).time_since_epoch()).count();
+
   auto idx = 0;
   for (auto& traffPoint : mTrafficPoints)
   {
-    auto timeDelta = duration_cast<seconds>(currentTime - std::get<2>(traffPoint)).count();
+    const auto& timePoint =
+      duration_cast<seconds>(std::get<2>(traffPoint).time_since_epoch()).count();
     inTraff[idx] = std::get<0>(traffPoint);
     outTraff[idx] = std::get<1>(traffPoint);
-    time[idx] = static_cast<double>(timeDelta);
+    time[idx] = static_cast<double>(timePoint);
     idx++;
   }
 
@@ -181,7 +183,7 @@ void StatsWidget::updatePlot()
   const auto maxTraffic = (std::max)(maxOutTraffic, maxInTraffic);
 
   mpCustomPlot->yAxis->setRange(0, maxTraffic);
-  mpCustomPlot->xAxis->setRange(0, std::abs(maxTime));
+  mpCustomPlot->xAxis->setRange(minTime, maxTime);
 
   mpCustomPlot->replot();
 }
