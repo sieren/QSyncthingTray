@@ -57,17 +57,9 @@ StatsWidget::StatsWidget(const QString& title) :
   mpLabel = new QLabel (title);
 
   mpCustomPlot = new QCustomPlot();
-  mpCustomPlot->setMinimumWidth(400);
-  mpCustomPlot->setMinimumHeight(200);
-  mpCustomPlot->plotLayout()->insertRow(0);
-  mpCustomPlot->plotLayout()->addElement(0, 0,
-    new QCPTextElement(mpCustomPlot, "Traffic (1hr)"));
-  auto textElement = dynamic_cast<QCPTextElement*>(
-     mpCustomPlot->plotLayout()->element(0, 0));
-  textElement->setTextColor(kForegroundColor);
+  mpConnectionPlot = new QCustomPlot();
 
-  pLayout->addWidget(mpCustomPlot);
-  setLayout(pLayout);
+  // Traffic Plot
   mpCustomPlot->addGraph();
   mpCustomPlot->addGraph();
 
@@ -78,13 +70,27 @@ StatsWidget::StatsWidget(const QString& title) :
   mpCustomPlot->xAxis->setLabel("Time");
   mpCustomPlot->yAxis->setLabel("kb/s");
 
-  configurePlot(mpCustomPlot);
+  // Traffic Plot
+  mpConnectionPlot->addGraph();
+
+  mpConnectionPlot->graph(0)->setPen(QPen(QColor(255, 0, 0, 255)));
+  mpConnectionPlot->graph(0)->setName("Active Connections");
+  mpConnectionPlot->xAxis->setLabel("Time");
+  mpConnectionPlot->yAxis->setLabel("Connections");
+
+  configurePlot(mpCustomPlot, "Traffic (1hr)");
+  configurePlot(mpConnectionPlot, "Connections (1hr)");
+
+
+  pLayout->addWidget(mpCustomPlot);
+  pLayout->addWidget(mpConnectionPlot);
+  setLayout(pLayout);
 }
 
 
 //------------------------------------------------------------------------------------//
 
-void StatsWidget::configurePlot(QCustomPlot* plot)
+void StatsWidget::configurePlot(QCustomPlot* plot, const QString& title)
 {
   plot->yAxis->setNumberFormat("f");
   plot->yAxis->setNumberPrecision(1);
@@ -106,6 +112,16 @@ void StatsWidget::configurePlot(QCustomPlot* plot)
   plot->yAxis->grid()->setPen(QPen(kForegroundColor, 0, Qt::DotLine));
   plot->xAxis->setBasePen(QPen(kForegroundColor, 0, Qt::SolidLine));
   plot->yAxis->setBasePen(QPen(kForegroundColor, 0, Qt::SolidLine));
+
+  plot->setMinimumWidth(400);
+  plot->setMinimumHeight(200);
+  plot->plotLayout()->insertRow(0);
+  plot->plotLayout()->addElement(0, 0,
+    new QCPTextElement(plot, title));
+  auto textElement = dynamic_cast<QCPTextElement*>(
+    plot->plotLayout()->element(0, 0));
+  textElement->setTextColor(kForegroundColor);
+
 }
 
 
@@ -140,9 +156,21 @@ void StatsWidget::closeEvent(QCloseEvent* event)
 
 //------------------------------------------------------------------------------------//
 
+void StatsWidget::addConnectionPoint(const std::uint16_t& numConn)
+{
+  using namespace std::chrono;
+  std::lock_guard<std::mutex> lock(mDataGuard);
+  mConnectionPoints.emplace_back(std::make_tuple(numConn, system_clock::now()));
+  cleanupTimeData(mConnectionPoints, std::chrono::minutes{kMaxTimeInPlotMins});
+  zeroMissingTimeData(mConnectionPoints);
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void StatsWidget::updateTrafficData(const TrafficData& traffData)
 {
-  std::lock_guard<std::mutex> lock(mTraffGuard);
+  std::lock_guard<std::mutex> lock(mDataGuard);
   mTrafficPoints.push_back(traffData);
   cleanupTimeData(mTrafficPoints, std::chrono::minutes{kMaxTimeInPlotMins});
   zeroMissingTimeData(mTrafficPoints);
@@ -153,11 +181,59 @@ void StatsWidget::updateTrafficData(const TrafficData& traffData)
 
 void StatsWidget::updatePlot()
 {
-  std::unique_lock<std::mutex> lock(mTraffGuard, std::try_to_lock);
+  std::unique_lock<std::mutex> lock(mDataGuard, std::try_to_lock);
   if(!lock.owns_lock())
   {
     return;
   }
+  updateTrafficPlot();
+  updateConnectionsPlot();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void StatsWidget::updateConnectionsPlot()
+{
+  const auto numPoints = static_cast<double>(mConnectionPoints.size());
+  QVector<double> connections(numPoints), time(numPoints);
+
+  using namespace std::chrono;
+
+  const auto& maxTime = duration_cast<seconds>(std::get<1>(
+    mConnectionPoints.back()).time_since_epoch()).count();
+  const auto& minTime = duration_cast<seconds>(std::get<1>(
+    mConnectionPoints.front()).time_since_epoch()).count();
+
+  auto idx = 0;
+  for (auto& connPoint : mConnectionPoints)
+  {
+    const auto& timePoint =
+      duration_cast<seconds>(std::get<1>(connPoint).time_since_epoch()).count();
+    connections[idx] = std::get<0>(connPoint);
+    time[idx] = static_cast<double>(timePoint);
+    idx++;
+  }
+
+  mpConnectionPlot->graph(0)->setData(time, connections);
+
+  auto cmp = [](const ConnectionPlotData& lhs, const ConnectionPlotData& rhs)
+  {
+    return std::get<0>(lhs) < std::get<0>(rhs);
+  };
+  const auto& maxConns = std::max_element(
+    mConnectionPoints.begin(), mConnectionPoints.end(), cmp);
+  mpConnectionPlot->yAxis->setRange(0, std::get<0>(*maxConns));
+  mpConnectionPlot->xAxis->setRange(minTime, maxTime);
+
+  mpConnectionPlot->replot();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void StatsWidget::updateTrafficPlot()
+{
   const auto numPoints = static_cast<double>(mTrafficPoints.size());
   QVector<double> inTraff(numPoints);
   QVector<double> outTraff(numPoints), time(numPoints);

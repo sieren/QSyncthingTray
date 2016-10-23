@@ -40,6 +40,10 @@
 #include "apihandler.hpp"
 #include <contrib/qcustomplot.h>
 
+namespace
+{
+  using ConnectionPlotData = std::tuple<std::uint16_t, std::chrono::time_point<std::chrono::system_clock>>;
+}
 namespace qst
 {
 namespace stats
@@ -53,6 +57,7 @@ public:
   StatsWidget() = delete;
   StatsWidget(const QString& title);
   void updateTrafficData(const TrafficData& traffData);
+  void addConnectionPoint(const std::uint16_t& numConn);
   void closeEvent(QCloseEvent * event);
 
 public slots:
@@ -62,7 +67,9 @@ private slots:
   void updatePlot();
 
 private:
-  void configurePlot(QCustomPlot* plot);
+  void configurePlot(QCustomPlot* plot, const QString& title);
+  void updateTrafficPlot();
+  void updateConnectionsPlot();
   template<typename Container, typename Duration>
   void cleanupTimeData(Container& vec, const Duration& dur);
 
@@ -72,10 +79,12 @@ private:
   QLabel *mpLabel;
   QString mTitle;
   QWidget *mpWidget;
-  std::mutex mTraffGuard;
+  std::mutex mDataGuard;
   QCustomPlot *mpCustomPlot;
+  QCustomPlot *mpConnectionPlot;
   QSharedPointer<QCPAxisTickerDateTime> mpDateTicker;
   std::list<TrafficData> mTrafficPoints;
+  std::list<ConnectionPlotData> mConnectionPoints;
   static const int kMaxTrafficDataPoints;
   static const int kMaxTimeInPlotMins;
   static const int kMaxSecBeforeZero;

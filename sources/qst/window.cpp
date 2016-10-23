@@ -242,8 +242,8 @@ void Window::updateConnectionHealth(const ConnectionStateData& state)
   else if (status.at("state").toInt() == 1)
   {
     using namespace qst::utilities;
-    auto activeConnections = status.at("activeConnections");
-    auto totalConnections = status.at("totalConnections");
+    const auto& activeConnections = status.at("activeConnections");
+    const auto& totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
       + QString::number(activeConnections.toInt())
@@ -276,6 +276,7 @@ void Window::updateConnectionHealth(const ConnectionStateData& state)
     }
 
     mpStatsWidget->updateTrafficData(traffic);
+    mpStatsWidget->addConnectionPoint(activeConnections.toInt());
   }
   else
   {
