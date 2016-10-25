@@ -65,6 +65,9 @@ private:
   void configurePlot(QCustomPlot* plot);
   template<typename Container, typename Duration>
   void cleanupTimeData(Container& vec, const Duration& dur);
+
+  template<typename Container>
+  void zeroMissingTimeData(Container& vec);
   QTimer mRedrawTimer;
   QLabel *mpLabel;
   QString mTitle;
@@ -75,6 +78,7 @@ private:
   std::list<TrafficData> mTrafficPoints;
   static const int kMaxTrafficDataPoints;
   static const int kMaxTimeInPlotMins;
+  static const int kMaxSecBeforeZero;
   static const QBrush kBackgroundColor;
   static const QColor kForegroundColor;
 };

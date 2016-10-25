@@ -24,6 +24,9 @@
 #include <QLabel>
 #include <QSpinBox>
 
+#include <algorithm>
+#include <cassert>
+
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 
@@ -36,6 +39,7 @@ namespace stats
 //------------------------------------------------------------------------------------//
 
 const int StatsWidget::kMaxTimeInPlotMins = 60;
+const int StatsWidget::kMaxSecBeforeZero = 10;
 const QBrush StatsWidget::kBackgroundColor{QColor(0,0,0,255)};
 const QColor StatsWidget::kForegroundColor{255,255,255,255};
 
@@ -141,6 +145,7 @@ void StatsWidget::updateTrafficData(const TrafficData& traffData)
   std::lock_guard<std::mutex> lock(mTraffGuard);
   mTrafficPoints.push_back(traffData);
   cleanupTimeData(mTrafficPoints, std::chrono::minutes{kMaxTimeInPlotMins});
+  zeroMissingTimeData(mTrafficPoints);
 }
 
 
@@ -213,6 +218,48 @@ void StatsWidget::cleanupTimeData(Container& vec, const Duration& dur)
   vec.erase(std::begin(vec), endExpired);
 }
 
+
+//------------------------------------------------------------------------------------//
+
+template<typename Container>
+void StatsWidget::zeroMissingTimeData(Container &vec)
+{
+  using namespace std::chrono;
+  using TimeValueType = std::chrono::time_point<std::chrono::system_clock>;
+  using ContainerValueType = typename Container::value_type;
+  const auto TimeValueTypePosition =
+    utilities::Index<TimeValueType, ContainerValueType>::value;
+
+  const auto maxTimeDistance = seconds(kMaxSecBeforeZero);
+  auto timeCmp = [&maxTimeDistance]
+    (const ContainerValueType& lhs, const ContainerValueType& rhs)
+    {
+      const auto pos =
+        utilities::Index<TimeValueType, ContainerValueType>::value;
+      return duration_cast<seconds>(
+        std::get<pos>(rhs) - std::get<pos>(lhs)) > maxTimeDistance;
+    };
+
+  const auto itDist = std::adjacent_find(vec.begin(), vec.end(), timeCmp);
+  const auto itDistEnd = std::next(itDist, 1);
+  if (itDist == vec.end())
+  {
+    return;
+  }
+  assert(itDistEnd != vec.end());
+  const auto& timePointStart = std::get<TimeValueTypePosition>(*itDist);
+  const auto& timePointEnd = std::get<TimeValueTypePosition>(*itDistEnd);
+  const auto newTimeStart = timePointStart + seconds(kMaxSecBeforeZero/2);
+  const auto newTimeEnd = timePointEnd - seconds(kMaxSecBeforeZero/2);
+
+  auto newStartElement = ContainerValueType();
+  auto newEndElement = ContainerValueType();
+  std::get<TimeValueTypePosition>(newStartElement) = newTimeStart;
+  std::get<TimeValueTypePosition>(newEndElement) = newTimeEnd;
+  const std::vector<ContainerValueType> newVec{newStartElement, newEndElement};
+  vec.insert(itDistEnd, newVec.begin(), newVec.end());
+  zeroMissingTimeData(vec);
+}
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
