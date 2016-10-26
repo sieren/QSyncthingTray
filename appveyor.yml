@@ -15,9 +15,9 @@ clone_folder: c:\dev
 clone_depth: 5
 
 init:
-  - set PATH=C:\Qt\5.5\%qt%\bin;%PATH%
+  - set PATH=C:\Qt\5.65\%qt%\bin;%PATH%
   - set ORIGPATH=%PATH%
-  - set QTDIR=C:\Qt\5.5\%qt%\
+  - set QTDIR=C:\Qt\5.6\%qt%\
   - if not %platform%==mingw call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %platform%
 
 install:
@@ -30,7 +30,7 @@ before_build:
 build_script:
   - cd build
   - cmake ..\ -G "Visual Studio 12 2013 Win64"
-  - msbuild QSyncthingTray.sln 
+  - msbuild QSyncthingTray.sln
 
 after_build:
 
