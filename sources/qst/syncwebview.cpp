@@ -64,6 +64,7 @@ void SyncWebView::initWebView()
   mpPageView->load(mSyncThingUrl);
   resize(mSettings.value("WebWindowSize").toSize());
   setPage(mpPageView.get());
+  page()->setBackgroundColor(Qt::darkGray);
 }
 
 
@@ -91,6 +92,7 @@ void SyncWebView::updateConnection(QUrl url, Authentication authInfo)
 void SyncWebView::closeEvent(QCloseEvent *event)
 {
 UNUSED(event);
+  QWebEngineView::closeEvent(event);
   qst::sysutils::SystemUtility().showDockIcon(false);
   mSettings.setValue("WebWindowSize", size());
   emit close();

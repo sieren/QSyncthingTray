@@ -23,6 +23,7 @@
 #include <string>
 #include <iomanip>
 #include <iostream>
+#include <tuple>
 #include <QFile>
 #include <QXmlStreamReader>
 #include "platforms.hpp"
@@ -166,6 +167,43 @@ static QString trafficToString(T traffic)
   to_string_with_precision(traffic, 2) + " KB/s";
   return QString(strTraffic.c_str());
 }
+
+
+//------------------------------------------------------------------------------------//
+
+template<size_t N, typename Container>
+  auto find_max_tuple_value(Container& c) ->
+    typename std::tuple_element<N, typename Container::value_type>::type
+{
+  using ContainerValueType = typename Container::value_type;
+  const auto elem = std::max_element(c.begin(), c.end(),
+    [](const ContainerValueType& lhs, const ContainerValueType& rhs)
+    {
+      return(std::get<N>(lhs) < std::get<N>(rhs));
+    });
+  return std::move(std::get<N>(*elem));
+}
+
+
+//------------------------------------------------------------------------------------//
+// retrieve index of type in tuple
+template <class T, class Tuple>
+struct Index;
+
+template <class T, class... Types>
+struct Index<T, std::tuple<T, Types...>>
+{
+  static const std::size_t value = 0;
+};
+
+template <class T, class U, class... Types>
+struct Index<T, std::tuple<U, Types...>>
+{
+  static const std::size_t value = 1 + Index<T, std::tuple<Types...>>::value;
+};
+
+
+//------------------------------------------------------------------------------------//
 
 }
 }

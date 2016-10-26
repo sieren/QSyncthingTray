@@ -40,6 +40,10 @@
 #include "apihandler.hpp"
 #include <contrib/qcustomplot.h>
 
+namespace
+{
+  using ConnectionPlotData = std::tuple<std::uint16_t, std::chrono::time_point<std::chrono::system_clock>>;
+}
 namespace qst
 {
 namespace stats
@@ -53,7 +57,9 @@ public:
   StatsWidget() = delete;
   StatsWidget(const QString& title);
   void updateTrafficData(const TrafficData& traffData);
+  void addConnectionPoint(const std::uint16_t& numConn);
   void closeEvent(QCloseEvent * event);
+  void onSettingsChanged();
 
 public slots:
   void show();
@@ -62,16 +68,30 @@ private slots:
   void updatePlot();
 
 private:
-  void configurePlot(QCustomPlot* plot);
+  void configurePlot(QCustomPlot* plot, const QString& title);
+  void updateTitle(QCustomPlot* plot, const QString& title);
+  void updateTrafficPlot();
+  void updateConnectionsPlot();
+
+  template<typename Container, typename Duration>
+  void cleanupTimeData(Container& vec, const Duration& dur);
+
+  template<typename Container>
+  void zeroMissingTimeData(Container& vec);
+
+  QString mTitle;
+  QSettings mSettings;
   QTimer mRedrawTimer;
   QLabel *mpLabel;
-  QString mTitle;
   QWidget *mpWidget;
-  std::mutex mTraffGuard;
+  std::mutex mDataGuard;
   QCustomPlot *mpCustomPlot;
+  QCustomPlot *mpConnectionPlot;
   QSharedPointer<QCPAxisTickerDateTime> mpDateTicker;
-  std::list<TrafficData> trafficPoints;
-  static const int kMaxTrafficDataPoints;
+  std::list<TrafficData> mTrafficPoints;
+  std::list<ConnectionPlotData> mConnectionPoints;
+  int mMaxTimeInPlotMins = 60;
+  static const int kMaxSecBeforeZero;
   static const QBrush kBackgroundColor;
   static const QColor kForegroundColor;
 };

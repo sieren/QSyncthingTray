@@ -42,7 +42,7 @@
 
 
 //! Layout
-#define currentVersion "0.5.5rc1"
+#define currentVersion "0.5.5rc2"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -242,8 +242,8 @@ void Window::updateConnectionHealth(const ConnectionStateData& state)
   else if (status.at("state").toInt() == 1)
   {
     using namespace qst::utilities;
-    auto activeConnections = status.at("activeConnections");
-    auto totalConnections = status.at("totalConnections");
+    const auto& activeConnections = status.at("activeConnections");
+    const auto& totalConnections = status.at("totalConnections");
     mpNumberOfConnectionsAction->setVisible(true);
     mpNumberOfConnectionsAction->setText(tr("Connections: ")
       + QString::number(activeConnections.toInt())
@@ -276,6 +276,7 @@ void Window::updateConnectionHealth(const ConnectionStateData& state)
     }
 
     mpStatsWidget->updateTrafficData(traffic);
+    mpStatsWidget->addConnectionPoint(activeConnections.toInt());
   }
   else
   {
@@ -417,7 +418,7 @@ void Window::folderClicked()
   std::list<FolderNameFullPath>::iterator folder =
     std::find_if(mCurrentFoldersLocations.begin(), mCurrentFoldersLocations.end(),
       [&findFolder](FolderNameFullPath const& elem) {
-        return elem.first == findFolder;
+        return qst::utilities::getFullCleanFileName(elem.second) == findFolder;
       });
   QDesktopServices::openUrl(QUrl::fromLocalFile(folder->second));
 }
@@ -531,6 +532,13 @@ void Window::createSettingsGroupBox()
   mpSyncPollIntervalBox->setMaximumWidth(80);
   mpSyncPollIntervalBox->setValue(mSettings.value("pollingInterval").toDouble());
 
+  mpStatsLengthLabel = new QLabel(tr("Statistics Length (hours)"));
+  mpStatsLengthBox = new QDoubleSpinBox();
+  mpStatsLengthBox->setRange(1.0, 48.0);
+  mpStatsLengthBox->setSingleStep(1.0);
+  mpStatsLengthBox->setMaximumWidth(80);
+  mpStatsLengthBox->setValue(mSettings.value("statsLength").toInt());
+
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
@@ -541,6 +549,8 @@ void Window::createSettingsGroupBox()
     appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
     appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
     appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+    appearanceLayout->addWidget(mpStatsLengthLabel, 5, 0);
+    appearanceLayout->addWidget(mpStatsLengthBox, 6, 0, 1, 2);
   }
   else
   {
@@ -618,7 +628,8 @@ void Window::createFoldersMenu()
     for (std::list<FolderNameFullPath>::iterator it=mCurrentFoldersLocations.begin();
       it != mCurrentFoldersLocations.end(); ++it)
     {
-      QAction *aAction = new QAction(it->first, this);
+      using namespace qst::utilities;
+      QAction *aAction = new QAction(getFullCleanFileName(it->second), this);
       connect(aAction, SIGNAL(triggered()), this, SLOT(folderClicked()));
       mCurrentFoldersActions.push_back(aAction);
     }
@@ -704,12 +715,14 @@ void Window::saveSettings()
   mSettings.setValue("userpassword", userPassword->text());
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mNotificationsEnabled = mpNotificationsIconBox->checkState() ==
-  Qt::CheckState::Checked ? true : false;
+    Qt::CheckState::Checked ? true : false;
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
   mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
   mSettings.setValue("apiKey", mpAPIKeyEdit->text());
+  mSettings.setValue("statsLength", static_cast<int>(mpStatsLengthBox->value()));
   mpSyncConnector->onSettingsChanged();
+  mpStatsWidget->onSettingsChanged();
 }
 
 

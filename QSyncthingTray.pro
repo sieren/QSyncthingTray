@@ -38,6 +38,8 @@ CONFIG += c++11
 macx {
 QMAKE_INFO_PLIST = resources/Info.plist
 LIBS += -framework ApplicationServices
+LIBS += -framework Cocoa 
+SOURCES += sources/platforms/darwin/macUtils.mm
 }
 #QMAKE_CXXFLAGS += /wd4996
 ICON = resources/Syncthing.icns

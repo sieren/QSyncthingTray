@@ -129,6 +129,8 @@ private:
     QDoubleSpinBox *mpWebViewZoomFactor;
     QLabel *mpSyncPollIntervalLabel;
     QDoubleSpinBox *mpSyncPollIntervalBox;
+    QLabel *mpStatsLengthLabel;
+    QDoubleSpinBox *mpStatsLengthBox;
 
     QAction *mpConnectedState;
     QAction *mpNumberOfConnectionsAction;
