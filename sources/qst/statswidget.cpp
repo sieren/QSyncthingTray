@@ -70,7 +70,7 @@ StatsWidget::StatsWidget(const QString& title) :
   mpCustomPlot->graph(0)->setName("Output");
   mpCustomPlot->graph(1)->setPen(QPen(QColor(0, 255, 255, 255)));
   mpCustomPlot->graph(1)->setName("Input");
-  mpCustomPlot->xAxis->setLabel("Minutes");
+  mpCustomPlot->xAxis->setLabel("Time");
   mpCustomPlot->yAxis->setLabel("kb/s");
 
   configurePlot(mpCustomPlot);
