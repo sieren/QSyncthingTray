@@ -64,6 +64,7 @@ void SyncWebView::initWebView()
   mpPageView->load(mSyncThingUrl);
   resize(mSettings.value("WebWindowSize").toSize());
   setPage(mpPageView.get());
+  page()->setBackgroundColor(Qt::darkGray);
 }
 
 
