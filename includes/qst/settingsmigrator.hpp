@@ -91,6 +91,7 @@ void createDefaultSettings()
     sysutils::SystemUtility().getDefaultSyncthingINotifyLocation());
   checkAndSetValue("lastupdatecheck", QDateTime().currentDateTime());
   checkAndSetValue("lastshownupdatenotification", QString("0"));
+  checkAndSetValue("statsLength", 1);
 }
 
 

@@ -59,6 +59,7 @@ public:
   void updateTrafficData(const TrafficData& traffData);
   void addConnectionPoint(const std::uint16_t& numConn);
   void closeEvent(QCloseEvent * event);
+  void onSettingsChanged();
 
 public slots:
   void show();
@@ -68,16 +69,20 @@ private slots:
 
 private:
   void configurePlot(QCustomPlot* plot, const QString& title);
+  void updateTitle(QCustomPlot* plot, const QString& title);
   void updateTrafficPlot();
   void updateConnectionsPlot();
+
   template<typename Container, typename Duration>
   void cleanupTimeData(Container& vec, const Duration& dur);
 
   template<typename Container>
   void zeroMissingTimeData(Container& vec);
+
+  QString mTitle;
+  QSettings mSettings;
   QTimer mRedrawTimer;
   QLabel *mpLabel;
-  QString mTitle;
   QWidget *mpWidget;
   std::mutex mDataGuard;
   QCustomPlot *mpCustomPlot;
@@ -85,8 +90,7 @@ private:
   QSharedPointer<QCPAxisTickerDateTime> mpDateTicker;
   std::list<TrafficData> mTrafficPoints;
   std::list<ConnectionPlotData> mConnectionPoints;
-  static const int kMaxTrafficDataPoints;
-  static const int kMaxTimeInPlotMins;
+  int mMaxTimeInPlotMins = 60;
   static const int kMaxSecBeforeZero;
   static const QBrush kBackgroundColor;
   static const QColor kForegroundColor;

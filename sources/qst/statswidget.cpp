@@ -38,7 +38,6 @@ namespace stats
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 
-const int StatsWidget::kMaxTimeInPlotMins = 60;
 const int StatsWidget::kMaxSecBeforeZero = 10;
 const QBrush StatsWidget::kBackgroundColor{QColor(0,0,0,255)};
 const QColor StatsWidget::kForegroundColor{255,255,255,255};
@@ -48,7 +47,9 @@ const QColor StatsWidget::kForegroundColor{255,255,255,255};
 
 StatsWidget::StatsWidget(const QString& title) :
     mTitle(title)
+  , mSettings("QSyncthingTray", "qst")
   , mpDateTicker(new QCPAxisTickerDateTime)
+  , mMaxTimeInPlotMins(mSettings.value("statsLength").toInt() * 60)
 {
   mpWidget = new QWidget();
   QVBoxLayout* pLayout = new QVBoxLayout();
@@ -78,13 +79,35 @@ StatsWidget::StatsWidget(const QString& title) :
   mpConnectionPlot->xAxis->setLabel("Time");
   mpConnectionPlot->yAxis->setLabel("Connections");
 
-  configurePlot(mpCustomPlot, "Traffic (1hr)");
-  configurePlot(mpConnectionPlot, "Connections (1hr)");
+  const auto timeStr = "(" + QString::number(mMaxTimeInPlotMins/60) + " hr)";
+  configurePlot(mpCustomPlot, "Traffic " + timeStr);
+  configurePlot(mpConnectionPlot, "Connections " + timeStr);
 
 
   pLayout->addWidget(mpCustomPlot);
   pLayout->addWidget(mpConnectionPlot);
   setLayout(pLayout);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void StatsWidget::onSettingsChanged()
+{
+  mMaxTimeInPlotMins = mSettings.value("statsLength").toInt() * 60;
+  const auto timeStr = "(" + QString::number(mMaxTimeInPlotMins/60) + " hr)";
+  updateTitle(mpCustomPlot, "Traffic " + timeStr);
+  updateTitle(mpConnectionPlot, "Connections " + timeStr);
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void StatsWidget::updateTitle(QCustomPlot* plot, const QString& title)
+{
+  const auto textElement = dynamic_cast<QCPTextElement*>(
+    plot->plotLayout()->element(0, 0));
+  textElement->setText(title);
 }
 
 
@@ -161,7 +184,7 @@ void StatsWidget::addConnectionPoint(const std::uint16_t& numConn)
   using namespace std::chrono;
   std::lock_guard<std::mutex> lock(mDataGuard);
   mConnectionPoints.emplace_back(std::make_tuple(numConn, system_clock::now()));
-  cleanupTimeData(mConnectionPoints, std::chrono::minutes{kMaxTimeInPlotMins});
+  cleanupTimeData(mConnectionPoints, std::chrono::minutes{mMaxTimeInPlotMins});
   zeroMissingTimeData(mConnectionPoints);
 }
 
@@ -172,7 +195,7 @@ void StatsWidget::updateTrafficData(const TrafficData& traffData)
 {
   std::lock_guard<std::mutex> lock(mDataGuard);
   mTrafficPoints.push_back(traffData);
-  cleanupTimeData(mTrafficPoints, std::chrono::minutes{kMaxTimeInPlotMins});
+  cleanupTimeData(mTrafficPoints, std::chrono::minutes{mMaxTimeInPlotMins});
   zeroMissingTimeData(mTrafficPoints);
 }
 

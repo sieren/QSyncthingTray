@@ -532,6 +532,13 @@ void Window::createSettingsGroupBox()
   mpSyncPollIntervalBox->setMaximumWidth(80);
   mpSyncPollIntervalBox->setValue(mSettings.value("pollingInterval").toDouble());
 
+  mpStatsLengthLabel = new QLabel(tr("Statistics Length (hours)"));
+  mpStatsLengthBox = new QDoubleSpinBox();
+  mpStatsLengthBox->setRange(1.0, 48.0);
+  mpStatsLengthBox->setSingleStep(1.0);
+  mpStatsLengthBox->setMaximumWidth(80);
+  mpStatsLengthBox->setValue(mSettings.value("statsLength").toInt());
+
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
   appearanceLayout->addWidget(mpNotificationsIconBox, 1, 0);
@@ -542,6 +549,8 @@ void Window::createSettingsGroupBox()
     appearanceLayout->addWidget(mpWebViewZoomFactor, 4, 0, 1, 2);
     appearanceLayout->addWidget(mpSyncPollIntervalLabel, 3, 1);
     appearanceLayout->addWidget(mpSyncPollIntervalBox, 4, 1, 1, 2);
+    appearanceLayout->addWidget(mpStatsLengthLabel, 5, 0);
+    appearanceLayout->addWidget(mpStatsLengthBox, 6, 0, 1, 2);
   }
   else
   {
@@ -706,12 +715,14 @@ void Window::saveSettings()
   mSettings.setValue("userpassword", userPassword->text());
   mSettings.setValue("monochromeIcon", mIconMonochrome);
   mNotificationsEnabled = mpNotificationsIconBox->checkState() ==
-  Qt::CheckState::Checked ? true : false;
+    Qt::CheckState::Checked ? true : false;
   mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
   mSettings.setValue("animationEnabled", mShouldAnimateIcon);
   mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
   mSettings.setValue("apiKey", mpAPIKeyEdit->text());
+  mSettings.setValue("statsLength", static_cast<int>(mpStatsLengthBox->value()));
   mpSyncConnector->onSettingsChanged();
+  mpStatsWidget->onSettingsChanged();
 }
 
 
