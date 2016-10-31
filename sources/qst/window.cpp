@@ -56,10 +56,11 @@ static const std::list<std::string> kAnimatedIconSet(
 Window::Window()
   :
     mpAppSettings(new qst::settings::AppSettings())
+  , mpProcController(new qst::process::ProcessController(mpAppSettings))
   , mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384")),
       std::bind(&Window::onUpdateConnState, this, std::placeholders::_1), mpAppSettings))
   , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector, mpAppSettings))
-  , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector, mpAppSettings))
+  , mpStartupTab(new qst::settings::StartupTab(mpProcController, mpAppSettings))
   , mpAnimatedIconMovie(new QMovie())
   , mUpdateNotifier(std::bind(&Window::onUpdateCheck, this, std::placeholders::_1),
       QString(tr(currentVersion)), mpAppSettings)
@@ -323,6 +324,7 @@ void Window::monoChromeIconChanged(const int state)
 void Window::pauseSyncthingClicked(const int state)
 {
   mpSyncConnector->pauseSyncthing(state == 1);
+  mpProcController->setPaused(state == 1);
 }
 
 

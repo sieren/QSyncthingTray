@@ -41,6 +41,8 @@
 #include <iostream>
 #include <map>
 #include <qst/appsettings.hpp>
+#include <qst/processcontroller.h>
+#include <qst/processmonitor.hpp>
 #include "syncconnector.h"
 
 QT_BEGIN_NAMESPACE
@@ -66,11 +68,9 @@ class StartupTab : public QWidget
   Q_OBJECT
   
 public:
-  StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+  StartupTab(std::shared_ptr<process::ProcessController> pProcController,
     std::shared_ptr<settings::AppSettings> appSettings);
   ~StartupTab();
-  bool isPausingProcessRunning();
-  void spawnSyncthingApp();
 
 public slots:
   void saveSettings();
@@ -88,6 +88,7 @@ private:
   void startProcesses();
   void loadSettings();
   void initGUI();
+  void displayPathNotFound(const QString& processName);
   template <typename T, typename ... TArgs>
   void hideShowElements(bool show, T uiElement, TArgs... Elements);
 
@@ -113,7 +114,7 @@ private:
   QString mCurrentSyncthingPath;
   QString mCurrentINotifyPath;
 
-  std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
+  std::shared_ptr<process::ProcessController> mpProcController;
   qst::sysutils::SystemUtility systemUtil;
   std::shared_ptr<settings::AppSettings> mpAppSettings;
 };

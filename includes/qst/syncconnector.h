@@ -52,20 +52,9 @@ class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
 
-typedef enum processState
-{
-  SPAWNED,
-  NOT_RUNNING,
-  ALREADY_RUNNING,
-  PAUSED
-} ProcessState;
-
 using ConnectionStateData = std::pair<ConnectionHealthData, TrafficData>;
 using ConnectionStateCallback = std::function<void(ConnectionState&)>;
-using ProcessStateInfo = std::map<std::string, processState>;
 
-static const std::string kSyncthingIdentifier{"syncthing"};
-static const std::string kNotifyIdentifier{"inotify"};
 
 namespace qst
 {
@@ -81,11 +70,6 @@ namespace connector
     virtual ~SyncConnector();
     void setURL(QUrl url, const QString& userName, const QString& password);
     void showWebView();
-    void spawnSyncthingProcess(
-      const QString& filePath,
-      const bool shouldSpawn,
-      const bool onSetPath = false);
-    void checkAndSpawnINotifyProcess(bool isRequestedExternal);
     void shutdownSyncthingProcess();
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
@@ -94,15 +78,12 @@ namespace connector
 
   signals:
     void onConnectionHealthChanged(ConnectionStateData healthState);
-    void onProcessSpawned(ProcessStateInfo procState);
     void onNetworkActivityChanged(bool act);
 
   private slots:
     void onSslError(QNetworkReply* reply);
     void netRequestfinished(QNetworkReply *reply);
     void checkConnectionHealth();
-    void syncThingProcessSpawned(QProcess::ProcessState newState);
-    void notifyProcessSpawned(QProcess::ProcessState newState);
     void shutdownProcessPosted(QNetworkReply *reply);
     void testUrlAvailability();
     void webViewClosed();
@@ -116,8 +97,6 @@ namespace connector
     void connectionHealthReceived(QNetworkReply* reply);
     void currentConfigReceived(QNetworkReply* reply);
     void lastSyncedFilesReceived(QNetworkReply *reply);
-    void killProcesses();
-    void shutdownINotifyProcess();
     int getCurrentVersion(QString reply);
     std::uint16_t mConnectionHealthTime = 1000;
     bool didShowSSLWarning;
@@ -141,8 +120,6 @@ namespace connector
     QHash<QNetworkReply*, kRequestMethod> requestMap;
 
     std::unique_ptr<webview::WebView> mpSyncWebView;
-    std::unique_ptr<QProcess> mpSyncProcess;
-    std::unique_ptr<QProcess> mpSyncthingNotifierProcess;
     std::list<FolderNameFullPath> mFolders;
     LastSyncedFileList mLastSyncedFiles;
     std::unique_ptr<QTimer> mpConnectionHealthTimer;
@@ -153,7 +130,6 @@ namespace connector
     QString mINotifyFilePath;
     QString mAPIKey;
 
-    qst::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
     std::shared_ptr<settings::AppSettings> mpAppSettings;
   };

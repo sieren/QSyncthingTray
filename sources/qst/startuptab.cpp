@@ -16,7 +16,9 @@
  // License along with this library.
  ******************************************************************************/
 
+
 #include <qst/startuptab.hpp>
+#include <qst/utilities.hpp>
 #include <QFileDialog>
 
 namespace qst
@@ -24,20 +26,16 @@ namespace qst
 namespace settings
 {
 
-StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+StartupTab::StartupTab(std::shared_ptr<process::ProcessController> pProcController,
   std::shared_ptr<settings::AppSettings> appSettings) :
-    mpSyncConnector(pSyncConnector)
+    mpProcController(pProcController)
   , mpAppSettings(appSettings)
 {
   
   loadSettings();
-
+  connect(mpProcController.get(), &process::ProcessController::onProcessSpawned,
+    this, &StartupTab::processSpawnedChanged);
   initGUI();
-  
-  connect(pSyncConnector.get(), &connector::SyncConnector::onProcessSpawned, this,
-    &StartupTab::processSpawnedChanged);
-  
-  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
 }
 
 
@@ -176,7 +174,6 @@ void StartupTab::showFileBrowser()
     mpFilePathLine->setText(filename);
   }
   saveSettings();
-  spawnSyncthingApp();
 }
 
 
@@ -200,6 +197,7 @@ void StartupTab::launchSyncthingBoxChanged(int state)
   hideShowElements(state == Qt::Checked, mpFilePathLine, mpFilePathBrowse,
     mpAppSpawnedLabel);
   mShouldLaunchSyncthing = state == Qt::Checked ? true : false;
+  saveSettings();
 }
 
 
@@ -219,7 +217,6 @@ void StartupTab::launchINotifyBoxChanged(int state)
   hideShowElements(state == Qt::Checked, mpINotifyFilePath, mpINotifyBrowse);
   mShouldLaunchINotify = state == Qt::Checked ? true : false;
   saveSettings();
-  mpSyncConnector->checkAndSpawnINotifyProcess(false);
 }
 
 
@@ -228,22 +225,20 @@ void StartupTab::launchINotifyBoxChanged(int state)
 void StartupTab::saveSettings()
 {
   using namespace std;
-  bool startServices = false;
-  mCurrentSyncthingPath = mpFilePathLine->text();
-  if (mpAppSettings->value(kSyncthingPathId).toString() != mCurrentSyncthingPath)
+  // Check Filepath Validity
+  if (!mpFilePathLine->text().isEmpty() &&
+      !utilities::checkIfFileExists(mpFilePathLine->text()))
   {
-    startServices = true;
+    displayPathNotFound("Syncthing");
+    return;
   }
 
-  if (mpAppSettings->value(kLaunchSyncthingStartupId).toBool() != mShouldLaunchSyncthing)
+  // Check Filepath Validity
+  if (!mpINotifyFilePath->text().isEmpty() &&
+      !utilities::checkIfFileExists(mpINotifyFilePath->text()))
   {
-    startServices = true;
-  }
-  
-  mCurrentINotifyPath = mpINotifyFilePath->text();
-  if (mpAppSettings->value(kInotifyPathId).toString() != mCurrentINotifyPath)
-  {
-    startServices = true;
+    displayPathNotFound("syncthing-inotify");
+    return;
   }
   mpAppSettings->setValues(
     make_pair(kSyncthingPathId, mCurrentSyncthingPath),
@@ -251,12 +246,6 @@ void StartupTab::saveSettings()
     make_pair(kInotifyPathId, mCurrentINotifyPath),
     make_pair(kLaunchInotifyStartupId, mShouldLaunchINotify),
     make_pair(kShutDownExitId, mShouldShutdownOnExit));
-
-
-  if (startServices)
-  {
-    startProcesses();
-  }
 }
 
 
@@ -274,18 +263,14 @@ void StartupTab::loadSettings()
 
 //------------------------------------------------------------------------------------//
 
-
-void StartupTab::startProcesses()
+void StartupTab::displayPathNotFound(const QString &processName)
 {
-  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, true, true);
-  mpSyncConnector->checkAndSpawnINotifyProcess(true);
-}
-
-//------------------------------------------------------------------------------------//
-
-void StartupTab::spawnSyncthingApp()
-{
-  mpSyncConnector->spawnSyncthingProcess(mCurrentSyncthingPath, mShouldLaunchSyncthing);
+  QMessageBox msgBox;
+  msgBox.setText("Could not find " + processName + ".");
+  msgBox.setInformativeText("Are you sure the path is correct?");
+  msgBox.setStandardButtons(QMessageBox::Ok);
+  msgBox.setDefaultButton(QMessageBox::Ok);
+  msgBox.exec();
 }
 
 
@@ -293,7 +278,8 @@ void StartupTab::spawnSyncthingApp()
 
 StartupTab::~StartupTab()
 {
-  disconnect(mpSyncConnector.get(), &connector::SyncConnector::onProcessSpawned, this,
+  disconnect(mpProcController.get(),
+          &process::ProcessController::onProcessSpawned, this,
           &StartupTab::processSpawnedChanged);
 }
 

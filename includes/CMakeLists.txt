@@ -16,6 +16,7 @@ set(qst_HEADERS
   ${qst_include_ROOT}/appsettings.hpp
   ${qst_include_ROOT}/identifiers.hpp
   ${qst_include_ROOT}/platforms.hpp
+  ${qst_include_ROOT}/processcontroller.h
   ${qst_include_ROOT}/processmonitor.hpp
   ${qst_include_ROOT}/settingsmigrator.hpp
   ${qst_include_ROOT}/startuptab.hpp

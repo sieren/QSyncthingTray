@@ -24,6 +24,7 @@
 #include "startuptab.hpp"
 #include "platforms.hpp"
 #include <qst/appsettings.hpp>
+#include <qst/processcontroller.h>
 #include <qst/statswidget.h>
 #include <qst/updatenotifier.h>
 #include <QDoubleSpinBox>
@@ -161,6 +162,7 @@ private:
     QString mCurrentUserName;
     QString mCurrentUserPassword;
     std::shared_ptr<qst::settings::AppSettings> mpAppSettings;
+    std::shared_ptr<qst::process::ProcessController> mpProcController;
     std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
     std::unique_ptr<qst::monitor::ProcessMonitor> mpProcessMonitor;
     std::unique_ptr<qst::settings::StartupTab> mpStartupTab;
