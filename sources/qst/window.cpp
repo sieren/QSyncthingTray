@@ -525,14 +525,14 @@ void Window::createSettingsGroupBox()
   mpWebViewZoomFactor->setMaximumWidth(80);
   mpWebViewZoomFactor->setValue(mSettings.value("WebZoomFactor").toDouble());
 
-  mpSyncPollIntervalLabel = new QLabel(tr("Polling Interval"));
+  mpSyncPollIntervalLabel = new QLabel(tr("Polling Interval [sec]"));
   mpSyncPollIntervalBox = new QDoubleSpinBox();
   mpSyncPollIntervalBox->setRange(0.0, 10.0);
   mpSyncPollIntervalBox->setSingleStep(0.5);
   mpSyncPollIntervalBox->setMaximumWidth(80);
   mpSyncPollIntervalBox->setValue(mSettings.value("pollingInterval").toDouble());
 
-  mpStatsLengthLabel = new QLabel(tr("Statistics Length (hours)"));
+  mpStatsLengthLabel = new QLabel(tr("Statistics Length [hours]"));
   mpStatsLengthBox = new QDoubleSpinBox();
   mpStatsLengthBox->setRange(1.0, 48.0);
   mpStatsLengthBox->setSingleStep(1.0);
