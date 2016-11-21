@@ -24,7 +24,9 @@ SOURCES       = sources/qst/main.cpp \
                 sources/qst/updatenotifier.cpp \
                 sources/contrib/qcustomplot.cpp
 RESOURCES     = \
-                resources/qsyncthing.qrc
+                resources/qsyncthing.qrc \
+                resources/qsyncthingblueanim.qrc \
+                resources/qsyncthingdarkanim.qrc
 
 QT += widgets
 QT += network

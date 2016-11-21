@@ -42,7 +42,7 @@
 
 
 //! Layout
-#define currentVersion "0.5.5rc2"
+#define currentVersion "0.5.6"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -165,13 +165,13 @@ void Window::onUpdateConnState(const ConnectionState& result)
 
 //------------------------------------------------------------------------------------//
 
-void Window::setIcon(const int index)
+void Window::setIcon(const int index, const bool isManualSet)
 {
   // temporary workaround as setIcon seems to leak memory
   // https://bugreports.qt.io/browse/QTBUG-23658?jql=text%20~%20%22setIcon%20memory%22
   // https://bugreports.qt.io/browse/QTBUG-16113?jql=text%20~%20%22setIcon%20memory%22
 
-  if (index != mLastIconIndex)
+  if (index != mLastIconIndex || isManualSet)
   {
     QIcon icon;
     std::pair<std::string, std::string> iconSet = mIconMonochrome ?
@@ -314,6 +314,7 @@ void Window::monoChromeIconChanged(const int state)
 {
   mIconMonochrome = state == 2 ? true : false;
   mSettings.setValue("monochromeIcon", mIconMonochrome);
+  setIcon(mLastIconIndex, true);
 }
 
 
