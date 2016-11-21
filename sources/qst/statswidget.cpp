@@ -182,7 +182,11 @@ void StatsWidget::closeEvent(QCloseEvent* event)
 void StatsWidget::addConnectionPoint(const std::uint16_t& numConn)
 {
   using namespace std::chrono;
-  std::lock_guard<std::mutex> lock(mDataGuard);
+  std::unique_lock<std::mutex> lock(mDataGuard, std::try_to_lock);
+  if(!lock.owns_lock())
+  {
+    return;
+  }
   mConnectionPoints.emplace_back(std::make_tuple(numConn, system_clock::now()));
   cleanupTimeData(mConnectionPoints, std::chrono::minutes{mMaxTimeInPlotMins});
   zeroMissingTimeData(mConnectionPoints);
@@ -193,7 +197,11 @@ void StatsWidget::addConnectionPoint(const std::uint16_t& numConn)
 
 void StatsWidget::updateTrafficData(const TrafficData& traffData)
 {
-  std::lock_guard<std::mutex> lock(mDataGuard);
+  std::unique_lock<std::mutex> lock(mDataGuard, std::try_to_lock);
+  if(!lock.owns_lock())
+  {
+    return;
+  }
   mTrafficPoints.push_back(traffData);
   cleanupTimeData(mTrafficPoints, std::chrono::minutes{mMaxTimeInPlotMins});
   zeroMissingTimeData(mTrafficPoints);
@@ -340,11 +348,11 @@ void StatsWidget::zeroMissingTimeData(Container &vec)
     };
 
   const auto itDist = std::adjacent_find(vec.begin(), vec.end(), timeCmp);
-  const auto itDistEnd = std::next(itDist, 1);
   if (itDist == vec.end())
   {
     return;
   }
+  const auto itDistEnd = std::next(itDist, 1);
   assert(itDistEnd != vec.end());
   const auto& timePointStart = std::get<TimeValueTypePosition>(*itDist);
   const auto& timePointEnd = std::get<TimeValueTypePosition>(*itDistEnd);
