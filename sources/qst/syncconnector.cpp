@@ -267,7 +267,7 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   auto result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
 
-  emit(onNetworkActivityChanged(std::get<1>(traffic) + std::get<1>(traffic) > kNetworkNoiseFloor));
+  emit(onNetworkActivityChanged(std::get<0>(traffic) + std::get<1>(traffic) > kNetworkNoiseFloor));
   emit(onConnectionHealthChanged({result, traffic}));
 
   reply->deleteLater();
