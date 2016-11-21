@@ -72,7 +72,7 @@ protected:
 private slots:
     void updateConnectionHealth(const ConnectionStateData& state);
     void onNetworkActivity(bool activity);
-    void setIcon(int index);
+    void setIcon(int index, const bool isManualSet = false);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showWebView();
     void messageClicked();
