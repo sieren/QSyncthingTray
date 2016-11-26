@@ -90,7 +90,6 @@ namespace connector
     std::list<FolderNameFullPath> getFolders();
     LastSyncedFileList getLastSyncedFiles();
     void pauseSyncthing(bool paused);
-    void onSettingsChanged();
     webview::WebView *getWebView();
 
   signals:
@@ -107,6 +106,7 @@ namespace connector
     void shutdownProcessPosted(QNetworkReply *reply);
     void testUrlAvailability();
     void webViewClosed();
+    void onSettingsChanged();
 
   private:
     void ignoreSslErrors(QNetworkReply *reply);

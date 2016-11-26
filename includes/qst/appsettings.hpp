@@ -32,9 +32,9 @@ namespace qst
 {
 namespace settings
 {
-class AppSettings : QObject
+class AppSettings : public QObject
 {
-  Q_OBJECT;
+  Q_OBJECT
 public:
   AppSettings() :
   mSettings("QSyncthingTray", "qst")
@@ -56,6 +56,7 @@ public:
   template <typename T, typename U>
   void setValues(std::pair<T,U> uiElement)
   {
+    emit(settingsUpdated());
     mSettings.setValue(uiElement.first, uiElement.second);
   }
 
@@ -65,7 +66,9 @@ public:
     return mSettings.value(key);
   }
 
-  
+signals:
+  void settingsUpdated();
+
 private:
   settings::SettingsMigrator mSettingsMigrator;
   QSettings mSettings;

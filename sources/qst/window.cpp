@@ -724,9 +724,6 @@ void Window::saveSettings()
     make_pair(kPollingIntervalId, mpSyncPollIntervalBox->value()),
     make_pair(kApiKeyId, mpAPIKeyEdit->text()),
     make_pair(kStatsLengthId, static_cast<int>(mpStatsLengthBox->value())));
-
-  mpSyncConnector->onSettingsChanged();
-  mpStatsWidget->onSettingsChanged();
 }
 
 

@@ -49,7 +49,8 @@ SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback,
           &network, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
           this, SLOT (onSslError(QNetworkReply*))
           );
-
+  connect(mpAppSettings.get(), &settings::AppSettings::settingsUpdated,
+          this, &SyncConnector::onSettingsChanged);
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
   mpConnectionAvailabilityTimer = std::unique_ptr<QTimer>(new QTimer(this));
   connect(mpConnectionHealthTimer.get(), SIGNAL(timeout()), this,

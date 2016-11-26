@@ -61,13 +61,13 @@ public:
   void updateTrafficData(const TrafficData& traffData);
   void addConnectionPoint(const std::uint16_t& numConn);
   void closeEvent(QCloseEvent * event);
-  void onSettingsChanged();
 
 public slots:
   void show();
 
 private slots:
   void updatePlot();
+  void onSettingsChanged();
 
 private:
   void configurePlot(QCustomPlot* plot, const QString& title);

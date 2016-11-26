@@ -61,6 +61,8 @@ StatsWidget::StatsWidget(const QString& title,
   mpCustomPlot = new QCustomPlot();
   mpConnectionPlot = new QCustomPlot();
 
+  connect(mpAppSettings.get(), &settings::AppSettings::settingsUpdated,
+    this, &StatsWidget::onSettingsChanged);
   // Traffic Plot
   mpCustomPlot->addGraph();
   mpCustomPlot->addGraph();

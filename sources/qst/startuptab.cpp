@@ -257,7 +257,6 @@ void StartupTab::saveSettings()
   {
     startProcesses();
   }
-  mpSyncConnector->onSettingsChanged();
 }
 
 
