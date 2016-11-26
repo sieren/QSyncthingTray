@@ -40,6 +40,7 @@
 #include <QMessageBox>
 #include <iostream>
 #include <map>
+#include <qst/appsettings.hpp>
 #include "syncconnector.h"
 
 QT_BEGIN_NAMESPACE
@@ -65,7 +66,8 @@ class StartupTab : public QWidget
   Q_OBJECT
   
 public:
-  StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector);
+  StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+    std::shared_ptr<settings::AppSettings> appSettings);
   ~StartupTab();
   bool isPausingProcessRunning();
   void spawnSyncthingApp();
@@ -108,12 +110,12 @@ private:
   bool mShouldLaunchSyncthing;
   bool mShouldLaunchINotify;
   bool mShouldShutdownOnExit;
-  std::string mCurrentSyncthingPath;
-  std::string mCurrentINotifyPath;
+  QString mCurrentSyncthingPath;
+  QString mCurrentINotifyPath;
 
   std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
   qst::sysutils::SystemUtility systemUtil;
-  QSettings mSettings;
+  std::shared_ptr<settings::AppSettings> mpAppSettings;
 };
 
 } // monitor

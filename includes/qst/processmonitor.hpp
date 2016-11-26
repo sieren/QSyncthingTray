@@ -38,8 +38,9 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QMessageBox>
-#include <iostream>
 #include <map>
+#include <memory>
+#include <qst/appsettings.hpp>
 #include "syncconnector.h"
 
 QT_BEGIN_NAMESPACE
@@ -65,7 +66,8 @@ class ProcessMonitor : public QWidget
   Q_OBJECT
 
 public:
-  ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector);
+  ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+    std::shared_ptr<settings::AppSettings> appSettings);
   virtual ~ProcessMonitor() = default;
   bool isPausingProcessRunning();
 
@@ -84,7 +86,7 @@ private:
   QPushButton *mpAddToListButton;
   QPushButton *mpDeleteFromListButton;
   std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
-  QSettings mSettings;
+  std::shared_ptr<settings::AppSettings> mpAppSettings;
   QStringList mProcessList;
 
   std::unique_ptr<QTimer> mpProcessCheckTimer;

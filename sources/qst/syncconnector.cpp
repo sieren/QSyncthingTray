@@ -34,10 +34,11 @@ namespace connector
 
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
-SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback) :
+SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback,
+  std::shared_ptr<settings::AppSettings> appSettings) :
     mConnectionStateCallback(textCallback)
   , mCurrentUrl(url)
-  , mSettings("QSyncthingTray", "qst")
+  , mpAppSettings(appSettings)
 {
   onSettingsChanged();
   connect(
@@ -105,7 +106,7 @@ void SyncConnector::showWebView()
   }
 
   mpSyncWebView = std::unique_ptr<webview::WebView>(new webview::WebView(mCurrentUrl,
-     mAuthentication));
+     mAuthentication, mpAppSettings));
   connect(mpSyncWebView.get(), &webview::WebView::close, this, &SyncConnector::webViewClosed);
   mpSyncWebView->show();
 }
@@ -359,11 +360,11 @@ void SyncConnector::shutdownSyncthingProcess()
 void SyncConnector::onSettingsChanged()
 {
   mConnectionHealthTime = std::round(
-    1000 * mSettings.value("pollingInterval").toDouble());
+    1000 * mpAppSettings->value(kPollingIntervalId).toDouble());
   mConnectionHealthTime = mConnectionHealthTime == 0 ? 1000 : mConnectionHealthTime;
-  mAPIKey = mSettings.value("apiKey").toString();
-  mINotifyFilePath = mSettings.value("inotifypath").toString();
-  mShouldLaunchINotify = mSettings.value("launchINotifyAtStartup").toBool();
+  mAPIKey = mpAppSettings->value(kApiKeyId).toString();
+  mINotifyFilePath = mpAppSettings->value(kInotifyPathId).toString();
+  mShouldLaunchINotify = mpAppSettings->value(kLaunchInotifyStartupId).toBool();
 }
 
 
@@ -379,12 +380,12 @@ void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 //------------------------------------------------------------------------------------//
 
 void SyncConnector::spawnSyncthingProcess(
-  std::string filePath, const bool shouldSpawn, const bool onSetPath)
+  const QString& filePath, const bool shouldSpawn, const bool onSetPath)
 {
   mSyncthingFilePath = filePath;
   if (shouldSpawn)
   {
-    if (!checkIfFileExists(tr(filePath.c_str())) && onSetPath)
+    if (!checkIfFileExists(filePath) && onSetPath)
     {
       QMessageBox msgBox;
       msgBox.setText("Could not find Syncthing.");
@@ -398,7 +399,7 @@ void SyncConnector::spawnSyncthingProcess(
       mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
       connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-      QString processPath = QDir::toNativeSeparators(filePath.c_str());
+      QString processPath = QDir::toNativeSeparators(filePath);
       QStringList launchArgs;
       launchArgs << "-no-browser";
       mpSyncProcess->start(processPath, launchArgs);
@@ -562,7 +563,7 @@ auto SyncConnector::getCurrentVersion(QString reply) -> int
 void SyncConnector::killProcesses()
 {
   if (mpSyncProcess != nullptr
-      && mSettings.value("ShutdownOnExit").toBool())
+      && mpAppSettings->value("ShutdownOnExit").toBool())
   {
     mpSyncProcess->waitForFinished();
   }
@@ -587,7 +588,7 @@ auto SyncConnector::getWebView() -> webview::WebView *
 
 SyncConnector::~SyncConnector()
 {
-  if (mSettings.value("ShutdownOnExit").toBool())
+  if (mpAppSettings->value("ShutdownOnExit").toBool())
   {
     shutdownSyncthingProcess();
   }

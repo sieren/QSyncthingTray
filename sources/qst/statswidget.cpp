@@ -45,11 +45,12 @@ const QColor StatsWidget::kForegroundColor{255,255,255,255};
 //------------------------------------------------------------------------------------//
 //------------------------------------------------------------------------------------//
 
-StatsWidget::StatsWidget(const QString& title) :
+StatsWidget::StatsWidget(const QString& title,
+  std::shared_ptr<settings::AppSettings> appSettings) :
     mTitle(title)
-  , mSettings("QSyncthingTray", "qst")
+  , mpAppSettings(appSettings)
   , mpDateTicker(new QCPAxisTickerDateTime)
-  , mMaxTimeInPlotMins(mSettings.value("statsLength").toInt() * 60)
+  , mMaxTimeInPlotMins(mpAppSettings->value(kStatsLengthId).toInt() * 60)
 {
   mpWidget = new QWidget();
   QVBoxLayout* pLayout = new QVBoxLayout();
@@ -94,7 +95,7 @@ StatsWidget::StatsWidget(const QString& title) :
 
 void StatsWidget::onSettingsChanged()
 {
-  mMaxTimeInPlotMins = mSettings.value("statsLength").toInt() * 60;
+  mMaxTimeInPlotMins = mpAppSettings->value(kStatsLengthId).toInt() * 60;
   const auto timeStr = "(" + QString::number(mMaxTimeInPlotMins/60) + " hr)";
   updateTitle(mpCustomPlot, "Traffic " + timeStr);
   updateTitle(mpConnectionPlot, "Connections " + timeStr);

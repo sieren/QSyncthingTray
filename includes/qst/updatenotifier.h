@@ -21,9 +21,10 @@
 
 #include <QNetworkAccessManager>
 #include <QObject>
-#include <QSettings>
 #include <QTimer>
 #include <functional>
+#include <memory>
+#include <qst/appsettings.hpp>
 
 //------------------------------------------------------------------------------------//
 
@@ -44,7 +45,8 @@ namespace update
 {
   Q_OBJECT
 public:
-  UpdateNotifier(NotificationCallback callback, const QString& currentVer);
+  UpdateNotifier(NotificationCallback callback, const QString& currentVer,
+    std::shared_ptr<settings::AppSettings> appSettings);
   ~UpdateNotifier() = default;
   UpdateNotifier(UpdateNotifier&&) = delete;
   UpdateNotifier(const UpdateNotifier&) = delete;
@@ -60,7 +62,7 @@ private:
   NotificationCallback mNotifyCallback;
   bool mDidCheckManually = false;
   void performNetRequest();
-  QSettings mSettings;
+  std::shared_ptr<settings::AppSettings> mpAppSettings;
   QString mCurrentVer;
 
   QTimer mUpdateCheckTimer;

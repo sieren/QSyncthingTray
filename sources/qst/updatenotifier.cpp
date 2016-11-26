@@ -37,9 +37,10 @@ namespace update
 //------------------------------------------------------------------------------------//
 
 UpdateNotifier::UpdateNotifier(NotificationCallback callback,
-  const QString& currentVer) :
+  const QString& currentVer,
+  std::shared_ptr<settings::AppSettings> appSettings) :
     mNotifyCallback(callback)
-  , mSettings("QSyncthingTray", "qst")
+  , mpAppSettings(appSettings)
   , mCurrentVer(currentVer)
 {
   connect(
@@ -58,7 +59,7 @@ void UpdateNotifier::checkUpdate(const bool manualCheck)
   mDidCheckManually = manualCheck;
   if (!mDidCheckManually)
   {
-    auto lastUpdate = mSettings.value("lastupdatecheck").toDateTime();
+    auto lastUpdate = mpAppSettings->value(kLastUpdateCheckId).toDateTime();
     auto timeDiff = lastUpdate.msecsTo(QDateTime().currentDateTime());
     if (timeDiff > kUpdateInterval)
     {
@@ -80,7 +81,8 @@ void UpdateNotifier::performNetRequest()
   QNetworkRequest request(url);
   network.clearAccessCache();
   network.get(request);
-  mSettings.setValue("lastupdatecheck", QDateTime().currentDateTime());
+  mpAppSettings->setValues(std::make_pair(
+    kLastUpdateCheckId, QDateTime().currentDateTime()));
 }
 
 
@@ -102,11 +104,11 @@ void UpdateNotifier::netRequestFinished(QNetworkReply* reply)
   QJsonObject replyObj = replyDoc.object();
 
   auto lastKey = replyObj.find(kTagKey).value().toString();
-  auto lastShownForVersion = mSettings.value("lastshownupdatenotification").toString();
+  auto lastShownForVersion = mpAppSettings->value(kLastShownUpdateId).toString();
   if (lastKey != mCurrentVer && lastKey != lastShownForVersion)
   {
     mNotifyCallback(true);
-    mSettings.setValue("lastshownupdatenotification", lastKey);
+    mpAppSettings->setValues(std::make_pair(kLastShownUpdateId, lastKey));
     return;
   }
   else if (mDidCheckManually)

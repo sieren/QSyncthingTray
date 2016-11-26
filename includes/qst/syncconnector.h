@@ -28,7 +28,6 @@
 #include <QAuthenticator>
 #include <QNetworkReply>
 #include <QProcess>
-#include <QSettings>
 #include <memory>
 #include <cstdint>
 #include <functional>
@@ -37,6 +36,7 @@
 #include <utility>
 #include "platforms.hpp"
 #include "apihandler.hpp"
+#include <qst/appsettings.hpp>
 #include <qst/webview.h>
 
 QT_BEGIN_NAMESPACE
@@ -76,12 +76,13 @@ namespace connector
   {
     Q_OBJECT
   public:
-    explicit SyncConnector(QUrl url, ConnectionStateCallback textCallback);
+    explicit SyncConnector(QUrl url, ConnectionStateCallback textCallback,
+      std::shared_ptr<settings::AppSettings> appSettings);
     virtual ~SyncConnector();
     void setURL(QUrl url, const QString& userName, const QString& password);
     void showWebView();
     void spawnSyncthingProcess(
-      std::string filePath,
+      const QString& filePath,
       const bool shouldSpawn,
       const bool onSetPath = false);
     void checkAndSpawnINotifyProcess(bool isRequestedExternal);
@@ -148,14 +149,13 @@ namespace connector
     std::unique_ptr<QTimer> mpConnectionAvailabilityTimer;
     std::pair<QString, QString> mAuthentication;
 
-    std::string mSyncthingFilePath;
+    QString mSyncthingFilePath;
     QString mINotifyFilePath;
     QString mAPIKey;
 
     qst::sysutils::SystemUtility systemUtil;
     std::unique_ptr<api::APIHandlerBase> mAPIHandler;
-
-    QSettings mSettings;
+    std::shared_ptr<settings::AppSettings> mpAppSettings;
   };
 
 } // connector
