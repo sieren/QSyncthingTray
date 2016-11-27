@@ -22,11 +22,11 @@
 #include <QDialog>
 #include <QMenu>
 #include <QObject>
-#include <QSettings>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <memory>
 #include "utilities.hpp"
 #include "syncwebpage.h"
+#include <qst/appsettings.hpp>
 
 //------------------------------------------------------------------------------------//
 
@@ -46,7 +46,9 @@ class SyncWebView : public QWebEngineView
   Q_OBJECT;
 public:
   SyncWebView() = default;
-  SyncWebView(QUrl url, Authentication authInfo);
+  SyncWebView(QUrl url,
+    Authentication authInfo,
+    std::shared_ptr<settings::AppSettings> appSettings);
   ~SyncWebView() = default;
 
   void show();
@@ -67,7 +69,7 @@ private:
   Authentication mAuthInfo;
   
   QMenu mContextMenu;
-  QSettings mSettings;
+  std::shared_ptr<settings::AppSettings> mpAppSettings;
   
   std::unique_ptr<QAction> shrtCut;
   std::unique_ptr<QAction> shrtPaste;

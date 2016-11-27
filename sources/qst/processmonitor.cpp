@@ -16,16 +16,17 @@
  // License along with this library.
  ******************************************************************************/
 
-
 #include <qst/processmonitor.hpp>
 #include <QApplication>
 #include <QHeaderView>
 
+using namespace qst;
 using namespace qst::monitor;
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+  std::shared_ptr<settings::AppSettings> appSettings)
   : mpSyncConnector(pSyncConnector)
-  , mSettings("QSyncthingTray", "qst")
+  , mpAppSettings(appSettings)
 {
   loadSettings();
   QLabel *descriptionLabel = new QLabel;
@@ -156,7 +157,7 @@ UNUSED(nColumn);
 
 void ProcessMonitor::loadSettings()
 {
-  mProcessList = mSettings.value("processList").toStringList();
+  mProcessList = mpAppSettings->value(kProcessListId).toStringList();
 }
 
 
@@ -164,5 +165,5 @@ void ProcessMonitor::loadSettings()
 
 void ProcessMonitor::saveSettings()
 {
-  mSettings.setValue("processList", mProcessList);
+  mpAppSettings->setValues(std::make_pair(kProcessListId, mProcessList));
 }

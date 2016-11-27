@@ -36,11 +36,12 @@ namespace webview
 //------------------------------------------------------------------------------------//
 
 
-SyncWebView::SyncWebView(QUrl url, Authentication authInfo) :
+SyncWebView::SyncWebView(QUrl url, Authentication authInfo,
+  std::shared_ptr<settings::AppSettings> appSettings) :
    mSyncThingUrl(url)
   ,mAuthInfo(authInfo)
   ,mContextMenu(this)
-  ,mSettings("QSyncthingTray", "qst")
+  ,mpAppSettings(appSettings)
 {
   initWebView();
   setupMenu();
@@ -62,7 +63,7 @@ void SyncWebView::initWebView()
   settings->setAttribute(QWebEngineSettings::WebAttribute::AutoLoadImages,true);
   settings->setAttribute(QWebEngineSettings::WebAttribute::LocalContentCanAccessRemoteUrls, true);
   mpPageView->load(mSyncThingUrl);
-  resize(mSettings.value("WebWindowSize").toSize());
+  resize(mpAppSettings->value(kWebWindowSizeId).toSize());
   setPage(mpPageView.get());
   page()->setBackgroundColor(Qt::darkGray);
 }
@@ -73,7 +74,7 @@ void SyncWebView::initWebView()
 void SyncWebView::pageHasLoaded(bool hasLoaded)
 {
   UNUSED(hasLoaded);
-  setZoomFactor(mSettings.value("WebZoomFactor").toDouble());
+  setZoomFactor(mpAppSettings->value(kWebZoomFactorId).toDouble());
 }
 
 
@@ -94,7 +95,7 @@ void SyncWebView::closeEvent(QCloseEvent *event)
 UNUSED(event);
   QWebEngineView::closeEvent(event);
   qst::sysutils::SystemUtility().showDockIcon(false);
-  mSettings.setValue("WebWindowSize", size());
+  mpAppSettings->setValues(std::make_pair(kWebWindowSizeId, size()));
   emit close();
 }
 

@@ -55,18 +55,18 @@ static const std::list<std::string> kAnimatedIconSet(
 //------------------------------------------------------------------------------------//
 Window::Window()
   :
-    mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384")),
-      std::bind(&Window::onUpdateConnState, this, std::placeholders::_1)))
-  , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector))
-  , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector))
-  , mSettings("QSyncthingTray", "qst")
+    mpAppSettings(new qst::settings::AppSettings())
+  , mpSyncConnector(new qst::connector::SyncConnector(QUrl(tr("http://127.0.0.1:8384")),
+      std::bind(&Window::onUpdateConnState, this, std::placeholders::_1), mpAppSettings))
+  , mpProcessMonitor(new qst::monitor::ProcessMonitor(mpSyncConnector, mpAppSettings))
+  , mpStartupTab(new qst::settings::StartupTab(mpSyncConnector, mpAppSettings))
   , mpAnimatedIconMovie(new QMovie())
   , mUpdateNotifier(std::bind(&Window::onUpdateCheck, this, std::placeholders::_1),
-      QString(tr(currentVersion)))
+      QString(tr(currentVersion)), mpAppSettings)
 {
     loadSettings();
     createSettingsGroupBox();
-    mpStatsWidget = new qst::stats::StatsWidget("Statistics");
+    mpStatsWidget = new qst::stats::StatsWidget("Statistics", mpAppSettings);
     createActions();
     createTrayIcon();
 
@@ -313,7 +313,7 @@ void Window::onNetworkActivity(const bool activity)
 void Window::monoChromeIconChanged(const int state)
 {
   mIconMonochrome = state == 2 ? true : false;
-  mSettings.setValue("monochromeIcon", mIconMonochrome);
+  mpAppSettings->setValues(std::make_pair(kMonochromeIconId, mIconMonochrome));
   setIcon(mLastIconIndex, true);
 }
 
@@ -331,7 +331,8 @@ void Window::pauseSyncthingClicked(const int state)
 void Window::animateIconBoxChanged(const int state)
 {
   mShouldAnimateIcon = state == Qt::CheckState::Checked ? true : false;
-  mSettings.setValue("animationEnabled", mShouldAnimateIcon);
+  mpAppSettings->setValues(
+    std::make_pair(kIconAnimcationsEnabledId, mShouldAnimateIcon));
 }
 
 
@@ -384,7 +385,7 @@ void Window::webViewZoomFactorChanged(const double value)
   {
     mpSyncConnector->getWebView()->setZoomFactor(value);
   }
-   mSettings.setValue("WebZoomFactor", value);
+  mpAppSettings->setValues(std::make_pair(kWebZoomFactorId, value));
 }
 
 
@@ -479,7 +480,7 @@ void Window::createSettingsGroupBox()
   userPassword->setEchoMode(QLineEdit::Password);
 
   mpAPIKeyLabel = new QLabel("API Key");
-  mpAPIKeyEdit = new QLineEdit(mSettings.value("apiKey").toString());
+  mpAPIKeyEdit = new QLineEdit(mpAppSettings->value(kApiKeyId).toString());
 
   mpUrlTestResultLabel = new QLabel("Not Tested");
 
@@ -524,21 +525,21 @@ void Window::createSettingsGroupBox()
   mpWebViewZoomFactor->setRange(0.0, 4.0);
   mpWebViewZoomFactor->setSingleStep(0.25);
   mpWebViewZoomFactor->setMaximumWidth(80);
-  mpWebViewZoomFactor->setValue(mSettings.value("WebZoomFactor").toDouble());
+  mpWebViewZoomFactor->setValue(mpAppSettings->value(kWebZoomFactorId).toDouble());
 
   mpSyncPollIntervalLabel = new QLabel(tr("Polling Interval [sec]"));
   mpSyncPollIntervalBox = new QDoubleSpinBox();
   mpSyncPollIntervalBox->setRange(0.0, 10.0);
   mpSyncPollIntervalBox->setSingleStep(0.5);
   mpSyncPollIntervalBox->setMaximumWidth(80);
-  mpSyncPollIntervalBox->setValue(mSettings.value("pollingInterval").toDouble());
+  mpSyncPollIntervalBox->setValue(mpAppSettings->value(kPollingIntervalId).toDouble());
 
   mpStatsLengthLabel = new QLabel(tr("Statistics Length [hours]"));
   mpStatsLengthBox = new QDoubleSpinBox();
   mpStatsLengthBox->setRange(1.0, 48.0);
   mpStatsLengthBox->setSingleStep(1.0);
   mpStatsLengthBox->setMaximumWidth(80);
-  mpStatsLengthBox->setValue(mSettings.value("statsLength").toInt());
+  mpStatsLengthBox->setValue(mpAppSettings->value(kStatsLengthId).toInt());
 
   QGridLayout *appearanceLayout = new QGridLayout;
   appearanceLayout->addWidget(mpMonochromeIconBox, 0, 0);
@@ -711,19 +712,18 @@ void Window::createTrayIcon()
 
 void Window::saveSettings()
 {
-  mSettings.setValue("url", mCurrentUrl.toString());
-  mSettings.setValue("username", mpUserNameLineEdit->text());
-  mSettings.setValue("userpassword", userPassword->text());
-  mSettings.setValue("monochromeIcon", mIconMonochrome);
+  using namespace std;
   mNotificationsEnabled = mpNotificationsIconBox->checkState() ==
-    Qt::CheckState::Checked ? true : false;
-  mSettings.setValue("notificationsEnabled", mNotificationsEnabled);
-  mSettings.setValue("animationEnabled", mShouldAnimateIcon);
-  mSettings.setValue("pollingInterval", mpSyncPollIntervalBox->value());
-  mSettings.setValue("apiKey", mpAPIKeyEdit->text());
-  mSettings.setValue("statsLength", static_cast<int>(mpStatsLengthBox->value()));
-  mpSyncConnector->onSettingsChanged();
-  mpStatsWidget->onSettingsChanged();
+   Qt::CheckState::Checked ? true : false;
+  mpAppSettings->setValues(
+    make_pair(kUrlId, mCurrentUrl.toString()),
+    make_pair(kUserNameId, mpUserNameLineEdit->text()),
+    make_pair(kPasswordId, userPassword->text()),
+    make_pair(kMonochromeIconId, mIconMonochrome),
+    make_pair(kIconAnimcationsEnabledId, mShouldAnimateIcon),
+    make_pair(kPollingIntervalId, mpSyncPollIntervalBox->value()),
+    make_pair(kApiKeyId, mpAPIKeyEdit->text()),
+    make_pair(kStatsLengthId, static_cast<int>(mpStatsLengthBox->value())));
 }
 
 
@@ -748,16 +748,16 @@ void Window::showAuthentication(const bool show)
 
 void Window::loadSettings()
 {
-  mCurrentUrl.setUrl(mSettings.value("url").toString());
+  mCurrentUrl.setUrl(mpAppSettings->value(kUrlId).toString());
   if (mCurrentUrl.toString().length() == 0)
   {
     mCurrentUrl.setUrl(tr("http://127.0.0.1:8384"));
   }
-  mCurrentUserPassword = mSettings.value("userpassword").toString();
-  mCurrentUserName = mSettings.value("username").toString();
-  mIconMonochrome = mSettings.value("monochromeIcon").toBool();
-  mNotificationsEnabled = mSettings.value("notificationsEnabled").toBool();
-  mShouldAnimateIcon = mSettings.value("animationEnabled").toBool();
+  mCurrentUserPassword = mpAppSettings->value(kPasswordId).toString();
+  mCurrentUserName = mpAppSettings->value(kUserNameId).toString();
+  mIconMonochrome = mpAppSettings->value(kMonochromeIconId).toBool();
+  mNotificationsEnabled = mpAppSettings->value(kNotificationsEnabledId).toBool();
+  mShouldAnimateIcon =mpAppSettings->value(kIconAnimcationsEnabledId).toBool();
 }
 
 

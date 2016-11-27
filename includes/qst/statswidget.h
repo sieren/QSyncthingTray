@@ -39,6 +39,7 @@
 #include "platforms.hpp"
 #include "apihandler.hpp"
 #include <contrib/qcustomplot.h>
+#include <qst/appsettings.hpp>
 
 namespace
 {
@@ -55,17 +56,18 @@ class StatsWidget : public QWidget
   Q_OBJECT;
 public:
   StatsWidget() = delete;
-  StatsWidget(const QString& title);
+  StatsWidget(const QString& title,
+    std::shared_ptr<settings::AppSettings> appSettings);
   void updateTrafficData(const TrafficData& traffData);
   void addConnectionPoint(const std::uint16_t& numConn);
   void closeEvent(QCloseEvent * event);
-  void onSettingsChanged();
 
 public slots:
   void show();
 
 private slots:
   void updatePlot();
+  void onSettingsChanged();
 
 private:
   void configurePlot(QCustomPlot* plot, const QString& title);
@@ -80,7 +82,7 @@ private:
   void zeroMissingTimeData(Container& vec);
 
   QString mTitle;
-  QSettings mSettings;
+  std::shared_ptr<settings::AppSettings> mpAppSettings;
   QTimer mRedrawTimer;
   QLabel *mpLabel;
   QWidget *mpWidget;

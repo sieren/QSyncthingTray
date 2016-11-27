@@ -24,6 +24,7 @@
 #include <QString>
 #include <QWindow>
 
+#include <qst/identifiers.hpp>
 #include <qst/platforms.hpp>
 
 namespace qst
@@ -74,24 +75,24 @@ void copySettings( QSettings &dst, QSettings &src )
 
 void createDefaultSettings()
 {
-  checkAndSetValue("url", QString("http://127.0.0.1:8384"));
-  checkAndSetValue("monochromeIcon", false);
-  checkAndSetValue("WebZoomFactor", 1.0);
-  checkAndSetValue("ShutdownOnExit", true);
-  checkAndSetValue("notificationsEnabled", true);
-  checkAndSetValue("doSettingsExist", true);
-  checkAndSetValue("launchSyncthingAtStartup", false);
-  checkAndSetValue("animationEnabled", false);
-  checkAndSetValue("pollingInterval", 1.0);
-  checkAndSetValue("apiKey", qst::utilities::readAPIKey());
-  checkAndSetValue("WebWindowSize", QSize(1280, 800));
-  checkAndSetValue("syncthingpath",
+  checkAndSetValue(kUrlId, QString("http://127.0.0.1:8384"));
+  checkAndSetValue(kMonochromeIconId, false);
+  checkAndSetValue(kWebZoomFactorId, 1.0);
+  checkAndSetValue(kShutDownExitId, true);
+  checkAndSetValue(kNotificationsEnabledId, true);
+  checkAndSetValue(kSettingsAvailableId, true);
+  checkAndSetValue(kLaunchSyncthingStartupId, false);
+  checkAndSetValue(kIconAnimcationsEnabledId, false);
+  checkAndSetValue(kPollingIntervalId, 1.0);
+  checkAndSetValue(kApiKeyId, qst::utilities::readAPIKey());
+  checkAndSetValue(kWebWindowSizeId, QSize(1280, 800));
+  checkAndSetValue(kSyncthingPathId,
     sysutils::SystemUtility().getDefaultSyncthingLocation());
-  checkAndSetValue("inotifypath",
+  checkAndSetValue(kInotifyPathId,
     sysutils::SystemUtility().getDefaultSyncthingINotifyLocation());
-  checkAndSetValue("lastupdatecheck", QDateTime().currentDateTime());
-  checkAndSetValue("lastshownupdatenotification", QString("0"));
-  checkAndSetValue("statsLength", 1);
+  checkAndSetValue(kLastUpdateCheckId, QDateTime().currentDateTime());
+  checkAndSetValue(kLastShownUpdateId, QString("0"));
+  checkAndSetValue(kStatsLengthId, 1);
 }
 
 

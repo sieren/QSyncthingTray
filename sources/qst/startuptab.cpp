@@ -24,9 +24,10 @@ namespace qst
 namespace settings
 {
 
-StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector) :
+StartupTab::StartupTab(std::shared_ptr<qst::connector::SyncConnector> pSyncConnector,
+  std::shared_ptr<settings::AppSettings> appSettings) :
     mpSyncConnector(pSyncConnector)
-  , mSettings("QSyncthingTray", "qst")
+  , mpAppSettings(appSettings)
 {
   
   loadSettings();
@@ -58,7 +59,7 @@ void StartupTab::initGUI()
   mpShouldLaunchSyncthingBox->setCheckState(launchState);
   QGridLayout *filePathLayout = new QGridLayout;
   
-  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath.c_str());
+  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath);
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
@@ -94,7 +95,7 @@ void StartupTab::initGUI()
   mpShouldLaunchINotify->setCheckState(iNotifylaunchState);
   QGridLayout *iNotifyLayout = new QGridLayout;
 
-  mpINotifyFilePath = new QLineEdit(mCurrentINotifyPath.c_str());
+  mpINotifyFilePath = new QLineEdit(mCurrentINotifyPath);
   mpINotifyBrowse = new QPushButton(tr("Browse"));
 
   iNotifyLayout->addWidget(mpINotifyFilePath,2, 0, 1, 4);
@@ -171,7 +172,7 @@ void StartupTab::showFileBrowser()
     tr("Open Syncthing"), "", tr(""));
   if (!filename.isEmpty())
   {
-    mCurrentSyncthingPath = filename.toStdString();
+    mCurrentSyncthingPath = filename;
     mpFilePathLine->setText(filename);
   }
   saveSettings();
@@ -226,34 +227,36 @@ void StartupTab::launchINotifyBoxChanged(int state)
 
 void StartupTab::saveSettings()
 {
+  using namespace std;
   bool startServices = false;
-  mCurrentSyncthingPath = mpFilePathLine->text().toStdString();
-  if (mSettings.value("syncthingpath").toString().toStdString() != mCurrentSyncthingPath)
-  {
-    startServices = true;
-  }
-  mSettings.setValue("syncthingpath", tr(mCurrentSyncthingPath.c_str()));
-  if (mSettings.value("launchSyncthingAtStartup").toBool() != mShouldLaunchSyncthing)
-  {
-    startServices = true;
-  }
-  mSettings.setValue("launchSyncthingAtStartup", mShouldLaunchSyncthing);
-  
-  mCurrentINotifyPath = mpINotifyFilePath->text().toStdString();
-  if (mSettings.value("inotifypath").toString().toStdString() != mCurrentINotifyPath)
+  mCurrentSyncthingPath = mpFilePathLine->text();
+  if (mpAppSettings->value(kSyncthingPathId).toString() != mCurrentSyncthingPath)
   {
     startServices = true;
   }
 
-  mSettings.setValue("inotifypath", tr(mCurrentINotifyPath.c_str()));
-  mSettings.setValue("launchINotifyAtStartup", mShouldLaunchINotify);
-  mSettings.setValue("ShutdownOnExit", mShouldShutdownOnExit);
+  if (mpAppSettings->value(kLaunchSyncthingStartupId).toBool() != mShouldLaunchSyncthing)
+  {
+    startServices = true;
+  }
+  
+  mCurrentINotifyPath = mpINotifyFilePath->text();
+  if (mpAppSettings->value(kInotifyPathId).toString() != mCurrentINotifyPath)
+  {
+    startServices = true;
+  }
+  mpAppSettings->setValues(
+    make_pair(kSyncthingPathId, mCurrentSyncthingPath),
+    make_pair(kLaunchSyncthingStartupId, mShouldLaunchSyncthing),
+    make_pair(kInotifyPathId, mCurrentINotifyPath),
+    make_pair(kLaunchInotifyStartupId, mShouldLaunchINotify),
+    make_pair(kShutDownExitId, mShouldShutdownOnExit));
+
 
   if (startServices)
   {
     startProcesses();
   }
-  mpSyncConnector->onSettingsChanged();
 }
 
 
@@ -261,11 +264,11 @@ void StartupTab::saveSettings()
 
 void StartupTab::loadSettings()
 {
-  mCurrentSyncthingPath = mSettings.value("syncthingpath").toString().toStdString();
-  mShouldLaunchSyncthing = mSettings.value("launchSyncthingAtStartup").toBool();
-  mCurrentINotifyPath = mSettings.value("inotifypath").toString().toStdString();
-  mShouldLaunchINotify = mSettings.value("launchINotifyAtStartup").toBool();
-  mShouldShutdownOnExit = mSettings.value("ShutdownOnExit").toBool();
+  mCurrentSyncthingPath = mpAppSettings->value(kSyncthingPathId).toString();
+  mShouldLaunchSyncthing = mpAppSettings->value(kLaunchSyncthingStartupId).toBool();
+  mCurrentINotifyPath = mpAppSettings->value(kInotifyPathId).toString();
+  mShouldLaunchINotify = mpAppSettings->value(kLaunchInotifyStartupId).toBool();
+  mShouldShutdownOnExit = mpAppSettings->value(kShutDownExitId).toBool();
 }
 
 

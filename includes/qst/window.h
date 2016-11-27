@@ -23,7 +23,7 @@
 #include "processmonitor.hpp"
 #include "startuptab.hpp"
 #include "platforms.hpp"
-#include <qst/settingsmigrator.hpp>
+#include <qst/appsettings.hpp>
 #include <qst/statswidget.h>
 #include <qst/updatenotifier.h>
 #include <QDoubleSpinBox>
@@ -31,7 +31,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QSettings>
 #include <QProcess>
 #include <QFileDialog>
 #include <QTabWidget>
@@ -90,7 +89,6 @@ private slots:
     void onUpdateConnState(const ConnectionState& result);
     void checkForUpdate();
 private:
-    qst::settings::SettingsMigrator mSettingsMigrator;
     void createSettingsGroupBox();
     void createActions();
     void createTrayIcon();
@@ -162,10 +160,10 @@ private:
 
     QString mCurrentUserName;
     QString mCurrentUserPassword;
+    std::shared_ptr<qst::settings::AppSettings> mpAppSettings;
     std::shared_ptr<qst::connector::SyncConnector> mpSyncConnector;
     std::unique_ptr<qst::monitor::ProcessMonitor> mpProcessMonitor;
     std::unique_ptr<qst::settings::StartupTab> mpStartupTab;
-    QSettings mSettings;
   
     std::unique_ptr<QMovie> mpAnimatedIconMovie;
 
