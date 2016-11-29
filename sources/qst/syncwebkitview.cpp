@@ -32,7 +32,8 @@ namespace webview
 
 //------------------------------------------------------------------------------------//
 
-SyncWebKitView::SyncWebKitView(const QUrl& url, const Authentication &authInfo)
+SyncWebKitView::SyncWebKitView(const QUrl& url, const Authentication &authInfo,
+  std::shared_ptr<settings::AppSettings> /* appSettings */)
   : mSyncThingUrl(url)
   , mAuthInfo(authInfo)
 {
