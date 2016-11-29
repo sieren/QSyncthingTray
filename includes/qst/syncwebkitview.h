@@ -24,7 +24,7 @@
 
 #include <QNetworkReply>
 #include <QWebView>
-
+#include <qst/appsettings.hpp>
 #include <memory>
 
 //------------------------------------------------------------------------------------//
@@ -54,7 +54,8 @@ class SyncWebKitView : public QWidget
 
 public:
   SyncWebKitView() = default;
-  SyncWebKitView(const QUrl &url, const Authentication &authInfo);
+  SyncWebKitView(const QUrl &url, const Authentication &authInfo,
+                 std::shared_ptr<settings::AppSettings> /*appSetting*/);
   ~SyncWebKitView() = default;
 
   void show();
