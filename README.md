@@ -72,9 +72,8 @@ cmake ../ -G Xcode
 + Get the most recent [Qt Version](http://www.qt.io/download/)
 + Using `cmake`: 
 ```
-export QTDIR=~/Qt/5.5/gcc_64/
 mkdir build && cd build
-cmake ../ && make
+cmake -D CMAKE_PREFIX_PATH=~/Qt/5.5/gcc_64 .. && make -j4
 ```
 
 + Using `qmake`: 

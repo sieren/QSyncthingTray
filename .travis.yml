@@ -50,21 +50,18 @@ before_install:
       7z x 5.5.1-0qt5_addons.7z > /dev/null &&
       7z x 5.5.1-0qt5_qtscript.7z > /dev/null &&
       7z x 5.5.1-0qt5_qtlocation.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtpositioning.7z > /dev/null &&
-      export QTDIR=$PWD/5.5/gcc_64/
+      7z x 5.5.1-0qt5_qtpositioning.7z > /dev/null
     fi
   - |
     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         brew update &&
         brew install qt5 &&
-        chmod -R 755 /usr/local/opt/qt5/* &&
-        export QTDIR=$(brew --prefix qt5)
+        chmod -R 755 /usr/local/opt/qt5/*
     fi
   
 install:
 
 script:
-      mkdir build
-  &&  cd build
-  &&  cmake ../
-  &&  make
+  - mkdir build && cd build
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake -D CMAKE_PREFIX_PATH=../5.5/gcc_64        .. && make ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then cmake -D CMAKE_PREFIX_PATH=$(brew --prefix qt5) .. && make ; fi
