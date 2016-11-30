@@ -2,29 +2,6 @@ cmake_minimum_required(VERSION 3.2)
 
 project (QSyncthingTray)
 
-if ("$ENV{QTDIR}" STREQUAL "")
-  MESSAGE(WARNING "QTDIR not specified. Please export QTDIR
-  e.g. export QTDIR = ~/Qt/5.5/gcc_64/
-  Will try to find system installation..")
-endif ("$ENV{QTDIR}" STREQUAL "")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  if (${CMAKE_CL_64} MATCHES 0)
-    message (STATUS "MSVC 64 Bit: ${CMAKE_CL_64}")
-    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
-  else(${CMAKE_CL_64} MATCHES 0)
-    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
-  endif(${CMAKE_CL_64} MATCHES 0)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-
-
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -32,10 +9,14 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-# Find the QtWidgets library
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Network)
-find_package(Qt5PrintSupport)
+find_package(Qt5 5.5 COMPONENTS Widgets Network PrintSupport)
+if (NOT Qt5_FOUND)
+  message(FATAL_ERROR
+    "Some components of Qt5 not found (see above messages for details. "
+    "Did you set CMAKE_PREFIX_PATH ?\n"
+    "Example: cmake -D CMAKE_PREFIX_PATH=/my/path/to/Qt5/5.7/clang_64 .."
+  )
+endif ()
 
 add_definitions(-DGLEW_STATIC)
 # The Qt5Widgets_INCLUDES also includes the include directories for

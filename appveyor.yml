@@ -29,7 +29,7 @@ before_build:
 
 build_script:
   - cd build
-  - cmake ..\ -G "Visual Studio 12 2013 Win64"
+  - cmake -G "Visual Studio 12 2013 Win64" -D CMAKE_PREFIX_PATH=%QTDIR% ..
   - msbuild QSyncthingTray.sln
 
 after_build:
