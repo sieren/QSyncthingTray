@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-find_package(Qt5 5.5 COMPONENTS Widgets Network PrintSupport)
+find_package(Qt5 5.6 COMPONENTS Widgets Network PrintSupport)
 if (NOT Qt5_FOUND)
   message(FATAL_ERROR
     "Some components of Qt5 not found (see above messages for details. "
