@@ -92,6 +92,7 @@ namespace connector
   private:
     void ignoreSslErrors(QNetworkReply *reply);
     void getCurrentConfig();
+    void resetNetworkAccessManager();
     bool checkIfFileExists(QString path);
     void urlTested(QNetworkReply* reply);
     void connectionHealthReceived(QNetworkReply* reply);
@@ -109,7 +110,7 @@ namespace connector
 
     //! Network access, new methods should be added here
     //! so the called function can dispatch accordingly
-    QNetworkAccessManager network;
+    QSharedPointer<QNetworkAccessManager> mpNetwork;
     enum class kRequestMethod {
       urlTested,
       connectionHealth,

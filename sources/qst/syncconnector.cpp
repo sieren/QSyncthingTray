@@ -39,17 +39,11 @@ SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback,
   std::shared_ptr<settings::AppSettings> appSettings) :
     mConnectionStateCallback(textCallback)
   , mCurrentUrl(url)
+  , mpNetwork(new QNetworkAccessManager, &QObject::deleteLater)
   , mpAppSettings(appSettings)
 {
   onSettingsChanged();
-  connect(
-          &network, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (netRequestfinished(QNetworkReply*))
-          );
-  connect(
-          &network, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
-          this, SLOT (onSslError(QNetworkReply*))
-          );
+  resetNetworkAccessManager();
   connect(mpAppSettings.get(), &settings::AppSettings::settingsUpdated,
           this, &SyncConnector::onSettingsChanged);
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
@@ -86,8 +80,8 @@ void SyncConnector::testUrlAvailability()
   QNetworkRequest request(url);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   request.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  network.clearAccessCache();
-  QNetworkReply *reply = network.get(request);
+  mpNetwork->clearAccessCache();
+  QNetworkReply *reply = mpNetwork->get(request);
   requestMap[reply] = kRequestMethod::urlTested;
   if (mpSyncWebView != nullptr)
   {
@@ -160,19 +154,20 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
 void SyncConnector::checkConnectionHealth()
 {
+
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
   QNetworkRequest healthRequest(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   healthRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.get(healthRequest);
+  QNetworkReply *reply = mpNetwork->get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
 
   QUrl lastSyncedListURL = mCurrentUrl;
   lastSyncedListURL.setPath(tr("/rest/stats/folder"));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
   lastSyncedRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
+  QNetworkReply *lastSyncreply = mpNetwork->get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
 
   getCurrentConfig();
@@ -188,7 +183,7 @@ void SyncConnector::getCurrentConfig()
   QNetworkRequest request(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   request.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.get(request);
+  QNetworkReply *reply = mpNetwork->get(request);
   requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
 
@@ -231,6 +226,10 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   {
     replyData = reply->readAll();
   }
+  else if (reply->error() == QNetworkReply::UnknownNetworkError)
+  {
+    resetNetworkAccessManager();
+  }
   auto result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
 
@@ -238,6 +237,25 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   emit(onConnectionHealthChanged({result, traffic}));
 
   reply->deleteLater();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::resetNetworkAccessManager()
+{
+  QNetworkCookieJar* jar = mpNetwork->cookieJar();
+  mpNetwork = QSharedPointer<QNetworkAccessManager>(new QNetworkAccessManager,
+    &QObject::deleteLater);
+  mpNetwork->setCookieJar(jar);
+  connect(
+          mpNetwork.data(), SIGNAL (finished(QNetworkReply*)),
+          this, SLOT (netRequestfinished(QNetworkReply*))
+          );
+  connect(
+          mpNetwork.data(), SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
+          this, SLOT (onSslError(QNetworkReply*))
+          );
 }
 
 
@@ -301,7 +319,7 @@ void SyncConnector::shutdownSyncthingProcess()
   QNetworkRequest networkRequest(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.post(networkRequest, postData);
+  QNetworkReply *reply = mpNetwork->post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
   if (!mSyncthingPaused)
   {
