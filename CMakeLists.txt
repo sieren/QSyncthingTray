@@ -64,7 +64,6 @@ source_group("Platforms" ${qst_platform_HEADERS} ${qst_PLATFORMS_SOURCES})
 # |_|   \__,_|\__|_| |_|___/
 #
 
-# qt5_wrap_ui(UI_HEADERS mainwindow.ui)
 qt5_add_resources(UI_RESOURCES
   resources/qsyncthing.qrc
   resources/qsyncthingblueanim.qrc
@@ -73,6 +72,10 @@ qt5_add_resources(UI_RESOURCES
 include_directories(includes)
 add_subdirectory(includes)
 add_subdirectory(sources)
+add_subdirectory(third-party)
+source_group("Third Party" ${qst_thirdparty_FILES})
+SET(CMAKE_AUTOUIC ON)
+qt5_wrap_ui(qst_UI)
 
 set(MACOSX_BUNDLE_ICON_FILE resources/Syncthing.icns)
 SET_SOURCE_FILES_PROPERTIES(

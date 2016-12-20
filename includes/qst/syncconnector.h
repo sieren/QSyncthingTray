@@ -39,18 +39,6 @@
 #include <qst/appsettings.hpp>
 #include <qst/webview.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QCheckBox;
-class QComboBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QMenu;
-class QPushButton;
-class QSpinBox;
-class QTextEdit;
-QT_END_NAMESPACE
 
 using ConnectionStateData = std::pair<ConnectionHealthData, TrafficData>;
 using ConnectionStateCallback = std::function<void(ConnectionState&)>;
@@ -105,7 +93,6 @@ namespace connector
     bool mShouldLaunchINotify = false;
 
     ConnectionStateCallback mConnectionStateCallback = nullptr;
-    std::thread mIoThread;
     QUrl mCurrentUrl;
 
     //! Network access, new methods should be added here

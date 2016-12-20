@@ -28,6 +28,7 @@
 #include <QFileInfo>
 #include <QXmlStreamReader>
 #include "platforms.hpp"
+#include <third-party/date/date.h>
 
 static const int kBytesToKilobytes = 1024;
 // network noise floor in bytes to filter animations
@@ -222,6 +223,63 @@ struct Index<T, std::tuple<U, Types...>>
 
 
 //------------------------------------------------------------------------------------//
+
+
+using DateTimePoint = std::chrono::time_point<std::chrono::system_clock,
+std::chrono::seconds>;
+
+inline std::chrono::minutes parse_offset(std::istream& in)
+{
+  using namespace std::chrono;
+  char c;
+  in >> c;
+  minutes result = 10*hours{c - '0'};
+  in >> c;
+  result += hours{c - '0'};
+  in >> c;
+  result += 10*minutes{c - '0'};
+  in >> c;
+  result += minutes{c - '0'};
+  return result;
+}
+  
+inline DateTimePoint parse(const std::string& str)
+{
+  std::istringstream in(str);
+  in.exceptions(std::ios::failbit | std::ios::badbit);
+  int yi, mi, di;
+  char dash;
+  // check dash if you're picky
+  in >> yi >> dash >> mi >> dash >> di;
+  using namespace date;
+  auto ymd = year{yi}/mi/di;
+  // check ymd.ok() if you're picky
+  char T;
+  in >> T;
+  // check T if you're picky
+  int hi, si;
+  char colon;
+  in >> hi >> colon >> mi >> colon >> si;
+  // check colon if you're picky
+  using namespace std::chrono;
+  auto h = hours{hi};
+  auto m = minutes{mi};
+  auto s = seconds{si};
+  DateTimePoint result = sys_days{ymd} + h + m + s;
+  char f;
+  in >> f;
+  if (f == '+')
+  {
+    result -= parse_offset(in);
+  }
+  else if (f == '-')
+  {
+    result += parse_offset(in);
+  }
+  else
+    ;// check f == 'Z' if you're picky
+  return result;
+}
 
 }
 }

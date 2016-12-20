@@ -11,8 +11,13 @@ set(qst_SOURCES
   ${qst_src_ROOT}/processmonitor.cpp
   ${qst_src_ROOT}/startuptab.cpp
   ${qst_src_ROOT}/statswidget.cpp
+  ${qst_src_ROOT}/syncconnection.cpp
   ${qst_src_ROOT}/syncconnector.cpp
+  ${qst_src_ROOT}/syncdeviceviewmodel.cpp
+  ${qst_src_ROOT}/syncviewwidget.cpp
   ${qst_src_ROOT}/updatenotifier.cpp
+  ${qst_src_ROOT}/trayIcon.cpp
+  ${qst_src_ROOT}/trayMenu.cpp
   ${qst_src_ROOT}/window.cpp
   ${contrib_src_ROOT}/qcustomplot.cpp
 )

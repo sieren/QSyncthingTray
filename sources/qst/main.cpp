@@ -17,12 +17,15 @@
 ******************************************************************************/
 
 #include <QApplication>
-
+#include <memory>
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QMessageBox>
 #include <qst/window.h>
+#include <qst/trayIcon.h>
+#include <qst/trayMenu.h>
 
+std::shared_ptr<qst::ui::TrayIcon> mpIcon;
 
 int main(int argc, char *argv[])
 {
@@ -37,8 +40,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     QApplication::setQuitOnLastWindowClosed(false);
-
-    Window window;
+    mpIcon = std::make_shared<qst::ui::TrayIcon>();
+    mpIcon->show();
     return app.exec();
 }
 

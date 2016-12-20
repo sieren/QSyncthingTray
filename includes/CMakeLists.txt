@@ -21,8 +21,15 @@ set(qst_HEADERS
   ${qst_include_ROOT}/settingsmigrator.hpp
   ${qst_include_ROOT}/startuptab.hpp
   ${qst_include_ROOT}/statswidget.h
+  ${qst_include_ROOT}/syncconnection.h
+  ${qst_include_ROOT}/syncconnectionsettings.hpp
   ${qst_include_ROOT}/syncconnector.h
+  ${qst_include_ROOT}/syncdevice.hpp
+  ${qst_include_ROOT}/syncdeviceviewmodel.h
+  ${qst_include_ROOT}/syncviewwidget.h
   ${qst_include_ROOT}/updatenotifier.h
+  ${qst_include_ROOT}/trayIcon.h
+  ${qst_include_ROOT}/trayMenu.h
   ${qst_include_ROOT}/utilities.hpp
   ${qst_include_ROOT}/webview.h
   ${qst_include_ROOT}/window.h

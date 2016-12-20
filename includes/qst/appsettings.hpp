@@ -32,6 +32,9 @@ namespace qst
 {
 namespace settings
 {
+class AppSettings;
+using AppSettingsSPtr = std::shared_ptr<settings::AppSettings>;
+
 class AppSettings : public QObject
 {
   Q_OBJECT
