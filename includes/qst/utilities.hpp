@@ -25,6 +25,7 @@
 #include <iostream>
 #include <tuple>
 #include <QFile>
+#include <QFileInfo>
 #include <QXmlStreamReader>
 #include "platforms.hpp"
 
@@ -166,6 +167,23 @@ static QString trafficToString(T traffic)
   to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
   to_string_with_precision(traffic, 2) + " KB/s";
   return QString(strTraffic.c_str());
+}
+
+
+//------------------------------------------------------------------------------------//
+
+static auto checkIfFileExists(QString path) -> bool
+{
+  QFileInfo checkFile(path);
+  // check if file exists and if yes: Is it really a file and not a directory?
+  if (checkFile.exists() && checkFile.isFile())
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 

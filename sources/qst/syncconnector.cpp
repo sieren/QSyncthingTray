@@ -25,6 +25,7 @@
 #include <iostream>
 #include <qst/platforms.hpp>
 #include <qst/utilities.hpp>
+#include <qst/processcontroller.h>
 
 namespace qst
 {
@@ -38,17 +39,11 @@ SyncConnector::SyncConnector(QUrl url, ConnectionStateCallback textCallback,
   std::shared_ptr<settings::AppSettings> appSettings) :
     mConnectionStateCallback(textCallback)
   , mCurrentUrl(url)
+  , mpNetwork(new QNetworkAccessManager, &QObject::deleteLater)
   , mpAppSettings(appSettings)
 {
   onSettingsChanged();
-  connect(
-          &network, SIGNAL (finished(QNetworkReply*)),
-          this, SLOT (netRequestfinished(QNetworkReply*))
-          );
-  connect(
-          &network, SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
-          this, SLOT (onSslError(QNetworkReply*))
-          );
+  resetNetworkAccessManager();
   connect(mpAppSettings.get(), &settings::AppSettings::settingsUpdated,
           this, &SyncConnector::onSettingsChanged);
   mpConnectionHealthTimer = std::unique_ptr<QTimer>(new QTimer(this));
@@ -85,8 +80,8 @@ void SyncConnector::testUrlAvailability()
   QNetworkRequest request(url);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   request.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  network.clearAccessCache();
-  QNetworkReply *reply = network.get(request);
+  mpNetwork->clearAccessCache();
+  QNetworkReply *reply = mpNetwork->get(request);
   requestMap[reply] = kRequestMethod::urlTested;
   if (mpSyncWebView != nullptr)
   {
@@ -132,7 +127,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
   if (reply->error() == QNetworkReply::TimeoutError ||
       reply->error() == QNetworkReply::ConnectionRefusedError)
   {
-    shutdownINotifyProcess();
     mpConnectionAvailabilityTimer->start(1000);
   }
   else
@@ -151,7 +145,6 @@ void SyncConnector::urlTested(QNetworkReply* reply)
     mConnectionStateCallback(connectionInfo);
     mpConnectionAvailabilityTimer->stop();
     mpConnectionHealthTimer->start(mConnectionHealthTime);
-    checkAndSpawnINotifyProcess(false);
   }
   reply->deleteLater();
 }
@@ -161,19 +154,20 @@ void SyncConnector::urlTested(QNetworkReply* reply)
 
 void SyncConnector::checkConnectionHealth()
 {
+
   QUrl requestUrl = mCurrentUrl;
   requestUrl.setPath(tr("/rest/system/connections"));
   QNetworkRequest healthRequest(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   healthRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.get(healthRequest);
+  QNetworkReply *reply = mpNetwork->get(healthRequest);
   requestMap[reply] = kRequestMethod::connectionHealth;
 
   QUrl lastSyncedListURL = mCurrentUrl;
   lastSyncedListURL.setPath(tr("/rest/stats/folder"));
   QNetworkRequest lastSyncedRequest(lastSyncedListURL);
   lastSyncedRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *lastSyncreply = network.get(lastSyncedRequest);
+  QNetworkReply *lastSyncreply = mpNetwork->get(lastSyncedRequest);
   requestMap[lastSyncreply] = kRequestMethod::getLastSyncedFiles;
 
   getCurrentConfig();
@@ -189,45 +183,11 @@ void SyncConnector::getCurrentConfig()
   QNetworkRequest request(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   request.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.get(request);
+  QNetworkReply *reply = mpNetwork->get(request);
   requestMap[reply] = kRequestMethod::getCurrentConfig;
 }
 
 
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::syncThingProcessSpawned(QProcess::ProcessState newState)
-{
-  switch (newState)
-  {
-    case QProcess::Running:
-      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::SPAWNED}}));
-      break;
-    case QProcess::NotRunning:
-      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
-      break;
-    default:
-      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::NOT_RUNNING}}));
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::notifyProcessSpawned(QProcess::ProcessState newState)
-{
-  switch (newState)
-  {
-    case QProcess::Running:
-      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::SPAWNED}}));
-      break;
-    case QProcess::NotRunning:
-      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::NOT_RUNNING}}));
-      break;
-    default:
-      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::NOT_RUNNING}}));
-  }
-}
 
 
 //------------------------------------------------------------------------------------//
@@ -266,6 +226,10 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   {
     replyData = reply->readAll();
   }
+  else if (reply->error() == QNetworkReply::UnknownNetworkError)
+  {
+    resetNetworkAccessManager();
+  }
   auto result = mAPIHandler->getConnections(replyData);
   auto traffic = mAPIHandler->getCurrentTraffic(replyData);
 
@@ -273,6 +237,25 @@ void SyncConnector::connectionHealthReceived(QNetworkReply* reply)
   emit(onConnectionHealthChanged({result, traffic}));
 
   reply->deleteLater();
+}
+
+
+//------------------------------------------------------------------------------------//
+
+void SyncConnector::resetNetworkAccessManager()
+{
+  QNetworkCookieJar* jar = mpNetwork->cookieJar();
+  mpNetwork = QSharedPointer<QNetworkAccessManager>(new QNetworkAccessManager,
+    &QObject::deleteLater);
+  mpNetwork->setCookieJar(jar);
+  connect(
+          mpNetwork.data(), SIGNAL (finished(QNetworkReply*)),
+          this, SLOT (netRequestfinished(QNetworkReply*))
+          );
+  connect(
+          mpNetwork.data(), SIGNAL (sslErrors(QNetworkReply *, QList<QSslError>)),
+          this, SLOT (onSslError(QNetworkReply*))
+          );
 }
 
 
@@ -317,18 +300,9 @@ LastSyncedFileList SyncConnector::getLastSyncedFiles()
 
 void SyncConnector::pauseSyncthing(bool paused)
 {
-  mSyncthingPaused = paused;
   if (paused)
   {
     shutdownSyncthingProcess();
-    killProcesses();
-  }
-  else
-  {
-    spawnSyncthingProcess(mSyncthingFilePath, true);
-    checkAndSpawnINotifyProcess(false);
-    setURL(mCurrentUrl, mCurrentUrl.userName(),
-     mCurrentUrl.password());
   }
 }
 
@@ -345,7 +319,7 @@ void SyncConnector::shutdownSyncthingProcess()
   QNetworkRequest networkRequest(requestUrl);
   QByteArray headerByte(mAPIKey.toStdString().c_str(), mAPIKey.size());
   networkRequest.setRawHeader(QByteArray("X-API-Key"), headerByte);
-  QNetworkReply *reply = network.post(networkRequest, postData);
+  QNetworkReply *reply = mpNetwork->post(networkRequest, postData);
   requestMap[reply] = kRequestMethod::shutdownRequested;
   if (!mSyncthingPaused)
   {
@@ -373,99 +347,9 @@ void SyncConnector::onSettingsChanged()
 
 void SyncConnector::shutdownProcessPosted(QNetworkReply *reply)
 {
-  emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::PAUSED}}));
   reply->deleteLater();
 }
 
-
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::spawnSyncthingProcess(
-  const QString& filePath, const bool shouldSpawn, const bool onSetPath)
-{
-  mSyncthingFilePath = filePath;
-  if (shouldSpawn)
-  {
-    if (!checkIfFileExists(filePath) && onSetPath)
-    {
-      QMessageBox msgBox;
-      msgBox.setText("Could not find Syncthing.");
-      msgBox.setInformativeText("Are you sure the path is correct?");
-      msgBox.setStandardButtons(QMessageBox::Ok);
-      msgBox.setDefaultButton(QMessageBox::Ok);
-      msgBox.exec();
-    }
-    if (!systemUtil.isBinaryRunning(std::string("syncthing")))
-    {
-      mpSyncProcess = std::unique_ptr<QProcess>(new QProcess(this));
-      connect(mpSyncProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
-        this, SLOT(syncThingProcessSpawned(QProcess::ProcessState)));
-      QString processPath = QDir::toNativeSeparators(filePath);
-      QStringList launchArgs;
-      launchArgs << "-no-browser";
-      mpSyncProcess->start(processPath, launchArgs);
-    }
-    else
-    {
-      emit(onProcessSpawned({{kSyncthingIdentifier, ProcessState::ALREADY_RUNNING}}));
-    }
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::checkAndSpawnINotifyProcess(bool isRequestedExternal)
-{
-  if (isRequestedExternal)
-  {
-    onSettingsChanged();
-    if (mpSyncthingNotifierProcess)
-    {
-      mpSyncthingNotifierProcess->terminate();
-    }
-  }
-  if (mShouldLaunchINotify)
-  {
-    if (!checkIfFileExists(mINotifyFilePath) && isRequestedExternal)
-    {
-      QMessageBox msgBox;
-      msgBox.setText("Could not find iNotify.");
-      msgBox.setInformativeText("Are you sure the path is correct?");
-      msgBox.setStandardButtons(QMessageBox::Ok);
-      msgBox.setDefaultButton(QMessageBox::Ok);
-      msgBox.exec();
-    }
-    if (!systemUtil.isBinaryRunning(std::string("syncthing-inotify")))
-    {
-      mpSyncthingNotifierProcess = std::unique_ptr<QProcess>(new QProcess(this));
-      QString processPath = QDir::toNativeSeparators(mINotifyFilePath);
-      connect(mpSyncthingNotifierProcess.get(), SIGNAL(stateChanged(QProcess::ProcessState)),
-        this, SLOT(notifyProcessSpawned(QProcess::ProcessState)));
-      mpSyncthingNotifierProcess->start(processPath, QStringList(), QIODevice::Unbuffered);
-    }
-    else
-    {
-      emit(onProcessSpawned({{kNotifyIdentifier, ProcessState::ALREADY_RUNNING}}));
-    }
-  }
-  else
-  {
-    shutdownINotifyProcess();
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
-void SyncConnector::shutdownINotifyProcess()
-{
-  if (mpSyncthingNotifierProcess != nullptr &&
-      mpSyncthingNotifierProcess->state() == QProcess::Running)
-  {
-    mpSyncthingNotifierProcess->kill();
-  }
-}
 
 //------------------------------------------------------------------------------------//
 
@@ -521,23 +405,6 @@ void SyncConnector::onSslError(QNetworkReply* reply)
 
 //------------------------------------------------------------------------------------//
 
-auto SyncConnector::checkIfFileExists(QString path) -> bool
-{
-  QFileInfo checkFile(path);
-  // check if file exists and if yes: Is it really a file and not a directory?
-  if (checkFile.exists() && checkFile.isFile())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
 auto SyncConnector::getCurrentVersion(QString reply) -> int
 {
   std::string replyStd = reply.toStdString();
@@ -561,24 +428,6 @@ auto SyncConnector::getCurrentVersion(QString reply) -> int
 
 //------------------------------------------------------------------------------------//
 
-void SyncConnector::killProcesses()
-{
-  if (mpSyncProcess != nullptr
-      && mpAppSettings->value("ShutdownOnExit").toBool())
-  {
-    mpSyncProcess->waitForFinished();
-  }
-  if (mpSyncthingNotifierProcess != nullptr
-      && mpSyncthingNotifierProcess->state() == QProcess::Running)
-  {
-    mpSyncthingNotifierProcess->terminate();
-    mpSyncthingNotifierProcess->waitForFinished();
-  }
-}
-
-
-//------------------------------------------------------------------------------------//
-
 auto SyncConnector::getWebView() -> webview::WebView *
 {
   return mpSyncWebView.get();
@@ -594,7 +443,6 @@ SyncConnector::~SyncConnector()
     shutdownSyncthingProcess();
   }
   mpConnectionHealthTimer->stop();
-  killProcesses();
 }
 
 

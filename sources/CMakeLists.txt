@@ -7,6 +7,7 @@ set(platforms_src_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/platforms)
 
 set(qst_SOURCES
   ${qst_src_ROOT}/main.cpp
+  ${qst_src_ROOT}/processcontroller.cpp
   ${qst_src_ROOT}/processmonitor.cpp
   ${qst_src_ROOT}/startuptab.cpp
   ${qst_src_ROOT}/statswidget.cpp
