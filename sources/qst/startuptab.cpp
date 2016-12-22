@@ -116,10 +116,6 @@ void StartupTab::initGUI()
   launcherLayout->addWidget(mpFilePathGroupBox);
   launcherLayout->addWidget(mpiNotifyGroupBox);
   setLayout(launcherLayout);
-
-  launchSyncthingBoxChanged(launchState);
-  launchINotifyBoxChanged(iNotifylaunchState);
-  
 }
 
 //------------------------------------------------------------------------------------//

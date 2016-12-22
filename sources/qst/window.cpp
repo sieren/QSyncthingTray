@@ -108,8 +108,10 @@ Window::Window()
     mpSettingsTabsWidget->addTab(mpProcessMonitor.get(), "Auto-Pause");
     mainLayout->addWidget(mpSettingsTabsWidget);
     setLayout(mainLayout);
-    testURL();
-
+    mpSyncConnector->setURL(
+      mpAppSettings->value(kUrlId).toString(),
+      mpAppSettings->value(kUserNameId).toString(),
+      mpAppSettings->value(kPasswordId).toString());
     setIcon(0);
     mpTrayIcon->show();
     #ifdef Q_OS_MAC
@@ -206,7 +208,6 @@ void Window::setIcon(const int index, const bool isManualSet)
 
 void Window::testURL()
 {
-  saveSettings();
   std::string validateUrl = mpSyncthingUrlLineEdit->text().toStdString();
   std::size_t foundSSL = validateUrl.find("https");
   if (foundSSL!=std::string::npos)

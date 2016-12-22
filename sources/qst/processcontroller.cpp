@@ -36,6 +36,8 @@ ProcessController::ProcessController(std::shared_ptr<settings::AppSettings> appS
 {
   connect(mpAppSettings.get(), &settings::AppSettings::settingsUpdated,
     this, &ProcessController::onSettingsUpdated);
+  spawnSyncthingProcess();
+  spawnINotifyProcess();
 }
 
 
