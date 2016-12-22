@@ -1,8 +1,10 @@
 HEADERS       = includes/qst/window.h \
+                includes/qst/appsettings.hpp \
                 includes/qst/syncconnector.h \
                 includes/platforms/darwin/macUtils.hpp \
                 includes/platforms/windows/winUtils.hpp \
                 includes/platforms/linux/posixUtils.hpp \
+                includes/qst/processcontroller.h \
                 includes/qst/processmonitor.hpp \
                 includes/qst/platforms.hpp \
                 includes/qst/apihandler.hpp \
@@ -16,6 +18,7 @@ HEADERS       = includes/qst/window.h \
 SOURCES       = sources/qst/main.cpp \
                 sources/qst/window.cpp \
                 sources/qst/syncconnector.cpp \
+                sources/qst/processcontroller.cpp \
                 sources/qst/processmonitor.cpp \
                 sources/qst/startuptab.cpp \
                 sources/qst/statswidget.cpp \
