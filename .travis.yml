@@ -1,6 +1,7 @@
 language: cpp
 
-TODO: google for travis nvm errors in build log
+# TODO See travis Docker support for how to use any ubuntu version!
+# https://docs.travis-ci.com/user/docker/
 
 git:
   # default is 50, not needed
@@ -14,50 +15,35 @@ matrix:
       # Mac OS X Sierra (10.12)
       osx_image: xcode8.1
 
-#    - os: linux
-#      env: CONFIG=Release
-#      compiler: clang
-#      addons:
-#        apt:
-#          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
-#          packages: ['clang-3.6', 'p7zip-full']
-#      env: COMPILER=clang++-3.6 WORDSIZE=64 CONFIGURATION=Debug
+    - os: linux
+      # The default Travis Linux image is Ubuntu 12.04 precise, which is way too old:
+      # - cmake version is 2.8.7
+      # - wget doesn't support SNI, so dowloading with HTTPS from cmake.org fails. The correct 
+      #   solution is NOT --no-check-certificate as wget suggests! The correct solution is to
+      #   use a more recent wget or something that supports SNI.
+      #
+      # Switch from Ubuntu 12.04 precise to 14.04 trusty (which is still old but the most
+      # recent version available on travis, in beta since November 2016).
+      # By default:
+      # - cmake version is 3.2.2
+      # - gcc version is 4.8.4
+      # - qt5 version is 5.2.1, while we require at least 5.6
+      #
+      # See http://stackoverflow.com/a/29818514/561422 for the proper way to get any Qt5 version
+      # with Travis and 14.04 trusty!
+      #
+      dist: trusty
+      sudo: required
+      env: CONFIG=Release
+      compiler: gcc
 
 before_install:
-  - CXX=$COMPILER
   - |
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz" &&
-      rm -rf cmake &&
-      mkdir cmake &&
-      travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake &&
-      export PATH=${TRAVIS_BUILD_DIR}/cmake/bin:${PATH}
-    fi
-  - |
-    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_essentials.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_essentials.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0icu-linux-g++-Rhel6.6-x64.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0icu-linux-g++-Rhel6.6-x64.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtquick1.gcc_64/5.5.1-0qt5_qtquick1.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtquick1.gcc_64/5.5.1-0qt5_qtquick1.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtwebengine.gcc_64/5.5.1-0qt5_qtwebengine.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_addons.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_addons.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtscript.gcc_64/5.5.1-0qt5_qtscript.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtscript.gcc_64/5.5.1-0qt5_qtscript.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtlocation.gcc_64/5.5.1-0qt5_qtlocation.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.qtlocation.gcc_64/5.5.1-0qt5_qtlocation.7z.sha1 &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_qtpositioning.7z &&
-      wget http://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt5_55/qt.55.gcc_64/5.5.1-0qt5_qtpositioning.7z.sha1 &&
-      7z x 5.5.1-0qt5_essentials.7z > /dev/null &&
-      7z x 5.5.1-0icu-linux-g++-Rhel6.6-x64.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtquick1.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtwebengine.7z > /dev/null &&
-      7z x 5.5.1-0qt5_addons.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtscript.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtlocation.7z > /dev/null &&
-      7z x 5.5.1-0qt5_qtpositioning.7z > /dev/null
+      # Need at least Qt 5.6 for QWebEnginePage::setBackgroundColor
+      # https://launchpad.net/~beineri/+archive/ubuntu/opt-qt562-trusty
+      sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y &&
+      sudo apt-get update -qq
     fi
   - |
     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
@@ -68,8 +54,22 @@ before_install:
     fi
   
 install:
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        sudo apt-get install -qq qt56base &&
+        sudo apt-get install -qq qt56webengine &&
+        source /opt/qt56/bin/qt56-env.sh
+    fi
 
 script:
   - mkdir build && cd build
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake -D CMAKE_PREFIX_PATH=../5.5/gcc_64        .. && make ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then cmake -D CMAKE_PREFIX_PATH=$(brew --prefix qt5) .. && make ; fi
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        cmake .. &&
+        cmake --build .
+    fi
+  - |
+    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        cmake -D CMAKE_PREFIX_PATH=$(brew --prefix qt5) .. &&
+        cmake --build .
+    fi
