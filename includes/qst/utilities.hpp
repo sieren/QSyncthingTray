@@ -164,8 +164,8 @@ static QString trafficToString(T traffic)
 {
   using namespace utilities;
   std::string strTraffic = traffic > kBytesToKilobytes ?
-  to_string_with_precision(traffic/kBytesToKilobytes, 2) + " MB/s" :
-  to_string_with_precision(traffic, 2) + " KB/s";
+    to_string_with_precision(traffic/kBytesToKilobytes, 2) + " mb/s" :
+    to_string_with_precision(traffic, 2) + " kb/s";
   return QString(strTraffic.c_str());
 }
 
