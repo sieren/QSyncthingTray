@@ -61,6 +61,9 @@ class SyncConnection : public QObject
 signals:
   void configPathChanged(const QString& newPath);
   void trafficChanged(const std::uint64_t mInTraff, const std::uint64_t mOutTraff);
+  void onConfigChanged(const QJsonObject& config);
+  // void onDirectoriesChanged(const std::vector<SyncthingDir>& dirs);
+  void onDevicesChanged(const std::vector<model::SyncDevice>& devices);
 
 public:
   SyncConnection() = default;
@@ -82,7 +85,9 @@ public:
   std::uint64_t totalOutTraff() const;
   std::uint64_t totalInRate() const;
   std::uint64_t totalOutRate() const;
+  const std::vector<model::SyncDevice> &devices() const;
   bool isConnected() const;
+
 private:
   settings::SyncConnectionSettings mConnectionSettings;
   std::vector<model::SyncDevice> mDevices;

@@ -396,6 +396,7 @@ void SyncConnection::onEventStateChanged(const QJsonObject& evt, utilities::Date
   std::cout << "Event Time: " << time.time_since_epoch().count() << std::endl;
 }
 
+
 QNetworkRequest SyncConnection::buildRequest(const QString& urlPath, const QUrlQuery& query, const bool restApi)
 {
   QUrl url(mConnectionSettings.url);
@@ -442,6 +443,11 @@ std::uint64_t SyncConnection::totalOutRate() const
 bool SyncConnection::isConnected() const
 {
   return mIsConnected;
+}
+
+const std::vector<model::SyncDevice> &SyncConnection::devices() const
+{
+  return mDevices;
 }
 } // namespace connector
 } // namespace qst
