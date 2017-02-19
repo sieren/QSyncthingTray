@@ -26,15 +26,22 @@ namespace qst
 namespace settings
 {
 
+using namespace process;
+static std::map<ProcessState, QString> stateToString =
+{{ProcessState::ALREADY_RUNNING, "Already Launched"},
+  {ProcessState::NOT_RUNNING, "Not Launched"},
+  {ProcessState::PAUSED, "Paused"},
+  {ProcessState::SPAWNED, "Launched"}};
+
 StartupTab::StartupTab(std::shared_ptr<process::ProcessController> pProcController,
   std::shared_ptr<settings::AppSettings> appSettings) :
     mpProcController(pProcController)
   , mpAppSettings(appSettings)
 {
   
-  loadSettings();
   connect(mpProcController.get(), &process::ProcessController::onProcessSpawned,
     this, &StartupTab::processSpawnedChanged);
+  loadSettings();
   initGUI();
 }
 
@@ -60,7 +67,7 @@ void StartupTab::initGUI()
   mpFilePathLine = new QLineEdit(mpAppSettings->value(kSyncthingPathId).toString());
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
-  mpAppSpawnedLabel = new QLabel(tr("Not started"));
+  mpAppSpawnedLabel = new QLabel(stateToString.at(mpProcController->getSyncthingState()));
 
   mpShutdownOnExitBox = new QCheckBox(tr("Shutdown on Exit"));
   Qt::CheckState shutdownState = mShouldShutdownOnExit ? Qt::Checked : Qt::Unchecked;
@@ -87,7 +94,7 @@ void StartupTab::initGUI()
   
   mpiNotifyGroupBox = new QGroupBox(tr("iNotify Application"));
 
-  mpINotifySpawnedLabel = new QLabel(tr("Not started"));
+  mpINotifySpawnedLabel = new QLabel(stateToString.at(mpProcController->getINotifyState()));
   mpShouldLaunchINotify = new QCheckBox(tr("Launch iNotify"));
   Qt::CheckState iNotifylaunchState = mShouldLaunchINotify ? Qt::Checked : Qt::Unchecked;
   mpShouldLaunchINotify->setCheckState(iNotifylaunchState);
