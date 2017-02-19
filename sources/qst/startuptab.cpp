@@ -225,7 +225,6 @@ void StartupTab::saveSettings()
       !utilities::checkIfFileExists(mpFilePathLine->text()))
   {
     displayPathNotFound("Syncthing");
-    return;
   }
 
   // Check Filepath Validity
@@ -233,7 +232,6 @@ void StartupTab::saveSettings()
       !utilities::checkIfFileExists(mpINotifyFilePath->text()))
   {
     displayPathNotFound("syncthing-inotify");
-    return;
   }
   mpAppSettings->setValues(
     make_pair(kSyncthingPathId, mpFilePathLine->text()),
