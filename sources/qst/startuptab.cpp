@@ -57,7 +57,7 @@ void StartupTab::initGUI()
   mpShouldLaunchSyncthingBox->setCheckState(launchState);
   QGridLayout *filePathLayout = new QGridLayout;
   
-  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath);
+  mpFilePathLine = new QLineEdit(mpAppSettings->value(kSyncthingPathId).toString());
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
   mpAppSpawnedLabel = new QLabel(tr("Not started"));
@@ -93,7 +93,7 @@ void StartupTab::initGUI()
   mpShouldLaunchINotify->setCheckState(iNotifylaunchState);
   QGridLayout *iNotifyLayout = new QGridLayout;
 
-  mpINotifyFilePath = new QLineEdit(mCurrentINotifyPath);
+  mpINotifyFilePath = new QLineEdit(mpAppSettings->value(kInotifyPathId).toString());
   mpINotifyBrowse = new QPushButton(tr("Browse"));
 
   iNotifyLayout->addWidget(mpINotifyFilePath,2, 0, 1, 4);
@@ -166,7 +166,6 @@ void StartupTab::showFileBrowser()
     tr("Open Syncthing"), "", tr(""));
   if (!filename.isEmpty())
   {
-    mCurrentSyncthingPath = filename;
     mpFilePathLine->setText(filename);
   }
   saveSettings();
@@ -237,9 +236,9 @@ void StartupTab::saveSettings()
     return;
   }
   mpAppSettings->setValues(
-    make_pair(kSyncthingPathId, mCurrentSyncthingPath),
+    make_pair(kSyncthingPathId, mpFilePathLine->text()),
     make_pair(kLaunchSyncthingStartupId, mShouldLaunchSyncthing),
-    make_pair(kInotifyPathId, mCurrentINotifyPath),
+    make_pair(kInotifyPathId, mpINotifyFilePath->text()),
     make_pair(kLaunchInotifyStartupId, mShouldLaunchINotify),
     make_pair(kShutDownExitId, mShouldShutdownOnExit));
 }
@@ -249,9 +248,7 @@ void StartupTab::saveSettings()
 
 void StartupTab::loadSettings()
 {
-  mCurrentSyncthingPath = mpAppSettings->value(kSyncthingPathId).toString();
   mShouldLaunchSyncthing = mpAppSettings->value(kLaunchSyncthingStartupId).toBool();
-  mCurrentINotifyPath = mpAppSettings->value(kInotifyPathId).toString();
   mShouldLaunchINotify = mpAppSettings->value(kLaunchInotifyStartupId).toBool();
   mShouldShutdownOnExit = mpAppSettings->value(kShutDownExitId).toBool();
 }

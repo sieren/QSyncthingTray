@@ -111,8 +111,6 @@ private:
   bool mShouldLaunchSyncthing;
   bool mShouldLaunchINotify;
   bool mShouldShutdownOnExit;
-  QString mCurrentSyncthingPath;
-  QString mCurrentINotifyPath;
 
   std::shared_ptr<process::ProcessController> mpProcController;
   qst::sysutils::SystemUtility systemUtil;
