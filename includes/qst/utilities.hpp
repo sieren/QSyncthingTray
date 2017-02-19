@@ -172,7 +172,7 @@ static QString trafficToString(T traffic)
 
 //------------------------------------------------------------------------------------//
 
-static auto checkIfFileExists(QString path) -> bool
+inline auto checkIfFileExists(QString path) -> bool
 {
   QFileInfo checkFile(path);
   // check if file exists and if yes: Is it really a file and not a directory?
