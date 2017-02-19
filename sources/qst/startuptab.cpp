@@ -228,14 +228,16 @@ void StartupTab::saveSettings()
 {
   using namespace std;
   // Check Filepath Validity
-  if (!mpFilePathLine->text().isEmpty() &&
+  if (mShouldLaunchSyncthing &&
+      !mpFilePathLine->text().isEmpty() &&
       !utilities::checkIfFileExists(mpFilePathLine->text()))
   {
     displayPathNotFound("Syncthing");
   }
 
   // Check Filepath Validity
-  if (!mpINotifyFilePath->text().isEmpty() &&
+  if (mShouldLaunchINotify &&
+      !mpINotifyFilePath->text().isEmpty() &&
       !utilities::checkIfFileExists(mpINotifyFilePath->text()))
   {
     displayPathNotFound("syncthing-inotify");
