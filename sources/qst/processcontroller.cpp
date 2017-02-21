@@ -110,6 +110,63 @@ void ProcessController::notifyProcessSpawned(QProcess::ProcessState newState)
 
 //------------------------------------------------------------------------------------//
 
+auto ProcessController::getSyncthingState() const -> ProcessState
+{
+  if (!mpSyncthingProcess &&
+      mSystemUtil.isBinaryRunning(std::string("syncthing")))
+  {
+    return ProcessState::ALREADY_RUNNING;
+  }
+
+  if (!mpAppSettings->value(kLaunchSyncthingStartupId).toBool())
+  {
+    return ProcessState::NOT_RUNNING;
+  }
+
+  switch (mpSyncthingProcess->state())
+  {
+    case QProcess::Running:
+      return ProcessState::SPAWNED;
+      break;
+    case QProcess::NotRunning:
+      return ProcessState::NOT_RUNNING;
+      break;
+    default:
+      return ProcessState::NOT_RUNNING;
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
+auto ProcessController::getINotifyState() const -> ProcessState
+{
+  if (mSystemUtil.isBinaryRunning(std::string("syncthing-inotify")))
+  {
+    return ProcessState::ALREADY_RUNNING;
+  }
+
+  if (!mpAppSettings->value(kLaunchInotifyStartupId).toBool())
+  {
+    return ProcessState::NOT_RUNNING;
+  }
+
+  switch (mpINotifyProcess->state())
+  {
+    case QProcess::Running:
+      return ProcessState::SPAWNED;
+      break;
+    case QProcess::NotRunning:
+      return ProcessState::NOT_RUNNING;
+      break;
+    default:
+      return ProcessState::NOT_RUNNING;
+  }
+}
+
+
+//------------------------------------------------------------------------------------//
+
 void ProcessController::setPaused(const bool paused)
 {
   if (paused)

@@ -57,6 +57,8 @@ public:
   ~ProcessController();
   void setPaused(const bool paused);
   void checkAndSpawnINotifyProcess();
+  ProcessState getSyncthingState() const;
+  ProcessState getINotifyState() const;
 
 signals:
   void onNothing(int bla);

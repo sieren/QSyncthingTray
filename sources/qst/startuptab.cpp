@@ -26,15 +26,22 @@ namespace qst
 namespace settings
 {
 
+using namespace process;
+static std::map<ProcessState, QString> stateToString =
+{{ProcessState::ALREADY_RUNNING, "Already Launched"},
+  {ProcessState::NOT_RUNNING, "Not Launched"},
+  {ProcessState::PAUSED, "Paused"},
+  {ProcessState::SPAWNED, "Launched"}};
+
 StartupTab::StartupTab(std::shared_ptr<process::ProcessController> pProcController,
   std::shared_ptr<settings::AppSettings> appSettings) :
     mpProcController(pProcController)
   , mpAppSettings(appSettings)
 {
   
-  loadSettings();
   connect(mpProcController.get(), &process::ProcessController::onProcessSpawned,
     this, &StartupTab::processSpawnedChanged);
+  loadSettings();
   initGUI();
 }
 
@@ -57,10 +64,10 @@ void StartupTab::initGUI()
   mpShouldLaunchSyncthingBox->setCheckState(launchState);
   QGridLayout *filePathLayout = new QGridLayout;
   
-  mpFilePathLine = new QLineEdit(mCurrentSyncthingPath);
+  mpFilePathLine = new QLineEdit(mpAppSettings->value(kSyncthingPathId).toString());
   mpFilePathBrowse = new QPushButton(tr("Browse"));
   
-  mpAppSpawnedLabel = new QLabel(tr("Not started"));
+  mpAppSpawnedLabel = new QLabel(stateToString.at(mpProcController->getSyncthingState()));
 
   mpShutdownOnExitBox = new QCheckBox(tr("Shutdown on Exit"));
   Qt::CheckState shutdownState = mShouldShutdownOnExit ? Qt::Checked : Qt::Unchecked;
@@ -87,13 +94,13 @@ void StartupTab::initGUI()
   
   mpiNotifyGroupBox = new QGroupBox(tr("iNotify Application"));
 
-  mpINotifySpawnedLabel = new QLabel(tr("Not started"));
+  mpINotifySpawnedLabel = new QLabel(stateToString.at(mpProcController->getINotifyState()));
   mpShouldLaunchINotify = new QCheckBox(tr("Launch iNotify"));
   Qt::CheckState iNotifylaunchState = mShouldLaunchINotify ? Qt::Checked : Qt::Unchecked;
   mpShouldLaunchINotify->setCheckState(iNotifylaunchState);
   QGridLayout *iNotifyLayout = new QGridLayout;
 
-  mpINotifyFilePath = new QLineEdit(mCurrentINotifyPath);
+  mpINotifyFilePath = new QLineEdit(mpAppSettings->value(kInotifyPathId).toString());
   mpINotifyBrowse = new QPushButton(tr("Browse"));
 
   iNotifyLayout->addWidget(mpINotifyFilePath,2, 0, 1, 4);
@@ -166,7 +173,6 @@ void StartupTab::showFileBrowser()
     tr("Open Syncthing"), "", tr(""));
   if (!filename.isEmpty())
   {
-    mCurrentSyncthingPath = filename;
     mpFilePathLine->setText(filename);
   }
   saveSettings();
@@ -222,24 +228,24 @@ void StartupTab::saveSettings()
 {
   using namespace std;
   // Check Filepath Validity
-  if (!mpFilePathLine->text().isEmpty() &&
+  if (mShouldLaunchSyncthing &&
+      !mpFilePathLine->text().isEmpty() &&
       !utilities::checkIfFileExists(mpFilePathLine->text()))
   {
     displayPathNotFound("Syncthing");
-    return;
   }
 
   // Check Filepath Validity
-  if (!mpINotifyFilePath->text().isEmpty() &&
+  if (mShouldLaunchINotify &&
+      !mpINotifyFilePath->text().isEmpty() &&
       !utilities::checkIfFileExists(mpINotifyFilePath->text()))
   {
     displayPathNotFound("syncthing-inotify");
-    return;
   }
   mpAppSettings->setValues(
-    make_pair(kSyncthingPathId, mCurrentSyncthingPath),
+    make_pair(kSyncthingPathId, mpFilePathLine->text()),
     make_pair(kLaunchSyncthingStartupId, mShouldLaunchSyncthing),
-    make_pair(kInotifyPathId, mCurrentINotifyPath),
+    make_pair(kInotifyPathId, mpINotifyFilePath->text()),
     make_pair(kLaunchInotifyStartupId, mShouldLaunchINotify),
     make_pair(kShutDownExitId, mShouldShutdownOnExit));
 }
@@ -249,9 +255,7 @@ void StartupTab::saveSettings()
 
 void StartupTab::loadSettings()
 {
-  mCurrentSyncthingPath = mpAppSettings->value(kSyncthingPathId).toString();
   mShouldLaunchSyncthing = mpAppSettings->value(kLaunchSyncthingStartupId).toBool();
-  mCurrentINotifyPath = mpAppSettings->value(kInotifyPathId).toString();
   mShouldLaunchINotify = mpAppSettings->value(kLaunchInotifyStartupId).toBool();
   mShouldShutdownOnExit = mpAppSettings->value(kShutDownExitId).toBool();
 }
