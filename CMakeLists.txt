@@ -149,6 +149,6 @@ elseif(WIN32)
 
   add_custom_target(create_package
       COMMAND ${CMAKE_COMMAND} --build . --config $<CONFIG>
-      COMMAND ${qt5_qtdeploy} --compiler-runtime QSyncthingTray
+      COMMAND ${qt5_qtdeploy} --compiler-runtime $<CONFIG>/QSyncthingTray.exe
       COMMENT "Creating package")
 endif()
