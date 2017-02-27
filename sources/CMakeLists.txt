@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.0)
-project(QSyncthingTray)
 
 set(qst_src_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/qst)
 set(contrib_src_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/contrib)

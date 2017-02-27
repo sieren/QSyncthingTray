@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project (QSyncthingTray)
+project (QSyncthingTray LANGUAGES CXX)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -118,3 +118,37 @@ else()
   qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
 endif()
 
+
+# Temporary solution/hack to generate package.
+# Proper way will come after cmake cleanup.
+
+get_target_property(qt5_qmake Qt5::qmake LOCATION)
+get_filename_component(qt5_bin_dir ${qt5_qmake} DIRECTORY)
+
+if(APPLE)
+  find_program(qt5_qtdeploy
+      NAMES macdeployqt
+      PATHS ${qt5_bin_dir})
+  if(NOT qt5_qtdeploy)
+    message(FATAL_ERROR "macdeployqt not found")
+  endif()
+
+  add_custom_target(create_package
+      COMMAND ${CMAKE_COMMAND} -E remove_directory QSyncthingTray.app
+      COMMAND ${CMAKE_COMMAND} -E remove QSyncthingTray.dmg
+      COMMAND ${CMAKE_COMMAND} --build . --config $<CONFIG>
+      COMMAND ${qt5_qtdeploy} QSyncthingTray.app -verbose=1 -dmg
+      COMMENT "Creating package")
+elseif(WIN32)
+  find_program(qt5_qtdeploy
+      NAMES windeployqt
+      PATHS ${qt5_bin_dir})
+  if(NOT qt5_qtdeploy)
+    message(FATAL_ERROR "windeployqt not found")
+  endif()
+
+  add_custom_target(create_package
+      COMMAND ${CMAKE_COMMAND} --build . --config $<CONFIG>
+      COMMAND ${qt5_qtdeploy} --compiler-runtime $<CONFIG>/QSyncthingTray.exe
+      COMMENT "Creating package")
+endif()
