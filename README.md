@@ -73,12 +73,6 @@ cmake ../ -G Xcode
 + Using `cmake`: 
 ```
 mkdir build && cd build
-cmake -D CMAKE_PREFIX_PATH=~/Qt/5.5/gcc_64 .. && make -j4
+cmake .. && make
 ```
 
-+ Using `qmake`: 
-```
-cd ./src  
-./build_linux.sh  
-./QSyncthingTray
-```
