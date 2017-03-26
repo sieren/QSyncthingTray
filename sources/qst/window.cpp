@@ -18,6 +18,7 @@
 
 #include <qst/webview.h>
 #include <qst/window.h>
+#include "config.h"
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -42,7 +43,6 @@
 
 
 //! Layout
-#define currentVersion "0.5.7"
 #define maximumWidth 400
 static const std::list<std::pair<std::string, std::string>> kIconSet(
   {{":/images/syncthingBlue.png", ":/images/syncthingGrey.png"},
@@ -63,7 +63,7 @@ Window::Window()
   , mpStartupTab(new qst::settings::StartupTab(mpProcController, mpAppSettings))
   , mpAnimatedIconMovie(new QMovie())
   , mUpdateNotifier(std::bind(&Window::onUpdateCheck, this, std::placeholders::_1),
-      QString(tr(currentVersion)), mpAppSettings)
+      QString(QSYNCTHINGTRAY_VERSION), mpAppSettings)
 {
     loadSettings();
     createSettingsGroupBox();
@@ -821,9 +821,10 @@ void Window::showAboutPage()
   QMessageBox msgBox(this);
   msgBox.setWindowTitle("About QSyncthingTray");
   msgBox.setTextFormat(Qt::RichText);
-  msgBox.setText("<p align='center'> v" currentVersion " (c) 2015 The QSyncthingTray " \
-    "Authors. <br/> This program comes with absolutely no warranty. <br/><br/>" \
-    "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>" \
+  msgBox.setText("<p align='center'> QSyncthingTray v" QSYNCTHINGTRAY_VERSION "<br/>"
+    "(c) " QSYNCTHINGTRAY_COPYRIGHT_YEARS " The QSyncthingTray Authors. <br/>"
+    "This program comes with absolutely no warranty. <br/><br/>"
+    "For more visit <a href='http://www.github.com/sieren/qsyncthingtray/'>"
     "QSyncthingTray on Github</a></p>");
   msgBox.exec();
 }

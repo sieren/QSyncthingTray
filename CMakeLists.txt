@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.2)
 
 project (QSyncthingTray LANGUAGES CXX)
 
+set(QSYNCTHINGTRAY_VERSION 0.5.7)
+set(QSYNCTHINGTRAY_COPYRIGHT_YEARS 2015-2017)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -17,6 +20,9 @@ if (NOT Qt5_FOUND)
     "Example: cmake -D CMAKE_PREFIX_PATH=/my/path/to/Qt5/5.7/clang_64 .."
   )
 endif ()
+
+# Fill the template with information gathered from CMake.
+configure_file(includes/config.template.h config.h @ONLY)
 
 add_definitions(-DGLEW_STATIC)
 # The Qt5Widgets_INCLUDES also includes the include directories for
@@ -74,17 +80,17 @@ include_directories(includes)
 add_subdirectory(includes)
 add_subdirectory(sources)
 
-set(MACOSX_BUNDLE_ICON_FILE resources/Syncthing.icns)
-SET_SOURCE_FILES_PROPERTIES(
-  Syncthing.icns
-  PROPERTIES
-  MACOSX_PACKAGE_LOCATION Resources
-  )
-
   if(APPLE)
+    set(ICON_FILE resources/Syncthing.icns)
+    set_source_files_properties(${ICON_FILE} PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-    add_executable(QSyncthingTray MACOSX_BUNDLE resources/Syncthing.icns ${UI_HEADERS} ${UI_RESOURCES} 
+    add_executable(QSyncthingTray MACOSX_BUNDLE ${ICON_FILE} ${UI_HEADERS} ${UI_RESOURCES}
       ${qst_platform_HEADERS} ${qst_PLATFORMS_SOURCES} ${qst_HEADERS} ${qst_SOURCES})
+    # Fill the Info.plist template with information gathered from CMake and
+    # copy it into the bundle.
+    set_target_properties(QSyncthingTray PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/resources/Info.template.plist)
   elseif(WIN32)
     add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
   elseif(UNIX)
@@ -107,7 +113,7 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set_target_properties(QSyncthingTray PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
     set_target_properties(QSyncthingTray PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-    target_link_libraries(QSyncthingTray ${Qt5Widgets_LIBRARIES} Qt5::Widgets) 
+    target_link_libraries(QSyncthingTray ${Qt5Widgets_LIBRARIES} Qt5::Widgets)
     get_target_property(QtCore_location Qt5::Core LOCATION)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
