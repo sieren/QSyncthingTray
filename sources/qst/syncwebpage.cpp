@@ -54,7 +54,7 @@ void SyncWebPage::requireAuthentication(
   const QUrl &, QAuthenticator *authenticator)
 {
   authenticator->setUser(mAuthInfo.first);
-  authenticator->setPassword(mAuthInfo.first);
+  authenticator->setPassword(mAuthInfo.second);
 }
 
 
