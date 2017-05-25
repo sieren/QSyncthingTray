@@ -70,6 +70,13 @@ source_group("Platforms" ${qst_platform_HEADERS} ${qst_PLATFORMS_SOURCES})
 # |_|   \__,_|\__|_| |_|___/
 #
 
+if (WIN32)
+    set(ICON_FILE "resources/windows_metafile.rc")
+    set(CMAKE_RC_COMPILER_INIT windres)
+    ENABLE_LANGUAGE(RC)
+    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+endif()
+
 # qt5_wrap_ui(UI_HEADERS mainwindow.ui)
 qt5_add_resources(UI_RESOURCES
   resources/qsyncthing.qrc
@@ -92,7 +99,7 @@ add_subdirectory(sources)
     set_target_properties(QSyncthingTray PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/resources/Info.template.plist)
   elseif(WIN32)
-    add_executable(QSyncthingTray WIN32 ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
+    add_executable(QSyncthingTray WIN32 ${ICON_FILE} ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
   elseif(UNIX)
     add_executable(QSyncthingTray ${UI_HEADERS} ${UI_RESOURCES} ${qst_platform_HEADERS} ${qst_HEADERS} ${qst_SOURCES})
   endif()
