@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project (QSyncthingTray LANGUAGES CXX)
 
-set(QSYNCTHINGTRAY_VERSION 0.5.7)
+set(QSYNCTHINGTRAY_VERSION 0.5.8)
 set(QSYNCTHINGTRAY_COPYRIGHT_YEARS 2015-2017)
 
 # Find includes in corresponding build directories
