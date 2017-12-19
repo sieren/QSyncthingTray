@@ -3,7 +3,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
 project (QSyncthingTray LANGUAGES CXX)
 
-set(QSYNCTHINGTRAY_VERSION 0.5.8)
+set(QSYNCTHINGTRAY_VERSION 0.5.9)
 set(QSYNCTHINGTRAY_COPYRIGHT_YEARS 2015-2017)
 
 # Find includes in corresponding build directories
@@ -128,6 +128,9 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 if (${QST_BUILD_WEBKIT})
   qt5_use_modules(QSyncthingTray Widgets Network WebKitWidgets)
   target_compile_definitions(QSyncthingTray PRIVATE BUILD_WEBKIT=1)
+elseif (${QST_BUILD_NATIVEBROWSER})
+  qt5_use_modules(QSyncthingTray Widgets Network)
+  target_compile_definitions(QSyncthingTray PRIVATE BUILD_NATIVEBROWSER=1)
 else()
   qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
 endif()
