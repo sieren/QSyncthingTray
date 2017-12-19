@@ -48,7 +48,6 @@ before_install:
   - |
     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
         brew update &&
-        brew install cmake &&
         brew install qt5 &&
         chmod -R 755 /usr/local/opt/qt5/*
     fi
