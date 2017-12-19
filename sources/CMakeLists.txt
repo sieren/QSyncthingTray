@@ -26,6 +26,11 @@ if (${QST_BUILD_WEBKIT})
     ${qst_SOURCES}
     ${qst_src_ROOT}/syncwebkitview.cpp
   )
+elseif (${QST_BUILD_NATIVEBROWSER})
+  set(qst_SOURCES
+    ${qst_SOURCES}
+    ${qst_src_ROOT}/syncnativebrowser.cpp
+  )
 else()
   set(qst_SOURCES
     ${qst_SOURCES}

@@ -20,6 +20,8 @@
 
 #ifdef BUILD_WEBKIT
 #include <qst/syncwebkitview.h>
+#elif defined(BUILD_NATIVEBROWSER)
+#include <qst/syncnativebrowser.h>
 #else
 #include <qst/syncwebview.h>
 #include <qst/syncwebpage.h>
@@ -32,6 +34,8 @@ namespace webview
 
 #ifdef BUILD_WEBKIT
 using WebView = qst::webview::SyncWebKitView;
+#elif defined(BUILD_NATIVEBROWSER)
+using WebView = qst::webview::SyncNativeBrowser;
 #else
 using WebView = qst::webview::SyncWebView;
 #endif

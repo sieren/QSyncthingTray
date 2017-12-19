@@ -32,6 +32,11 @@ if (${QST_BUILD_WEBKIT})
     ${qst_HEADERS}
     ${qst_include_ROOT}/syncwebkitview.h
   )
+elseif (${QST_BUILD_NATIVEBROWSER})
+  set(qst_HEADERS
+    ${qst_HEADERS}
+    ${qst_include_ROOT}/syncnativebrowser.h
+  )
 else()
   set(qst_HEADERS
     ${qst_HEADERS}
