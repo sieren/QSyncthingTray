@@ -34,6 +34,7 @@ SyncViewWidget::SyncViewWidget(settings::AppSettingsSPtr pAppSettings,
 {
   mpUi->setupUi(this);
   initializeConnections();
+//  mpUi->dirsView->set
 }
 
 void SyncViewWidget::setupConnections()

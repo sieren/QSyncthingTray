@@ -29,7 +29,7 @@
 
 namespace qst
 {
-namespace connector
+namespace data
 {
 
 SyncConnection::SyncConnection(const settings::SyncConnectionSettings& settings,
@@ -449,5 +449,11 @@ const std::vector<model::SyncDevice> &SyncConnection::devices() const
 {
   return mDevices;
 }
+  
+const std::vector<data::SyncthingDirectory> &SyncConnection::directories() const
+{
+  return mDirectories;
+}
+
 } // namespace connector
 } // namespace qst

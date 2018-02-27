@@ -26,6 +26,7 @@
 #include <QTimer>
 #include <QUrl>
 #include <qst/appsettings.hpp>
+#include <qst/directorydata.h>
 #include <qst/syncdevice.hpp>
 #include <qst/syncconnectionsettings.hpp>
 #include <memory>
@@ -35,7 +36,7 @@ class QNetworkReply;
 
 namespace qst
 {
-namespace connector
+namespace data
 {
 
 enum class ConnectionStatus {
@@ -62,7 +63,7 @@ signals:
   void configPathChanged(const QString& newPath);
   void trafficChanged(const std::uint64_t mInTraff, const std::uint64_t mOutTraff);
   void onConfigChanged(const QJsonObject& config);
-  // void onDirectoriesChanged(const std::vector<SyncthingDir>& dirs);
+  void onDirectoriesChanged(const std::vector<data::SyncthingDirectory>& dirs);
   void onDevicesChanged(const std::vector<model::SyncDevice>& devices);
 
 public:
@@ -86,12 +87,13 @@ public:
   std::uint64_t totalInRate() const;
   std::uint64_t totalOutRate() const;
   const std::vector<model::SyncDevice> &devices() const;
+  const std::vector<data::SyncthingDirectory> &directories() const;
   bool isConnected() const;
 
 private:
   settings::SyncConnectionSettings mConnectionSettings;
   std::vector<model::SyncDevice> mDevices;
-
+  std::vector<data::SyncthingDirectory> mDirectories;
   //! Network access, new methods should be added here
   //! so the called function can dispatch accordingly
   QSharedPointer<QNetworkAccessManager> mpNetwork;

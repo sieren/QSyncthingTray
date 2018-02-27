@@ -128,7 +128,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="tabPosition">
-      <enum>QTabWidget::South</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -138,7 +138,8 @@
      </property>
      <widget class="QWidget" name="dirsTab">
       <attribute name="icon">
-       <iconset theme="folder"/>
+       <iconset theme="folder">
+        <normaloff>.</normaloff>.</iconset>
       </attribute>
       <attribute name="title">
        <string>Directories</string>
@@ -160,7 +161,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QTreeView" name="bla"/>
+        <widget class="QTreeView" name="dirsView"/>
        </item>
        <item>
         <widget class="QFrame" name="infoFrame">
@@ -287,63 +288,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="notificationsPushButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="toolTip">
-             <string>Click to show &lt;i&gt;new&lt;/i&gt; notifications&lt;br&gt;
-For &lt;i&gt;all&lt;/i&gt; notifications, checkout the log</string>
-            </property>
-            <property name="text">
-             <string>New notifications</string>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <spacer name="connectionHorizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Expanding</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="connectionsPushButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <layout class="QHBoxLayout" name="horizontalLayout_2"/>
           </item>
          </layout>
         </widget>
@@ -351,8 +296,6 @@ For &lt;i&gt;all&lt;/i&gt; notifications, checkout the log</string>
       </layout>
      </widget>
      <widget class="QWidget" name="devsTab">
-      <attribute name="icon">
-      </attribute>
       <attribute name="title">
        <string>Devices</string>
       </attribute>
@@ -378,8 +321,6 @@ For &lt;i&gt;all&lt;/i&gt; notifications, checkout the log</string>
       </layout>
      </widget>
      <widget class="QWidget" name="downloadsTab">
-      <attribute name="icon">
-      </attribute>
       <attribute name="title">
        <string>Downloads</string>
       </attribute>

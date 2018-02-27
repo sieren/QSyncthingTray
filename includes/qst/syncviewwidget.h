@@ -50,7 +50,7 @@ private:
   settings::AppSettingsSPtr mpAppSettings;
   TrayMenu* mpTrayMenu;
   std::unique_ptr<Ui::SyncViewWidget> mpUi;
-  std::vector<std::unique_ptr<connector::SyncConnection>> mConnections;
+  std::vector<std::unique_ptr<data::SyncConnection>> mConnections;
 };
 
 class SyncViewWidgetAction : public QWidgetAction

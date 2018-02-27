@@ -14,6 +14,9 @@ set(contrib_include_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/contrib)
 set(qst_HEADERS
   ${qst_include_ROOT}/apihandler.hpp
   ${qst_include_ROOT}/appsettings.hpp
+  ${qst_include_ROOT}/directorydata.h
+  ${qst_include_ROOT}/directoryview.h
+  ${qst_include_ROOT}/directorymodel.h
   ${qst_include_ROOT}/identifiers.hpp
   ${qst_include_ROOT}/platforms.hpp
   ${qst_include_ROOT}/processcontroller.h
