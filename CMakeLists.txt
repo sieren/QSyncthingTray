@@ -126,13 +126,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${QST_BUILD_WEBKIT})
-  qt5_use_modules(QSyncthingTray Widgets Network WebKitWidgets)
+  target_link_libraries(QSyncthingTray Qt5::Widgets Qt5::Network Qt5::WebKitWidgets)
   target_compile_definitions(QSyncthingTray PRIVATE BUILD_WEBKIT=1)
 elseif (${QST_BUILD_NATIVEBROWSER})
-  qt5_use_modules(QSyncthingTray Widgets Network)
+  target_link_libraries(QSyncthingTray Qt5::Widgets Qt5::Network)
   target_compile_definitions(QSyncthingTray PRIVATE BUILD_NATIVEBROWSER=1)
 else()
-  qt5_use_modules(QSyncthingTray Widgets Network WebEngineWidgets)
+  find_package(Qt5 REQUIRED COMPONENTS WebEngineWidgets)
+  target_link_libraries(QSyncthingTray Qt5::Widgets Qt5::Network Qt5::WebEngineWidgets)
 endif()
 
 
