@@ -55,6 +55,7 @@ namespace api
     const int version = 0;
 
     APIHandlerBase() = default;
+    virtual ~APIHandlerBase() = default;
 
     virtual ConnectionHealthData getConnections(QByteArray reply) = 0;
 
