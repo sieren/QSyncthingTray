@@ -20,10 +20,11 @@
 #define SYNCNATIVEBROWSER_H
 
 #include <QObject>
+#include <QUrl>
 #include <memory>
 #include "utilities.hpp"
-#include "syncwebpage.h"
 #include <qst/appsettings.hpp>
+#include <qst/syncwebbase.h>
 
 //------------------------------------------------------------------------------------//
 

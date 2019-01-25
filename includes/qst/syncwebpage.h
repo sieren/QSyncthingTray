@@ -22,10 +22,8 @@
 #include <QObject>
 #include <QAuthenticator>
 #include <QtWebEngineWidgets/QWebEnginePage>
+#include <qst/syncwebbase.h>
 
-//------------------------------------------------------------------------------------//
-
-using Authentication = std::pair<QString, QString>;
 
 //------------------------------------------------------------------------------------//
 
