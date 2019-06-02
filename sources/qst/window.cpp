@@ -72,7 +72,10 @@ Window::Window()
     createTrayIcon();
 
     connect(mpTestConnectionButton, SIGNAL(clicked()), this, SLOT(testURL()));
-    connect(mpTrayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
+    /* Commented to avoid showing the program window when a user clicks a
+     * notification of another program. But this disables click handler for this
+     * program notifications too. */
+    //connect(mpTrayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
     connect(mpTrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
       this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(mpAuthCheckBox, SIGNAL(stateChanged(int)), this,
