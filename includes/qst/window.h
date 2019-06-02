@@ -80,6 +80,7 @@ private slots:
     void authCheckBoxChanged(int state);
     void monoChromeIconChanged(int state);
     void animateIconBoxChanged(int state);
+    void notificationsIconBoxChanged(int state);
     void webViewZoomFactorChanged(double value);
     void showAboutPage();
     void folderClicked();
