@@ -84,6 +84,8 @@ Window::Window()
       SLOT(monoChromeIconChanged(int)));
     connect(mpShouldAnimateIconBox, SIGNAL(stateChanged(int)), this,
       SLOT(animateIconBoxChanged(int)));
+    connect(mpNotificationsIconBox, SIGNAL(stateChanged(int)), this,
+      SLOT(notificationsIconBoxChanged(int)));
     connect(mpAnimatedIconMovie.get(), SIGNAL(frameChanged(int)),
       this, SLOT(onUpdateIcon()));
     connect(mpWebViewZoomFactor, SIGNAL(valueChanged(double)), this,
@@ -339,6 +341,15 @@ void Window::animateIconBoxChanged(const int state)
   mShouldAnimateIcon = state == Qt::CheckState::Checked ? true : false;
   mpAppSettings->setValues(
     std::make_pair(kIconAnimcationsEnabledId, mShouldAnimateIcon));
+}
+
+//------------------------------------------------------------------------------------//
+
+void Window::notificationsIconBoxChanged(const int state)
+{
+  mNotificationsEnabled = state == Qt::CheckState::Checked ? true : false;
+  mpAppSettings->setValues(
+    std::make_pair(kNotificationsEnabledId, mNotificationsEnabled));
 }
 
 
